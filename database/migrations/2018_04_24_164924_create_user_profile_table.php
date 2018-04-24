@@ -28,7 +28,7 @@ class CreateUserProfileTable extends Migration
             $table->index('user_id');
             $table->foreign('user_id')
                 ->references('id')
-                ->on('users')
+                ->on('user')
                 ->onDelete('cascade');
 
         });
