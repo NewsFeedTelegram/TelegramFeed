@@ -23,7 +23,7 @@
                     <div class="bg2">
                         <div class="header col-md-12 d-sm-flex d-md-none">
                             <a href="#" class="logo"><img src="img/logo_dark.png" alt="Beautifullife"></a>
-                            <a href="#" class="btn btn-transparent ">Register Now</a>
+                            <a href="#" class="btn btn-transparent " @click.prevent="register=!register">Register Now</a>
                         </div>
                         <form v-if="register">
                             <h2>Login to your Account</h2>
@@ -33,7 +33,7 @@
                             </div>
                             <div class="form-group">
                                 <input type="password" class="form-control field" aria-describedby="PasswordHelp"
-                                       placeholder="Password email">
+                                       placeholder="Enter password">
                             </div>
                             <div class="remember">
                                 <div class="form-group">

@@ -11982,7 +11982,7 @@ __WEBPACK_IMPORTED_MODULE_0_vue___default.a.use(__WEBPACK_IMPORTED_MODULE_1_vue_
     mode: 'history',
     routes: [{
         path: '/',
-        name: 'AppIndex',
+        name: 'Index',
         component: __WEBPACK_IMPORTED_MODULE_2__components_Index___default.a
     }, {
         path: '/test',
@@ -14827,7 +14827,24 @@ var render = function() {
         _vm._v(" "),
         _c("div", { staticClass: "col-md-5 col-lg-4 col-xl-4" }, [
           _c("div", { staticClass: "bg2" }, [
-            _vm._m(2),
+            _c("div", { staticClass: "header col-md-12 d-sm-flex d-md-none" }, [
+              _vm._m(2),
+              _vm._v(" "),
+              _c(
+                "a",
+                {
+                  staticClass: "btn btn-transparent ",
+                  attrs: { href: "#" },
+                  on: {
+                    click: function($event) {
+                      $event.preventDefault()
+                      _vm.register = !_vm.register
+                    }
+                  }
+                },
+                [_vm._v("Register Now")]
+              )
+            ]),
             _vm._v(" "),
             _vm.register
               ? _c("form", [
@@ -14997,14 +15014,8 @@ var staticRenderFns = [
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "header col-md-12 d-sm-flex d-md-none" }, [
-      _c("a", { staticClass: "logo", attrs: { href: "#" } }, [
-        _c("img", { attrs: { src: "img/logo_dark.png", alt: "Beautifullife" } })
-      ]),
-      _vm._v(" "),
-      _c("a", { staticClass: "btn btn-transparent ", attrs: { href: "#" } }, [
-        _vm._v("Register Now")
-      ])
+    return _c("a", { staticClass: "logo", attrs: { href: "#" } }, [
+      _c("img", { attrs: { src: "img/logo_dark.png", alt: "Beautifullife" } })
     ])
   },
   function() {
@@ -15032,7 +15043,7 @@ var staticRenderFns = [
         attrs: {
           type: "password",
           "aria-describedby": "PasswordHelp",
-          placeholder: "Password email"
+          placeholder: "Enter password"
         }
       })
     ])
