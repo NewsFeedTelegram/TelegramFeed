@@ -1,0 +1,81 @@
+@import "vars";
+
+
+/*==========  Desktop First  ==========*/
+
+// ≥1200px
+@include media-breakpoint-down(xl) {
+
+}
+@include media-breakpoint-down(lg) {
+  .bg2{
+    padding: 0 10% !important;
+  }
+}
+
+// ≥992px
+@include media-breakpoint-down(md) {
+
+  .slogan {
+    &--text {
+      color: $catskill-white;
+      text-shadow: 4px 0 8px rgba(114, 114, 114, 0.3);
+      line-height: 1.5;
+      font-size: 48px !important;
+      font-weight: 700;
+      letter-spacing: 1.8px;
+      margin-bottom: 50px;
+    }
+  }
+}
+
+// ≥768px
+@include media-breakpoint-down(sm) {
+  .bg2{
+    flex-direction: column ;
+    justify-content: flex-start !important;
+
+    .header{
+      padding-bottom: 2rem ;
+      padding-top: 1.5rem !important;
+    }
+    .logo{
+      img{
+        width: 100px;
+      }
+    }
+    form{
+      margin-top: auto;
+      margin-bottom: auto;
+    }
+  }
+
+}
+
+// ≥576px
+@include media-breakpoint-down(xs) {
+
+}
+
+
+/*==========  Mobile First  ==========*/
+
+// ≤576px
+@include media-breakpoint-up(sm) {
+
+}
+
+// ≤768px
+@include media-breakpoint-up(md) {
+
+}
+
+// ≤992px
+@include media-breakpoint-up(lg) {
+
+}
+
+// ≤1200px
+@include media-breakpoint-up(xl) {
+
+}
