@@ -19,9 +19,9 @@ class CreateUserTable extends Migration
             $table->string('last_name', 40);
             $table->string('login', 40)->unique();
             $table->string('email')->nullable()->unique();
-            $table->string('avatar');
+            $table->string('avatar')->default('default.png');
             $table->string('password');
-            $table->timestamp('last_visit');
+            $table->timestamp('last_visit')->useCurrent();
             $table->rememberToken();
             $table->timestamps();
         });

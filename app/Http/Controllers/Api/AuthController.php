@@ -3,110 +3,107 @@
 namespace App\Http\Controllers\Api;
 
 use App\User;
+use danog\MadelineProto\auth;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use App\Http\Requests\RegisterRequest;
+use Illuminate\Support\Facades\Hash;
+use App\Http\Controllers\Controller;
 
 class AuthController extends Controller
 {
-    public function register(Request $request)
+    public function register(RegisterRequest $request)
     {
-        $rules = [
-            'login' => 'required|string|max:50|unique:user',
-            'first_name' => 'required|string|max:50',
-            'last_name' => 'required|string|max:50',
-            'password' => 'required|string|min:6|confirmed',
-        ];
-
-        $input = $request->only('login', 'first_name', 'last_name', 'password', 'password_confirmation');
-        $validator = Validator::make($input, $rules);
-
-        if ($validator->fails()) {
-            return response()->json(['success' => false, 'error' => $validator->messages()], 400);
-        }
-
-        $login = $request->login;
-        $first_name = $request->first_name;
-        $last_name = $request->last_name;
-        $password = $request->password;
-
         $user = User::create([
-            'login' => $login,
-            'first_name' => $first_name,
-            'last_name' => $last_name,
-            'avatar' => 'default.png',
-            'password' => Hash::make($password)
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
+            'login' => $request->login,
+            'password' => Hash::make($request->password),
         ]);
+
+        $user->profile()->create([]);
 
         if ($user) {
             return response([
-                'success' => true,
-                'data' => $user
-            ], 200);
+                'data' => [
+                    'login' => $user->login,
+                    'first_name' => $user->first_name,
+                    'last_name' => $user->last_name,
+                    'avatar' => $user->avatar,
+                    'last_visit' => $user->last_visit,
+                    'token' => $this->login($request, true),
+                ],
+            ], 201);
         } else {
             return response([
-                'success' => false,
-                'data' => []
-            ], 200);
+                'data' => [
+                    'errors' => 'При регистрации произошла ошибка!'
+                ]
+            ], 400);
         }
     }
 
-    public function login(Request $request)
+    public function login(Request $request, $onlyToken = false)
     {
         $credentials = $request->only('login', 'password');
         if (!$token = JWTAuth::attempt($credentials)) {
             return response([
-                'status' => 'error',
-                'error' => 'invalid.credentials',
-                'msg' => 'Invalid Credentials.'
-            ], 400);
+                'data' => [
+                    'errors' => 'Не правильный логин или пароль'
+                ],
+            ], 422);
         }
-        return response([
-            'status' => 'success',
-            'token' => $token
-        ])->header('Authorization', $token);
+
+        if ($onlyToken) {
+            return $token;
+        } else {
+            $user = auth()->user();
+            return response([
+                'data' => [
+                    'login' => $user->login,
+                    'first_name' => $user->first_name,
+                    'last_name' => $user->last_name,
+                    'avatar' => $user->avatar,
+                    'last_visit' => $user->last_visit,
+                    'token' => $token,
+                ],
+            ], 200)->header('Authorization', $token);
+        }
     }
 
-    public function user()
+    public function me()
     {
+        $user = auth()->user();
+
         return response([
-            'status' => 'success',
-            'data' => auth()->user()
-        ]);
+                'data' => [
+                    'login' => $user->login,
+                    'first_name' => $user->first_name,
+                    'last_name' => $user->last_name,
+                    'avatar' => $user->avatar,
+                    'last_visit' => $user->last_visit,
+                ],
+            ], 200);
+
     }
 
     public function logout()
     {
         auth()->logout();
-        return response()->json(['message' => 'Successfully logged out']);
+
+        return response()->json([
+            'meta' => [
+                'status' => true
+            ],
+        ], 200);
     }
 
     public function refresh()
     {
         return response([
-            'status' => 'success'
-        ]);
-    }
-
-    public function validateEmail()
-    {
-        $this->validate(request(), [
-            'email' => 'unique:users'
-        ]);
-        return [
-            'valid' => true
-        ];
-    }
-
-    public function validateLogin()
-    {
-        $this->validate(request(), [
-            'login' => 'unique:users'
-        ]);
-        return [
-            'valid' => true
-        ];
+            'meta' => [
+                'status' => true
+            ],
+        ], 200);
     }
 }

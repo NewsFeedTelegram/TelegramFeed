@@ -20,6 +20,14 @@ class User extends Authenticatable implements JWTSubject
         'password', 'remember_token',
     ];
 
+
+    // relations
+    public function profile() {
+        return $this->hasOne(UserProfile::class);
+    }
+
+
+    // jwt
     public function getJWTIdentifier()
     {
         return $this->getKey(); // Eloquent Model method
