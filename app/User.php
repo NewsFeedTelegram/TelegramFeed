@@ -10,7 +10,6 @@ class User extends Authenticatable implements JWTSubject
 {
     use Notifiable;
 
-    protected $table = 'user';
 
     protected $fillable = [
         'first_name', 'last_name', 'login', 'avatar', 'password'
@@ -22,8 +21,15 @@ class User extends Authenticatable implements JWTSubject
 
 
     // relations
-    public function profile() {
+    public function profile()
+    {
         return $this->hasOne(UserProfile::class);
+    }
+
+    public function telegram_channels()
+    {
+        return $this->belongsToMany(TelegramChannel::class, 'telegram_subscribers',
+            'user_id', 'tg_channel_id');
     }
 
 
