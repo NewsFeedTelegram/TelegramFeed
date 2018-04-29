@@ -1,9 +1,8 @@
 <?php
 
-use Illuminate\Http\Request;
 
 Route::group(['prefix' => 'auth'], function () {
-    Route::grope(['middleware' => 'jwt.guest'], function () {
+    Route::group(['middleware' => 'jwt.guest'], function () {
         Route::post('register', 'Api\AuthController@register');
         Route::post('login', 'Api\AuthController@login');
     });
@@ -15,4 +14,11 @@ Route::group(['prefix' => 'auth'], function () {
         Route::get('me', 'Api\AuthController@me');
         Route::post('logout', 'Api\AuthController@logout');
     });
+});
+
+
+
+
+Route::group(['middleware' => ['jwt.auth', 'api']], function () {
+    Route::post('telegram_channel', 'Api\TelegramController@store');
 });
