@@ -36,9 +36,7 @@ class AuthController extends Controller
             ], 201);
         } else {
             return response([
-                'data' => [
-                    'errors' => 'При регистрации произошла ошибка!'
-                ]
+                'errors' => 'При регистрации произошла ошибка!'
             ], 400);
         }
     }
@@ -48,9 +46,7 @@ class AuthController extends Controller
         $credentials = $request->only('login', 'password');
         if (!$token = JWTAuth::attempt($credentials)) {
             return response([
-                'data' => [
-                    'errors' => 'Не правильный логин или пароль'
-                ],
+                'errors' => 'Не правильный логин или пароль'
             ], 422);
         }
 
@@ -76,14 +72,14 @@ class AuthController extends Controller
         $user = auth()->user();
 
         return response([
-                'data' => [
-                    'login' => $user->login,
-                    'first_name' => $user->first_name,
-                    'last_name' => $user->last_name,
-                    'avatar' => $user->avatar,
-                    'last_visit' => $user->last_visit,
-                ],
-            ], 200);
+            'data' => [
+                'login' => $user->login,
+                'first_name' => $user->first_name,
+                'last_name' => $user->last_name,
+                'avatar' => $user->avatar,
+                'last_visit' => $user->last_visit,
+            ],
+        ], 200);
 
     }
 
@@ -92,18 +88,14 @@ class AuthController extends Controller
         auth()->logout();
 
         return response()->json([
-            'meta' => [
-                'status' => true
-            ],
+            'status' => true
         ], 200);
     }
 
     public function refresh()
     {
         return response([
-            'meta' => [
-                'status' => true
-            ],
+            'status' => true
         ], 200);
     }
 }

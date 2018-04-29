@@ -19,6 +19,6 @@ Route::group(['prefix' => 'auth'], function () {
 
 
 
-Route::group(['middleware' => ['jwt.auth', 'api']], function () {
+Route::group(['middleware' => ['jwt.auth']], function () {
     Route::post('telegram_channel', 'Api\TelegramController@store');
 });
