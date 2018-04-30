@@ -6,6 +6,25 @@ import AppTest from '../components/Test'
 
 Vue.use(Router)
 
+import {store} from '../store'
+
+const ifNotAuthenticated = (to, from, next) => {
+    if (!store.getters.isAuthenticated) {
+        next()
+        return
+    }
+    next('/')
+}
+
+const ifAuthenticated = (to, from, next) => {
+    if (store.getters.isAuthenticated) {
+        next()
+        return
+    }
+    next('/')
+}
+
+
 export default new Router({
     mode: 'history',
     routes: [
@@ -17,7 +36,8 @@ export default new Router({
         {
             path: '/test',
             name: 'Test',
-            component: AppTest
+            component: AppTest,
+            beforeEnter: ifAuthenticated,
         },
     ]
 })

@@ -16,8 +16,23 @@
 </head>
 <body>
 <div id="app">
+    <div class="holder">
+        <div class="preloader"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+    </div>
     <app-index></app-index>
 </div>
 <script src="{{ asset('js/main.js') }}"></script>
+<script>
+    var hideLoader = function () {
+        let el = document.querySelector( '.holder' );
+        el.style.display = 'none';
+        return;
+    }
+
+    if ( window.localStorage[ 'access-token' ]
+        || !window.localStorage[ 'access-token' ] && window.location.pathname !== '/'  ) {
+        hideLoader()
+    }
+</script>
 </body>
 </html>
