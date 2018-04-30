@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateUserProfileTable extends Migration
+class CreateUsersProfilesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class CreateUserProfileTable extends Migration
      */
     public function up()
     {
-        Schema::create('user_profile', function (Blueprint $table) {
-            $table->increments('id')->unsigned();
+        Schema::create('users_profiles', function (Blueprint $table) {
+            $table->increments('id');
             $table->integer('user_id')->unsigned();
             $table->tinyInteger('gender')->unsigned()->nullable();
             $table->string('about_me')->nullable();
@@ -28,9 +28,9 @@ class CreateUserProfileTable extends Migration
             $table->index('user_id');
             $table->foreign('user_id')
                 ->references('id')
-                ->on('user')
+                ->on('users')
+                ->onUpdate('cascade')
                 ->onDelete('cascade');
-
         });
     }
 

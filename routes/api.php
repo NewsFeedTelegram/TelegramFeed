@@ -1,6 +1,5 @@
 <?php
 
-
 Route::group(['prefix' => 'auth'], function () {
     Route::group(['middleware' => 'jwt.guest'], function () {
         Route::post('register', 'Api\AuthController@register');
@@ -15,9 +14,6 @@ Route::group(['prefix' => 'auth'], function () {
         Route::post('logout', 'Api\AuthController@logout');
     });
 });
-
-
-
 
 Route::group(['middleware' => ['jwt.auth']], function () {
     Route::post('telegram_channel', 'Api\TelegramController@store');
