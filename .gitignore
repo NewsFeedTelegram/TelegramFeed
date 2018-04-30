@@ -12,3 +12,6 @@ npm-debug.log
 yarn-error.log
 .env
 webpack.mix.js
+/public/session.madeline.lock
+/public/MadelineProto.log
+/public/session.madeline
