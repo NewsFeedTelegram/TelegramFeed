@@ -5,12 +5,13 @@ import config from './config'
 import {store} from './store'
 
 import AppIndex from './App'
+// axios.defaults.headers.common['Authorization'] = localStorage['access-token']
 
 axios.defaults.baseURL = 'http://newsfeed.test/'
 
-const token = localStorage.getItem('access-token')
+const token = localStorage['access-token']
 if (token) {
-    axios.defaults.headers.common['Authorization'] = token
+    axios.defaults.headers.common['Authorization'] = 'Bearer ' + token
 }
 
 window.axios = axios

@@ -27,13 +27,27 @@ export const store = new Vuex.Store({
         },
     },
     actions: {
+        USER_PROFILE: ({commit, dispatch}, user) => {
+            return new Promise((resolve, reject) => {
+                axios.get('api/auth/me')
+                    .then(response => {
+                        const user = response.data.data
+                        commit('AUTH_SUCCESS', user);
+                        resolve(response)
+                    })
+                    .catch(err => {
+                        commit('AUTH_ERROR', err);
+                        reject(err)
+                    })
+            })
+        },
         AUTH_REQUEST: ({commit, dispatch}, user) => {
             return new Promise((resolve, reject) => {
                 axios.post('api/auth/login', user)
                     .then(response => {
                         const user = response.data.data
-                        console.log(user)
                         localStorage.setItem('access-token', user.token);
+                        axios.defaults.headers.common['Authorization'] = 'Bearer ' + user.token
                         commit('AUTH_SUCCESS', user);
                         resolve(response)
                     })
@@ -46,7 +60,9 @@ export const store = new Vuex.Store({
         },
         AUTH_LOGOUT: ({commit, dispatch}) => {
             return new Promise((resolve, reject) => {
+                axios.post('api/auth/logout')
                 commit('AUTH_LOGOUT')
+                delete axios.defaults.headers.common['Authorization']
                 localStorage.removeItem('access-token')
                 resolve()
             })

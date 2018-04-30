@@ -10,7 +10,6 @@
         name: "Test",
         computed: {
             user() {
-                console.log(this.$store.getters.user)
                 return this.$store.getters.user
             }
         },
@@ -19,6 +18,9 @@
                 this.$store.dispatch('AUTH_LOGOUT')
                 this.$router.replace({name: 'Index'})
             }
+        },
+        mounted() {
+            this.$store.dispatch('USER_PROFILE')
         }
     }
 </script>

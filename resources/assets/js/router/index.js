@@ -17,7 +17,6 @@ const ifNotAuthenticated = (to, from, next) => {
 }
 
 const ifAuthenticated = (to, from, next) => {
-    console.log(store.getters.isAuthenticated)
     if (store.getters.isAuthenticated) {
         next()
         return
