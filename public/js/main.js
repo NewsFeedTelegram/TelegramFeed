@@ -12818,7 +12818,6 @@ var ifAuthenticated = function ifAuthenticated(to, from, next) {
         path: '/',
         name: 'Index',
         component: __WEBPACK_IMPORTED_MODULE_2__components_Index___default.a
-
     }, {
         path: '/test',
         name: 'Test',
@@ -15674,7 +15673,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
                 password = _loginForm.password;
 
             this.$store.dispatch('AUTH_REQUEST', { login: login, password: password }).then(function () {
-                _this.$router.push('/test');
+                _this.$router.replace('/test');
             });
         },
         registerUser: function registerUser() {
@@ -15688,7 +15687,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
                 password_confirmation = _registerForm.password_confirmation;
 
             this.$store.dispatch('REGISTER_REQUEST', { login: login, first_name: first_name, last_name: last_name, password: password, password_confirmation: password_confirmation }).then(function () {
-                _this2.$router.push('/test');
+                _this2.$router.replace('/test');
             });
         }
     },
@@ -15707,7 +15706,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         if (window.localStorage['access-token'] && window.location.pathname === '/') {
             console.log('hren');
             next(function (vm) {
-                vm.$router.replace('/test');
+                vm.$router.replace({ name: 'Test' });
             });
         }
         if (from.name !== 'Index') {
@@ -15805,6 +15804,7 @@ var render = function() {
                   ? _c(
                       "form",
                       {
+                        attrs: { id: "formLogin" },
                         on: {
                           submit: function($event) {
                             $event.preventDefault()
@@ -15941,6 +15941,7 @@ var render = function() {
                   : _c(
                       "form",
                       {
+                        attrs: { id: "formRegister" },
                         on: {
                           submit: function($event) {
                             $event.preventDefault()
@@ -16315,7 +16316,7 @@ exports = module.exports = __webpack_require__(6)(false);
 
 
 // module
-exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
+exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
 
 // exports
 
@@ -16377,7 +16378,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     methods: {
         logout: function logout() {
             this.$store.dispatch('AUTH_LOGOUT');
-            this.$router.replace({ name: 'Index' });
+            this.$router.replace('/');
         }
     },
     mounted: function mounted() {

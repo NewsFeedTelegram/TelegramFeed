@@ -28,7 +28,7 @@
                                 <a href="#" class="btn btn-transparent " @click.prevent="register=!register">Register
                                     Now</a>
                             </div>
-                            <form v-if="register" @submit.prevent="loginUser">
+                            <form v-if="register" @submit.prevent="loginUser" id="formLogin">
                                 <h2>Login to your Account</h2>
                                 <div class="form-group">
                                     <input type="text"
@@ -69,7 +69,7 @@
                                     and you can start enjoing all the benefits! </p>
 
                             </form>
-                            <form v-else @submit.prevent="registerUser">
+                            <form v-else @submit.prevent="registerUser" id="formRegister">
                                 <h2>Register to Beautifullife</h2>
                                 <div class="form-group">
                                     <input type="text"
@@ -157,14 +157,14 @@
                 const { login, password } = this.loginForm
                 this.$store.dispatch('AUTH_REQUEST', { login, password })
                     .then(() => {
-                    this.$router.push('/test')
+                    this.$router.replace('/test')
                 })
             },
             registerUser() {
                 const { login, first_name, last_name, password, password_confirmation } = this.registerForm
                 this.$store.dispatch('REGISTER_REQUEST', { login, first_name, last_name, password, password_confirmation })
                     .then(() => {
-                        this.$router.push('/test')
+                        this.$router.replace('/test')
                     })
             }
         },
@@ -181,7 +181,7 @@
             if (window.localStorage[ 'access-token' ] && window.location.pathname === '/' ) {
                 console.log('hren')
                 next(vm => {
-                    vm.$router.replace('/test')
+                    vm.$router.replace({name: 'Test'})
                 })
             }
             if (from.name !== 'Index') {

@@ -16,11 +16,12 @@
         methods: {
             logout() {
                 this.$store.dispatch('AUTH_LOGOUT')
-                this.$router.replace({name: 'Index'})
+                this.$router.replace('/')
             }
         },
         mounted() {
             this.$store.dispatch('USER_PROFILE')
+
         }
     }
 </script>
