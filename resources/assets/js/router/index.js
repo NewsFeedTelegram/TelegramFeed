@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 
 import Index from '../components/Index'
-import AppTest from '../components/Test'
+import AppFeed from '../components/Feed'
 
 Vue.use(Router)
 
@@ -34,10 +34,23 @@ export default new Router({
             component: Index
         },
         {
-            path: '/test',
-            name: 'Test',
-            component: AppTest,
+            path: '/feed',
+            name: 'NewsFeed',
+            component: AppFeed,
             beforeEnter: ifAuthenticated,
+            meta: {
+                title: 'NewsFeed',
+                metaTags: [
+                    {
+                        name: 'description',
+                        content: 'The about page of our example app.'
+                    },
+                    {
+                        property: 'og:description',
+                        content: 'The about page of our example app.'
+                    },
+                ]
+            },
         },
     ]
 })
