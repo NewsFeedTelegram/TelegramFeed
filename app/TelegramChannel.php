@@ -18,6 +18,11 @@ class TelegramChannel extends Model
             'tg_channel_id', 'user_id');
     }
 
+    public function messages()
+    {
+        return $this->hasMany(TelegramChannelMessage::class, 'tg_channel_id');
+    }
+
     public function findChannelByLink($link)
     {
         return $this->where('link', $link)->first();

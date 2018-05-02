@@ -17,8 +17,9 @@ class CreateTelegramChannelsTable extends Migration
             $table->increments('id');
             $table->string('name');
             $table->string('link')->unique();
-            $table->string('description')->nullable();
+            $table->text('description')->nullable();
             $table->text('photo')->nullable();
+            $table->integer('last_post_id')->nullable();
             $table->timestamps();
         });
     }

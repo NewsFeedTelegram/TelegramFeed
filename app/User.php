@@ -32,7 +32,6 @@ class User extends Authenticatable implements JWTSubject
             'user_id', 'tg_channel_id');
     }
 
-
     // jwt
     public function getJWTIdentifier()
     {
