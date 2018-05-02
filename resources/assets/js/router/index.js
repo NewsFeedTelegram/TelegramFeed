@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 
 import Index from '../components/Index'
-import AppFeed from '../components/Feed'
+import AppFeed from '../components/Authorized/Feed'
 
 Vue.use(Router)
 

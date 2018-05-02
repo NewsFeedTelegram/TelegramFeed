@@ -14,7 +14,7 @@
     <!-- Fonts -->
     <link href="{{asset('css/app.css')}}" rel="stylesheet" type="text/css">
 </head>
-<body>
+<body style="overflow: hidden">
 <svg aria-hidden="true" style="position: absolute; width: 0; height: 0; overflow: hidden;" version="1.1"
      xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
     <defs>
@@ -139,14 +139,19 @@
 <script>
     var hideLoader = function () {
             let el = document.querySelector( '.holder' );
-            el.style.display = 'none';
+            let body = document.querySelector( 'body' );
+            el.style.opacity = '0';
+            el.style.visibility = 'hidden';
+            body.style = '';
             return;
 
     }
 
     if ( window.localStorage[ 'access-token' ]
         || !window.localStorage[ 'access-token' ] && window.location.pathname !== '/'  ) {
-        hideLoader()
+        setTimeout(()=>{
+            hideLoader()
+        },500)
     }
 </script>
 </body>
