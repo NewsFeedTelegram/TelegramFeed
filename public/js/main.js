@@ -21401,7 +21401,7 @@ exports = module.exports = __webpack_require__(4)(false);
 
 
 // module
-exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
+exports.push([module.i, "\n.fade-enter-active[data-v-39c822a7], .fade-leave-active[data-v-39c822a7] {\n    -webkit-transition: all .3s;\n    transition: all .3s;\n}\n.fade-enter[data-v-39c822a7], .fade-leave-to[data-v-39c822a7] /* .fade-leave-active до версии 2.1.8 */\n{\n    opacity: 0;\n}\n", ""]);
 
 // exports
 
@@ -21412,6 +21412,8 @@ exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
 //
 //
 //
@@ -21630,33 +21632,45 @@ var render = function() {
               ])
             ]),
             _vm._v(" "),
-            _c(
-              "ul",
-              {
-                staticClass: "header-page--dropdown-menu",
-                class: { "d-none": !_vm.active }
-              },
-              [
-                _vm._m(2),
-                _vm._v(" "),
-                _c("li", [
-                  _c(
-                    "a",
+            _c("transition", { attrs: { name: "fade" } }, [
+              _c(
+                "ul",
+                {
+                  directives: [
                     {
-                      attrs: { href: "/logout" },
-                      on: {
-                        click: function($event) {
-                          $event.preventDefault()
-                          return _vm.logout($event)
+                      name: "show",
+                      rawName: "v-show",
+                      value: _vm.active,
+                      expression: "active"
+                    }
+                  ],
+                  staticClass: "header-page--dropdown-menu"
+                },
+                [
+                  _c("li", [
+                    _c("a", { attrs: { href: "#" } }, [_vm._v("Моя страница")])
+                  ]),
+                  _vm._v(" "),
+                  _c("li", [
+                    _c(
+                      "a",
+                      {
+                        attrs: { href: "/logout" },
+                        on: {
+                          click: function($event) {
+                            $event.preventDefault()
+                            return _vm.logout($event)
+                          }
                         }
-                      }
-                    },
-                    [_vm._v("Выйти")]
-                  )
-                ])
-              ]
-            )
-          ]
+                      },
+                      [_vm._v("Выйти")]
+                    )
+                  ])
+                ]
+              )
+            ])
+          ],
+          1
         )
       ])
     ])
@@ -21682,14 +21696,6 @@ var staticRenderFns = [
     var _c = _vm._self._c || _h
     return _c("span", { staticClass: "header-page--dropdown-useravatar" }, [
       _c("img", { attrs: { src: "img/bg.jpg", alt: "" } })
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("li", [
-      _c("a", { attrs: { href: "#" } }, [_vm._v("Моя страница")])
     ])
   }
 ]

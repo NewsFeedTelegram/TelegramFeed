@@ -67,10 +67,12 @@
                             <use xlink:href="#icon-down-arrow"></use>
                         </svg>
                     </div>
-                    <ul class="header-page--dropdown-menu" :class="{'d-none': !active}">
-                        <li><a href="#">Моя страница</a></li>
-                        <li><a href="/logout" @click.prevent="logout">Выйти</a></li>
-                    </ul>
+                    <transition name="fade">
+                        <ul class="header-page--dropdown-menu" v-show="active">
+                            <li><a href="#">Моя страница</a></li>
+                            <li><a href="/logout" @click.prevent="logout">Выйти</a></li>
+                        </ul>
+                    </transition>
                 </div>
 
             </div>
@@ -115,5 +117,12 @@
 </script>
 
 <style scoped>
+    .fade-enter-active, .fade-leave-active {
+        transition: all .3s;
+    }
 
+    .fade-enter, .fade-leave-to /* .fade-leave-active до версии 2.1.8 */
+    {
+        opacity: 0;
+    }
 </style>
