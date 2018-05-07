@@ -30,6 +30,12 @@
                             </div>
                             <form v-if="register" @submit.prevent="loginUser" id="formLogin">
                                 <h2>Login to your Account</h2>
+                                <transition name="fade2" enter-active-class="animated pulse">
+                                    <div class="error danger" v-show="error">
+                                        <b>Не удалось войти.</b><br>
+                                        {{error}}
+                                    </div>
+                                </transition>
                                 <div class="form-group">
                                     <input type="text"
                                            class="form-control field"
@@ -168,7 +174,11 @@
                     })
             }
         },
-
+        computed:{
+          error(){
+             return this.$store.getters.error
+          }
+        },
         mounted() {
             window.onload = () => {
                 let self = this

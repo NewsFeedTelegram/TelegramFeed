@@ -71,7 +71,7 @@
 
 
 var bind = __webpack_require__(9);
-var isBuffer = __webpack_require__(32);
+var isBuffer = __webpack_require__(37);
 
 /*global toString:true*/
 
@@ -484,6 +484,316 @@ module.exports = function normalizeComponent (
 
 /***/ }),
 /* 2 */
+/***/ (function(module, exports) {
+
+/*
+	MIT License http://www.opensource.org/licenses/mit-license.php
+	Author Tobias Koppers @sokra
+*/
+// css base code, injected by the css-loader
+module.exports = function(useSourceMap) {
+	var list = [];
+
+	// return the list of modules as css string
+	list.toString = function toString() {
+		return this.map(function (item) {
+			var content = cssWithMappingToString(item, useSourceMap);
+			if(item[2]) {
+				return "@media " + item[2] + "{" + content + "}";
+			} else {
+				return content;
+			}
+		}).join("");
+	};
+
+	// import a list of modules into the list
+	list.i = function(modules, mediaQuery) {
+		if(typeof modules === "string")
+			modules = [[null, modules, ""]];
+		var alreadyImportedModules = {};
+		for(var i = 0; i < this.length; i++) {
+			var id = this[i][0];
+			if(typeof id === "number")
+				alreadyImportedModules[id] = true;
+		}
+		for(i = 0; i < modules.length; i++) {
+			var item = modules[i];
+			// skip already imported module
+			// this implementation is not 100% perfect for weird media query combinations
+			//  when a module is imported multiple times with different media queries.
+			//  I hope this will never occur (Hey this way we have smaller bundles)
+			if(typeof item[0] !== "number" || !alreadyImportedModules[item[0]]) {
+				if(mediaQuery && !item[2]) {
+					item[2] = mediaQuery;
+				} else if(mediaQuery) {
+					item[2] = "(" + item[2] + ") and (" + mediaQuery + ")";
+				}
+				list.push(item);
+			}
+		}
+	};
+	return list;
+};
+
+function cssWithMappingToString(item, useSourceMap) {
+	var content = item[1] || '';
+	var cssMapping = item[3];
+	if (!cssMapping) {
+		return content;
+	}
+
+	if (useSourceMap && typeof btoa === 'function') {
+		var sourceMapping = toComment(cssMapping);
+		var sourceURLs = cssMapping.sources.map(function (source) {
+			return '/*# sourceURL=' + cssMapping.sourceRoot + source + ' */'
+		});
+
+		return [content].concat(sourceURLs).concat([sourceMapping]).join('\n');
+	}
+
+	return [content].join('\n');
+}
+
+// Adapted from convert-source-map (MIT)
+function toComment(sourceMap) {
+	// eslint-disable-next-line no-undef
+	var base64 = btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap))));
+	var data = 'sourceMappingURL=data:application/json;charset=utf-8;base64,' + base64;
+
+	return '/*# ' + data + ' */';
+}
+
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/*
+  MIT License http://www.opensource.org/licenses/mit-license.php
+  Author Tobias Koppers @sokra
+  Modified by Evan You @yyx990803
+*/
+
+var hasDocument = typeof document !== 'undefined'
+
+if (typeof DEBUG !== 'undefined' && DEBUG) {
+  if (!hasDocument) {
+    throw new Error(
+    'vue-style-loader cannot be used in a non-browser environment. ' +
+    "Use { target: 'node' } in your Webpack config to indicate a server-rendering environment."
+  ) }
+}
+
+var listToStyles = __webpack_require__(26)
+
+/*
+type StyleObject = {
+  id: number;
+  parts: Array<StyleObjectPart>
+}
+
+type StyleObjectPart = {
+  css: string;
+  media: string;
+  sourceMap: ?string
+}
+*/
+
+var stylesInDom = {/*
+  [id: number]: {
+    id: number,
+    refs: number,
+    parts: Array<(obj?: StyleObjectPart) => void>
+  }
+*/}
+
+var head = hasDocument && (document.head || document.getElementsByTagName('head')[0])
+var singletonElement = null
+var singletonCounter = 0
+var isProduction = false
+var noop = function () {}
+var options = null
+var ssrIdKey = 'data-vue-ssr-id'
+
+// Force single-tag solution on IE6-9, which has a hard limit on the # of <style>
+// tags it will allow on a page
+var isOldIE = typeof navigator !== 'undefined' && /msie [6-9]\b/.test(navigator.userAgent.toLowerCase())
+
+module.exports = function (parentId, list, _isProduction, _options) {
+  isProduction = _isProduction
+
+  options = _options || {}
+
+  var styles = listToStyles(parentId, list)
+  addStylesToDom(styles)
+
+  return function update (newList) {
+    var mayRemove = []
+    for (var i = 0; i < styles.length; i++) {
+      var item = styles[i]
+      var domStyle = stylesInDom[item.id]
+      domStyle.refs--
+      mayRemove.push(domStyle)
+    }
+    if (newList) {
+      styles = listToStyles(parentId, newList)
+      addStylesToDom(styles)
+    } else {
+      styles = []
+    }
+    for (var i = 0; i < mayRemove.length; i++) {
+      var domStyle = mayRemove[i]
+      if (domStyle.refs === 0) {
+        for (var j = 0; j < domStyle.parts.length; j++) {
+          domStyle.parts[j]()
+        }
+        delete stylesInDom[domStyle.id]
+      }
+    }
+  }
+}
+
+function addStylesToDom (styles /* Array<StyleObject> */) {
+  for (var i = 0; i < styles.length; i++) {
+    var item = styles[i]
+    var domStyle = stylesInDom[item.id]
+    if (domStyle) {
+      domStyle.refs++
+      for (var j = 0; j < domStyle.parts.length; j++) {
+        domStyle.parts[j](item.parts[j])
+      }
+      for (; j < item.parts.length; j++) {
+        domStyle.parts.push(addStyle(item.parts[j]))
+      }
+      if (domStyle.parts.length > item.parts.length) {
+        domStyle.parts.length = item.parts.length
+      }
+    } else {
+      var parts = []
+      for (var j = 0; j < item.parts.length; j++) {
+        parts.push(addStyle(item.parts[j]))
+      }
+      stylesInDom[item.id] = { id: item.id, refs: 1, parts: parts }
+    }
+  }
+}
+
+function createStyleElement () {
+  var styleElement = document.createElement('style')
+  styleElement.type = 'text/css'
+  head.appendChild(styleElement)
+  return styleElement
+}
+
+function addStyle (obj /* StyleObjectPart */) {
+  var update, remove
+  var styleElement = document.querySelector('style[' + ssrIdKey + '~="' + obj.id + '"]')
+
+  if (styleElement) {
+    if (isProduction) {
+      // has SSR styles and in production mode.
+      // simply do nothing.
+      return noop
+    } else {
+      // has SSR styles but in dev mode.
+      // for some reason Chrome can't handle source map in server-rendered
+      // style tags - source maps in <style> only works if the style tag is
+      // created and inserted dynamically. So we remove the server rendered
+      // styles and inject new ones.
+      styleElement.parentNode.removeChild(styleElement)
+    }
+  }
+
+  if (isOldIE) {
+    // use singleton mode for IE9.
+    var styleIndex = singletonCounter++
+    styleElement = singletonElement || (singletonElement = createStyleElement())
+    update = applyToSingletonTag.bind(null, styleElement, styleIndex, false)
+    remove = applyToSingletonTag.bind(null, styleElement, styleIndex, true)
+  } else {
+    // use multi-style-tag mode in all other cases
+    styleElement = createStyleElement()
+    update = applyToTag.bind(null, styleElement)
+    remove = function () {
+      styleElement.parentNode.removeChild(styleElement)
+    }
+  }
+
+  update(obj)
+
+  return function updateStyle (newObj /* StyleObjectPart */) {
+    if (newObj) {
+      if (newObj.css === obj.css &&
+          newObj.media === obj.media &&
+          newObj.sourceMap === obj.sourceMap) {
+        return
+      }
+      update(obj = newObj)
+    } else {
+      remove()
+    }
+  }
+}
+
+var replaceText = (function () {
+  var textStore = []
+
+  return function (index, replacement) {
+    textStore[index] = replacement
+    return textStore.filter(Boolean).join('\n')
+  }
+})()
+
+function applyToSingletonTag (styleElement, index, remove, obj) {
+  var css = remove ? '' : obj.css
+
+  if (styleElement.styleSheet) {
+    styleElement.styleSheet.cssText = replaceText(index, css)
+  } else {
+    var cssNode = document.createTextNode(css)
+    var childNodes = styleElement.childNodes
+    if (childNodes[index]) styleElement.removeChild(childNodes[index])
+    if (childNodes.length) {
+      styleElement.insertBefore(cssNode, childNodes[index])
+    } else {
+      styleElement.appendChild(cssNode)
+    }
+  }
+}
+
+function applyToTag (styleElement, obj) {
+  var css = obj.css
+  var media = obj.media
+  var sourceMap = obj.sourceMap
+
+  if (media) {
+    styleElement.setAttribute('media', media)
+  }
+  if (options.ssrId) {
+    styleElement.setAttribute(ssrIdKey, obj.id)
+  }
+
+  if (sourceMap) {
+    // https://developer.chrome.com/devtools/docs/javascript-debugging
+    // this makes source maps inside style tags work properly in Chrome
+    css += '\n/*# sourceURL=' + sourceMap.sources[0] + ' */'
+    // http://stackoverflow.com/a/26603875
+    css += '\n/*# sourceMappingURL=data:application/json;base64,' + btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap)))) + ' */'
+  }
+
+  if (styleElement.styleSheet) {
+    styleElement.styleSheet.cssText = css
+  } else {
+    while (styleElement.firstChild) {
+      styleElement.removeChild(styleElement.firstChild)
+    }
+    styleElement.appendChild(document.createTextNode(css))
+  }
+}
+
+
+/***/ }),
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11446,10 +11756,10 @@ Vue.compile = compileToFunctions;
 
 module.exports = Vue;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3), __webpack_require__(16).setImmediate))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5), __webpack_require__(16).setImmediate))
 
 /***/ }),
-/* 3 */
+/* 5 */
 /***/ (function(module, exports) {
 
 var g;
@@ -11476,316 +11786,6 @@ module.exports = g;
 
 
 /***/ }),
-/* 4 */
-/***/ (function(module, exports) {
-
-/*
-	MIT License http://www.opensource.org/licenses/mit-license.php
-	Author Tobias Koppers @sokra
-*/
-// css base code, injected by the css-loader
-module.exports = function(useSourceMap) {
-	var list = [];
-
-	// return the list of modules as css string
-	list.toString = function toString() {
-		return this.map(function (item) {
-			var content = cssWithMappingToString(item, useSourceMap);
-			if(item[2]) {
-				return "@media " + item[2] + "{" + content + "}";
-			} else {
-				return content;
-			}
-		}).join("");
-	};
-
-	// import a list of modules into the list
-	list.i = function(modules, mediaQuery) {
-		if(typeof modules === "string")
-			modules = [[null, modules, ""]];
-		var alreadyImportedModules = {};
-		for(var i = 0; i < this.length; i++) {
-			var id = this[i][0];
-			if(typeof id === "number")
-				alreadyImportedModules[id] = true;
-		}
-		for(i = 0; i < modules.length; i++) {
-			var item = modules[i];
-			// skip already imported module
-			// this implementation is not 100% perfect for weird media query combinations
-			//  when a module is imported multiple times with different media queries.
-			//  I hope this will never occur (Hey this way we have smaller bundles)
-			if(typeof item[0] !== "number" || !alreadyImportedModules[item[0]]) {
-				if(mediaQuery && !item[2]) {
-					item[2] = mediaQuery;
-				} else if(mediaQuery) {
-					item[2] = "(" + item[2] + ") and (" + mediaQuery + ")";
-				}
-				list.push(item);
-			}
-		}
-	};
-	return list;
-};
-
-function cssWithMappingToString(item, useSourceMap) {
-	var content = item[1] || '';
-	var cssMapping = item[3];
-	if (!cssMapping) {
-		return content;
-	}
-
-	if (useSourceMap && typeof btoa === 'function') {
-		var sourceMapping = toComment(cssMapping);
-		var sourceURLs = cssMapping.sources.map(function (source) {
-			return '/*# sourceURL=' + cssMapping.sourceRoot + source + ' */'
-		});
-
-		return [content].concat(sourceURLs).concat([sourceMapping]).join('\n');
-	}
-
-	return [content].join('\n');
-}
-
-// Adapted from convert-source-map (MIT)
-function toComment(sourceMap) {
-	// eslint-disable-next-line no-undef
-	var base64 = btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap))));
-	var data = 'sourceMappingURL=data:application/json;charset=utf-8;base64,' + base64;
-
-	return '/*# ' + data + ' */';
-}
-
-
-/***/ }),
-/* 5 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/*
-  MIT License http://www.opensource.org/licenses/mit-license.php
-  Author Tobias Koppers @sokra
-  Modified by Evan You @yyx990803
-*/
-
-var hasDocument = typeof document !== 'undefined'
-
-if (typeof DEBUG !== 'undefined' && DEBUG) {
-  if (!hasDocument) {
-    throw new Error(
-    'vue-style-loader cannot be used in a non-browser environment. ' +
-    "Use { target: 'node' } in your Webpack config to indicate a server-rendering environment."
-  ) }
-}
-
-var listToStyles = __webpack_require__(26)
-
-/*
-type StyleObject = {
-  id: number;
-  parts: Array<StyleObjectPart>
-}
-
-type StyleObjectPart = {
-  css: string;
-  media: string;
-  sourceMap: ?string
-}
-*/
-
-var stylesInDom = {/*
-  [id: number]: {
-    id: number,
-    refs: number,
-    parts: Array<(obj?: StyleObjectPart) => void>
-  }
-*/}
-
-var head = hasDocument && (document.head || document.getElementsByTagName('head')[0])
-var singletonElement = null
-var singletonCounter = 0
-var isProduction = false
-var noop = function () {}
-var options = null
-var ssrIdKey = 'data-vue-ssr-id'
-
-// Force single-tag solution on IE6-9, which has a hard limit on the # of <style>
-// tags it will allow on a page
-var isOldIE = typeof navigator !== 'undefined' && /msie [6-9]\b/.test(navigator.userAgent.toLowerCase())
-
-module.exports = function (parentId, list, _isProduction, _options) {
-  isProduction = _isProduction
-
-  options = _options || {}
-
-  var styles = listToStyles(parentId, list)
-  addStylesToDom(styles)
-
-  return function update (newList) {
-    var mayRemove = []
-    for (var i = 0; i < styles.length; i++) {
-      var item = styles[i]
-      var domStyle = stylesInDom[item.id]
-      domStyle.refs--
-      mayRemove.push(domStyle)
-    }
-    if (newList) {
-      styles = listToStyles(parentId, newList)
-      addStylesToDom(styles)
-    } else {
-      styles = []
-    }
-    for (var i = 0; i < mayRemove.length; i++) {
-      var domStyle = mayRemove[i]
-      if (domStyle.refs === 0) {
-        for (var j = 0; j < domStyle.parts.length; j++) {
-          domStyle.parts[j]()
-        }
-        delete stylesInDom[domStyle.id]
-      }
-    }
-  }
-}
-
-function addStylesToDom (styles /* Array<StyleObject> */) {
-  for (var i = 0; i < styles.length; i++) {
-    var item = styles[i]
-    var domStyle = stylesInDom[item.id]
-    if (domStyle) {
-      domStyle.refs++
-      for (var j = 0; j < domStyle.parts.length; j++) {
-        domStyle.parts[j](item.parts[j])
-      }
-      for (; j < item.parts.length; j++) {
-        domStyle.parts.push(addStyle(item.parts[j]))
-      }
-      if (domStyle.parts.length > item.parts.length) {
-        domStyle.parts.length = item.parts.length
-      }
-    } else {
-      var parts = []
-      for (var j = 0; j < item.parts.length; j++) {
-        parts.push(addStyle(item.parts[j]))
-      }
-      stylesInDom[item.id] = { id: item.id, refs: 1, parts: parts }
-    }
-  }
-}
-
-function createStyleElement () {
-  var styleElement = document.createElement('style')
-  styleElement.type = 'text/css'
-  head.appendChild(styleElement)
-  return styleElement
-}
-
-function addStyle (obj /* StyleObjectPart */) {
-  var update, remove
-  var styleElement = document.querySelector('style[' + ssrIdKey + '~="' + obj.id + '"]')
-
-  if (styleElement) {
-    if (isProduction) {
-      // has SSR styles and in production mode.
-      // simply do nothing.
-      return noop
-    } else {
-      // has SSR styles but in dev mode.
-      // for some reason Chrome can't handle source map in server-rendered
-      // style tags - source maps in <style> only works if the style tag is
-      // created and inserted dynamically. So we remove the server rendered
-      // styles and inject new ones.
-      styleElement.parentNode.removeChild(styleElement)
-    }
-  }
-
-  if (isOldIE) {
-    // use singleton mode for IE9.
-    var styleIndex = singletonCounter++
-    styleElement = singletonElement || (singletonElement = createStyleElement())
-    update = applyToSingletonTag.bind(null, styleElement, styleIndex, false)
-    remove = applyToSingletonTag.bind(null, styleElement, styleIndex, true)
-  } else {
-    // use multi-style-tag mode in all other cases
-    styleElement = createStyleElement()
-    update = applyToTag.bind(null, styleElement)
-    remove = function () {
-      styleElement.parentNode.removeChild(styleElement)
-    }
-  }
-
-  update(obj)
-
-  return function updateStyle (newObj /* StyleObjectPart */) {
-    if (newObj) {
-      if (newObj.css === obj.css &&
-          newObj.media === obj.media &&
-          newObj.sourceMap === obj.sourceMap) {
-        return
-      }
-      update(obj = newObj)
-    } else {
-      remove()
-    }
-  }
-}
-
-var replaceText = (function () {
-  var textStore = []
-
-  return function (index, replacement) {
-    textStore[index] = replacement
-    return textStore.filter(Boolean).join('\n')
-  }
-})()
-
-function applyToSingletonTag (styleElement, index, remove, obj) {
-  var css = remove ? '' : obj.css
-
-  if (styleElement.styleSheet) {
-    styleElement.styleSheet.cssText = replaceText(index, css)
-  } else {
-    var cssNode = document.createTextNode(css)
-    var childNodes = styleElement.childNodes
-    if (childNodes[index]) styleElement.removeChild(childNodes[index])
-    if (childNodes.length) {
-      styleElement.insertBefore(cssNode, childNodes[index])
-    } else {
-      styleElement.appendChild(cssNode)
-    }
-  }
-}
-
-function applyToTag (styleElement, obj) {
-  var css = obj.css
-  var media = obj.media
-  var sourceMap = obj.sourceMap
-
-  if (media) {
-    styleElement.setAttribute('media', media)
-  }
-  if (options.ssrId) {
-    styleElement.setAttribute(ssrIdKey, obj.id)
-  }
-
-  if (sourceMap) {
-    // https://developer.chrome.com/devtools/docs/javascript-debugging
-    // this makes source maps inside style tags work properly in Chrome
-    css += '\n/*# sourceURL=' + sourceMap.sources[0] + ' */'
-    // http://stackoverflow.com/a/26603875
-    css += '\n/*# sourceMappingURL=data:application/json;base64,' + btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap)))) + ' */'
-  }
-
-  if (styleElement.styleSheet) {
-    styleElement.styleSheet.cssText = css
-  } else {
-    while (styleElement.firstChild) {
-      styleElement.removeChild(styleElement.firstChild)
-    }
-    styleElement.appendChild(document.createTextNode(css))
-  }
-}
-
-
-/***/ }),
 /* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -11793,7 +11793,7 @@ function applyToTag (styleElement, obj) {
 /* WEBPACK VAR INJECTION */(function(process) {
 
 var utils = __webpack_require__(0);
-var normalizeHeaderName = __webpack_require__(34);
+var normalizeHeaderName = __webpack_require__(39);
 
 var DEFAULT_CONTENT_TYPE = {
   'Content-Type': 'application/x-www-form-urlencoded'
@@ -12085,9 +12085,9 @@ process.umask = function() { return 0; };
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return store; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_vue__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_vuex__ = __webpack_require__(29);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_vuex__ = __webpack_require__(34);
 
 
 
@@ -12097,7 +12097,8 @@ var store = new __WEBPACK_IMPORTED_MODULE_1_vuex__["a" /* default */].Store({
     state: {
         token: localStorage.getItem('access-token') || '',
         status: '',
-        user: {}
+        user: {},
+        error: ''
     },
     mutations: {
         AUTH_REQUEST: function AUTH_REQUEST(state) {
@@ -12108,8 +12109,9 @@ var store = new __WEBPACK_IMPORTED_MODULE_1_vuex__["a" /* default */].Store({
             state.token = user.token;
             state.user = user;
         },
-        AUTH_ERROR: function AUTH_ERROR(state) {
+        AUTH_ERROR: function AUTH_ERROR(state, err) {
             state.status = 'error';
+            state.error = err.response ? err.response.data.errors : '';
         },
         AUTH_LOGOUT: function AUTH_LOGOUT(state) {
             state.user = {};
@@ -12155,10 +12157,12 @@ var store = new __WEBPACK_IMPORTED_MODULE_1_vuex__["a" /* default */].Store({
                     localStorage.setItem('access-token', user.token);
                     axios.defaults.headers.common['Authorization'] = 'Bearer ' + user.token;
                     commit('AUTH_SUCCESS', user);
+                    commit('AUTH_ERROR', '');
                     resolve(response);
                 }).catch(function (err) {
                     commit('AUTH_ERROR', err);
                     localStorage.removeItem('access-token');
+                    commit('AUTH_ERROR', err);
                     reject(err);
                 });
             });
@@ -12200,6 +12204,7 @@ var store = new __WEBPACK_IMPORTED_MODULE_1_vuex__["a" /* default */].Store({
                 }).catch(function (err) {
                     commit('AUTH_ERROR', err);
                     localStorage.removeItem('access-token');
+                    console.log(err.response.data.errors);
                     reject(err);
                 });
             });
@@ -12215,6 +12220,9 @@ var store = new __WEBPACK_IMPORTED_MODULE_1_vuex__["a" /* default */].Store({
         },
         user: function user(state) {
             return state.user;
+        },
+        error: function error(state) {
+            return state.error;
         }
     }
 });
@@ -12245,12 +12253,12 @@ module.exports = function bind(fn, thisArg) {
 
 
 var utils = __webpack_require__(0);
-var settle = __webpack_require__(35);
-var buildURL = __webpack_require__(37);
-var parseHeaders = __webpack_require__(38);
-var isURLSameOrigin = __webpack_require__(39);
+var settle = __webpack_require__(40);
+var buildURL = __webpack_require__(42);
+var parseHeaders = __webpack_require__(43);
+var isURLSameOrigin = __webpack_require__(44);
 var createError = __webpack_require__(11);
-var btoa = (typeof window !== 'undefined' && window.btoa && window.btoa.bind(window)) || __webpack_require__(40);
+var btoa = (typeof window !== 'undefined' && window.btoa && window.btoa.bind(window)) || __webpack_require__(45);
 
 module.exports = function xhrAdapter(config) {
   return new Promise(function dispatchXhrRequest(resolve, reject) {
@@ -12347,7 +12355,7 @@ module.exports = function xhrAdapter(config) {
     // This is only done if running in a standard browser environment.
     // Specifically not if we're in a web worker, or react-native.
     if (utils.isStandardBrowserEnv()) {
-      var cookies = __webpack_require__(41);
+      var cookies = __webpack_require__(46);
 
       // Add xsrf header
       var xsrfValue = (config.withCredentials || isURLSameOrigin(config.url)) && config.xsrfCookieName ?
@@ -12431,7 +12439,7 @@ module.exports = function xhrAdapter(config) {
 "use strict";
 
 
-var enhanceError = __webpack_require__(36);
+var enhanceError = __webpack_require__(41);
 
 /**
  * Create an Error with the specified message, config, error code, request and response.
@@ -12492,7 +12500,7 @@ module.exports = Cancel;
 /***/ (function(module, exports, __webpack_require__) {
 
 __webpack_require__(15);
-module.exports = __webpack_require__(60);
+module.exports = __webpack_require__(65);
 
 
 /***/ }),
@@ -12501,14 +12509,14 @@ module.exports = __webpack_require__(60);
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_vue__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__router__ = __webpack_require__(18);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_axios__ = __webpack_require__(30);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_axios__ = __webpack_require__(35);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_axios___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_axios__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__config__ = __webpack_require__(49);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__config__ = __webpack_require__(54);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__store__ = __webpack_require__(8);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__App__ = __webpack_require__(50);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__App__ = __webpack_require__(55);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__App___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_5__App__);
 
 
@@ -12520,10 +12528,26 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 // axios.defaults.headers.common['Authorization'] = localStorage['access-token']
 
 __WEBPACK_IMPORTED_MODULE_2_axios___default.a.defaults.baseURL = 'http://newsfeed.test/';
+__WEBPACK_IMPORTED_MODULE_2_axios___default.a.interceptors.request.use(function (config) {
+    __WEBPACK_IMPORTED_MODULE_2_axios___default.a.get('api/auth/refresh', {}).then(function (res) {
+        console.log(res);
+    }).catch(function (err) {
+        console.log(err);
+    });
+    return config;
+}, function (error) {
+    // Do something with request error
+    return Promise.reject(error);
+});
 
 var token = localStorage['access-token'];
 if (token) {
     __WEBPACK_IMPORTED_MODULE_2_axios___default.a.defaults.headers.common['Authorization'] = 'Bearer ' + token;
+    __WEBPACK_IMPORTED_MODULE_2_axios___default.a.get('api/auth/refresh', {}).then(function (res) {
+        console.log(res);
+    }).catch(function (err) {
+        console.log(err);
+    });
 }
 
 window.axios = __WEBPACK_IMPORTED_MODULE_2_axios___default.a;
@@ -12651,7 +12675,7 @@ exports.clearImmediate = (typeof self !== "undefined" && self.clearImmediate) ||
                          (typeof global !== "undefined" && global.clearImmediate) ||
                          (this && this.clearImmediate);
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5)))
 
 /***/ }),
 /* 17 */
@@ -12844,14 +12868,14 @@ exports.clearImmediate = (typeof self !== "undefined" && self.clearImmediate) ||
     attachTo.clearImmediate = clearImmediate;
 }(typeof self === "undefined" ? typeof global === "undefined" ? this : global : self));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3), __webpack_require__(7)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5), __webpack_require__(7)))
 
 /***/ }),
 /* 18 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_vue__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_vue_router__ = __webpack_require__(19);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__components_Index__ = __webpack_require__(20);
@@ -15722,6 +15746,12 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -15774,7 +15804,11 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             });
         }
     },
-
+    computed: {
+        error: function error() {
+            return this.$store.getters.error;
+        }
+    },
     mounted: function mounted() {
         var _this3 = this;
 
@@ -15898,6 +15932,41 @@ var render = function() {
                       [
                         _c("h2", [_vm._v("Login to your Account")]),
                         _vm._v(" "),
+                        _c(
+                          "transition",
+                          {
+                            attrs: {
+                              name: "fade2",
+                              "enter-active-class": "animated pulse"
+                            }
+                          },
+                          [
+                            _c(
+                              "div",
+                              {
+                                directives: [
+                                  {
+                                    name: "show",
+                                    rawName: "v-show",
+                                    value: _vm.error,
+                                    expression: "error"
+                                  }
+                                ],
+                                staticClass: "error danger"
+                              },
+                              [
+                                _c("b", [_vm._v("Не удалось войти.")]),
+                                _c("br"),
+                                _vm._v(
+                                  "\n                                    " +
+                                    _vm._s(_vm.error) +
+                                    "\n                                "
+                                )
+                              ]
+                            )
+                          ]
+                        ),
+                        _vm._v(" "),
                         _c("div", { staticClass: "form-group" }, [
                           _c("input", {
                             directives: [
@@ -16019,7 +16088,8 @@ var render = function() {
                             " it’s realy simple\n                                and you can start enjoing all the benefits! "
                           )
                         ])
-                      ]
+                      ],
+                      1
                     )
                   : _c(
                       "form",
@@ -16326,7 +16396,7 @@ var normalizeComponent = __webpack_require__(1)
 /* script */
 var __vue_script__ = __webpack_require__(27)
 /* template */
-var __vue_template__ = __webpack_require__(28)
+var __vue_template__ = __webpack_require__(33)
 /* template functional */
 var __vue_template_functional__ = false
 /* styles */
@@ -16375,13 +16445,13 @@ var content = __webpack_require__(25);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(5)("7e44fd0c", content, false, {});
+var update = __webpack_require__(3)("ea3b9e58", content, false, {});
 // Hot Module Replacement
 if(false) {
  // When the styles change, update the <style> tags
  if(!content.locals) {
-   module.hot.accept("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-07144db8\",\"scoped\":true,\"hasInlineConfig\":true}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./Feed.vue", function() {
-     var newContent = require("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-07144db8\",\"scoped\":true,\"hasInlineConfig\":true}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./Feed.vue");
+   module.hot.accept("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-07144db8\",\"scoped\":true,\"hasInlineConfig\":true}!../../../../../node_modules/sass-loader/lib/loader.js!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./Feed.vue", function() {
+     var newContent = require("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-07144db8\",\"scoped\":true,\"hasInlineConfig\":true}!../../../../../node_modules/sass-loader/lib/loader.js!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./Feed.vue");
      if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
      update(newContent);
    });
@@ -16394,12 +16464,12 @@ if(false) {
 /* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(4)(false);
+exports = module.exports = __webpack_require__(2)(false);
 // imports
 
 
 // module
-exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
+exports.push([module.i, "", ""]);
 
 // exports
 
@@ -16439,6 +16509,289 @@ module.exports = function listToStyles (parentId, list) {
 
 /***/ }),
 /* 27 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Shared_parts_Post__ = __webpack_require__(28);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Shared_parts_Post___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__Shared_parts_Post__);
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+    name: "Test",
+    data: function data() {
+        return {
+            list: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        };
+    },
+
+    computed: {
+        user: function user() {
+            return this.$store.getters.user;
+        }
+    },
+    methods: {},
+    components: {
+        AppPost: __WEBPACK_IMPORTED_MODULE_0__Shared_parts_Post___default.a
+    },
+    mounted: function mounted() {}
+});
+
+/***/ }),
+/* 28 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+function injectStyle (ssrContext) {
+  if (disposed) return
+  __webpack_require__(29)
+}
+var normalizeComponent = __webpack_require__(1)
+/* script */
+var __vue_script__ = __webpack_require__(31)
+/* template */
+var __vue_template__ = __webpack_require__(32)
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = injectStyle
+/* scopeId */
+var __vue_scopeId__ = "data-v-56232fa8"
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources\\assets\\js\\components\\Shared\\parts\\Post.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-56232fa8", Component.options)
+  } else {
+    hotAPI.reload("data-v-56232fa8", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 29 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(30);
+if(typeof content === 'string') content = [[module.i, content, '']];
+if(content.locals) module.exports = content.locals;
+// add the styles to the DOM
+var update = __webpack_require__(3)("84771b56", content, false, {});
+// Hot Module Replacement
+if(false) {
+ // When the styles change, update the <style> tags
+ if(!content.locals) {
+   module.hot.accept("!!../../../../../../node_modules/css-loader/index.js!../../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-56232fa8\",\"scoped\":true,\"hasInlineConfig\":true}!../../../../../../node_modules/sass-loader/lib/loader.js!../../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./Post.vue", function() {
+     var newContent = require("!!../../../../../../node_modules/css-loader/index.js!../../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-56232fa8\",\"scoped\":true,\"hasInlineConfig\":true}!../../../../../../node_modules/sass-loader/lib/loader.js!../../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./Post.vue");
+     if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+     update(newContent);
+   });
+ }
+ // When the module is disposed, remove the <style> tags
+ module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 30 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(2)(false);
+// imports
+
+
+// module
+exports.push([module.i, "\n.more[data-v-56232fa8] {\n  position: relative;\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n}\n.more:hover .more-dropdown[data-v-56232fa8] {\n    visibility: visible;\n    opacity: 1;\n}\n.more-dropdown[data-v-56232fa8] {\n    display: block;\n    position: absolute;\n    top: 100%;\n    right: 0;\n    width: 180px;\n    -webkit-box-shadow: 0 0 34px 0 rgba(63, 66, 87, 0.1);\n            box-shadow: 0 0 34px 0 rgba(63, 66, 87, 0.1);\n    background-color: #fff;\n    border-radius: 4px;\n    visibility: hidden;\n    opacity: 0;\n    -webkit-transition: all .3s;\n    transition: all .3s;\n    text-align: left;\n    padding: 5px 0;\n    z-index: 5;\n    font-size: .75rem;\n    list-style: none;\n}\n.more-dropdown a[data-v-56232fa8] {\n      text-decoration: none;\n      -webkit-transition: .3s;\n      transition: .3s;\n      display: block;\n}\n.more-dropdown a[data-v-56232fa8]:hover {\n        color: #50bfa4;\n}\n.more-dropdown li[data-v-56232fa8] {\n      padding: 10px 15px;\n      background-color: transparent;\n}\n", ""]);
+
+// exports
+
+
+/***/ }),
+/* 31 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -16555,941 +16908,193 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-    name: "Test",
-    computed: {
-        user: function user() {
-            return this.$store.getters.user;
-        }
-    },
-    methods: {},
-    mounted: function mounted() {}
+    name: "Post"
 });
 
 /***/ }),
-/* 28 */
+/* 32 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c("div", { staticClass: "white-block" }, [
+    _c("article", { staticClass: "post" }, [
+      _c("div", { staticClass: "post--author" }, [
+        _vm._m(0),
+        _vm._v(" "),
+        _c("div", { staticClass: "more" }, [
+          _c("svg", { staticClass: "icon icon-more-button" }, [
+            _c("use", { attrs: { "xlink:href": "#icon-more-button" } })
+          ]),
+          _vm._v(" "),
+          _vm._m(1)
+        ])
+      ]),
+      _vm._v(" "),
+      _c("p", [
+        _vm._v(
+          "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Architecto dolor eius et\n            facere\n            fuga quaerat quasi temporibus, tenetur ullam veritatis. Accusamus adipisci aliquid\n            assumenda aut autem beatae blanditiis deleniti deserunt distinctio doloremque,\n            doloribus\n            eius eligendi error eveniet excepturi exercitationem expedita facilis fuga fugit\n            harum\n            impedit incidunt, inventore iste itaque laboriosam laudantium magni mollitia nemo\n            numquam officia possimus quae quaerat repellendus tempore temporibus, ullam vero. Ab\n            architecto blanditiis corporis, deleniti dicta excepturi exercitationem id illum\n            impedit\n            labore molestiae nisi officia praesentium quia saepe suscipit ut velit,\n            voluptatibus. A\n            animi consequatur, delectus et harum iure, labore maiores necessitatibus nemo omnis\n            sapiente voluptates?"
+        )
+      ]),
+      _vm._v(" "),
+      _c("div", { staticClass: "post-additional-info" }, [
+        _c("div", { staticClass: "post-like" }, [
+          _c("a", { staticClass: "post-add-icon", attrs: { href: "#" } }, [
+            _c("svg", { staticClass: "icon icon-heart" }, [
+              _c("use", { attrs: { "xlink:href": "#icon-heart" } })
+            ]),
+            _vm._v(" "),
+            _c("span", [_vm._v("24")])
+          ]),
+          _vm._v(" "),
+          _vm._m(2),
+          _vm._v(" "),
+          _vm._m(3)
+        ]),
+        _vm._v(" "),
+        _c("div", { staticClass: "post-comments-shared" }, [
+          _c(
+            "a",
+            { staticClass: "post-add-icon inline-items", attrs: { href: "#" } },
+            [
+              _c("svg", { staticClass: "icon icon-chat-comment" }, [
+                _c("use", { attrs: { "xlink:href": "#icon-chat-comment" } })
+              ]),
+              _vm._v(" "),
+              _c("span", [_vm._v("17")])
+            ]
+          ),
+          _vm._v(" "),
+          _c(
+            "a",
+            { staticClass: "post-add-icon inline-items", attrs: { href: "#" } },
+            [
+              _c("svg", { staticClass: "icon icon-reply-all" }, [
+                _c("use", { attrs: { "xlink:href": "#icon-reply-all" } })
+              ]),
+              _vm._v(" "),
+              _c("span", [_vm._v("24")])
+            ]
+          )
+        ])
+      ])
+    ])
+  ])
+}
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "post--author-user" }, [
+      _c("img", { attrs: { src: "img/bg.jpg", alt: "author" } }),
+      _vm._v(" "),
+      _c("div", { staticClass: "post--author-date" }, [
+        _c(
+          "a",
+          { staticClass: "h6 post--author-name fn", attrs: { href: "#" } },
+          [_vm._v("Телеблог блог о телеграм ")]
+        ),
+        _vm._v(" "),
+        _c("div", { staticClass: "post--date" }, [
+          _c(
+            "time",
+            {
+              staticClass: "published",
+              attrs: { datetime: "2018-05-1T15:18" }
+            },
+            [
+              _c("a", { attrs: { href: "#" } }, [_vm._v("@teleblog")]),
+              _vm._v(" May 1 at 2:05pm\n                        ")
+            ]
+          )
+        ])
+      ])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("ul", { staticClass: "more-dropdown" }, [
+      _c("li", [_c("a", { attrs: { href: "#" } }, [_vm._v("Edit Post")])]),
+      _vm._v(" "),
+      _c("li", [_c("a", { attrs: { href: "#" } }, [_vm._v("Delete Post")])]),
+      _vm._v(" "),
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [_vm._v("Turn Off Notifications")])
+      ]),
+      _vm._v(" "),
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [_vm._v("Select as Featured")])
+      ])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("ul", { staticClass: "friends-like" }, [
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [
+          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
+        ])
+      ]),
+      _vm._v(" "),
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [
+          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
+        ])
+      ]),
+      _vm._v(" "),
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [
+          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
+        ])
+      ]),
+      _vm._v(" "),
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [
+          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
+        ])
+      ]),
+      _vm._v(" "),
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [
+          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
+        ])
+      ])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "names-people-likes" }, [
+      _c("a", { attrs: { href: "#" } }, [_vm._v("You")]),
+      _vm._v(", "),
+      _c("a", { attrs: { href: "#" } }, [_vm._v("Elaine")]),
+      _vm._v(" and\n                    "),
+      _c("br"),
+      _vm._v("22 more liked this\n                ")
+    ])
+  }
+]
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-56232fa8", module.exports)
+  }
+}
+
+/***/ }),
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var render = function() {
@@ -17651,719 +17256,13 @@ var render = function() {
                 ])
               ]),
               _vm._v(" "),
-              _c("div", { staticClass: "newsfeed-items-grid" }, [
-                _c("div", { staticClass: "white-block" }, [
-                  _c("article", { staticClass: "post" }, [
-                    _c("div", { staticClass: "post--author" }, [
-                      _vm._m(0),
-                      _vm._v(" "),
-                      _c("div", { staticClass: "more" }, [
-                        _c("svg", { staticClass: "icon icon-more-button" }, [
-                          _c("use", {
-                            attrs: { "xlink:href": "#icon-more-button" }
-                          })
-                        ]),
-                        _vm._v(" "),
-                        _vm._m(1)
-                      ])
-                    ]),
-                    _vm._v(" "),
-                    _c("p", [
-                      _vm._v(
-                        "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Architecto dolor eius et\n                                    facere\n                                    fuga quaerat quasi temporibus, tenetur ullam veritatis. Accusamus adipisci aliquid\n                                    assumenda aut autem beatae blanditiis deleniti deserunt distinctio doloremque,\n                                    doloribus\n                                    eius eligendi error eveniet excepturi exercitationem expedita facilis fuga fugit\n                                    harum\n                                    impedit incidunt, inventore iste itaque laboriosam laudantium magni mollitia nemo\n                                    numquam officia possimus quae quaerat repellendus tempore temporibus, ullam vero. Ab\n                                    architecto blanditiis corporis, deleniti dicta excepturi exercitationem id illum\n                                    impedit\n                                    labore molestiae nisi officia praesentium quia saepe suscipit ut velit,\n                                    voluptatibus. A\n                                    animi consequatur, delectus et harum iure, labore maiores necessitatibus nemo omnis\n                                    sapiente voluptates?"
-                      )
-                    ]),
-                    _vm._v(" "),
-                    _c("div", { staticClass: "post-additional-info" }, [
-                      _c("div", { staticClass: "post-like" }, [
-                        _c(
-                          "a",
-                          {
-                            staticClass: "post-add-icon",
-                            attrs: { href: "#" }
-                          },
-                          [
-                            _c("svg", { staticClass: "icon icon-heart" }, [
-                              _c("use", {
-                                attrs: { "xlink:href": "#icon-heart" }
-                              })
-                            ]),
-                            _vm._v(" "),
-                            _c("span", [_vm._v("24")])
-                          ]
-                        ),
-                        _vm._v(" "),
-                        _vm._m(2),
-                        _vm._v(" "),
-                        _vm._m(3)
-                      ]),
-                      _vm._v(" "),
-                      _c("div", { staticClass: "post-comments-shared" }, [
-                        _c(
-                          "a",
-                          {
-                            staticClass: "post-add-icon inline-items",
-                            attrs: { href: "#" }
-                          },
-                          [
-                            _c(
-                              "svg",
-                              { staticClass: "icon icon-chat-comment" },
-                              [
-                                _c("use", {
-                                  attrs: { "xlink:href": "#icon-chat-comment" }
-                                })
-                              ]
-                            ),
-                            _vm._v(" "),
-                            _c("span", [_vm._v("17")])
-                          ]
-                        ),
-                        _vm._v(" "),
-                        _c(
-                          "a",
-                          {
-                            staticClass: "post-add-icon inline-items",
-                            attrs: { href: "#" }
-                          },
-                          [
-                            _c("svg", { staticClass: "icon icon-reply-all" }, [
-                              _c("use", {
-                                attrs: { "xlink:href": "#icon-reply-all" }
-                              })
-                            ]),
-                            _vm._v(" "),
-                            _c("span", [_vm._v("24")])
-                          ]
-                        )
-                      ])
-                    ])
-                  ])
-                ]),
-                _vm._v(" "),
-                _c("div", { staticClass: "white-block" }, [
-                  _c("article", { staticClass: "post" }, [
-                    _c("div", { staticClass: "post--author" }, [
-                      _vm._m(4),
-                      _vm._v(" "),
-                      _c("div", { staticClass: "more" }, [
-                        _c("svg", { staticClass: "icon icon-more-button" }, [
-                          _c("use", {
-                            attrs: { "xlink:href": "#icon-more-button" }
-                          })
-                        ]),
-                        _vm._v(" "),
-                        _vm._m(5)
-                      ])
-                    ]),
-                    _vm._v(" "),
-                    _c("p", [
-                      _vm._v(
-                        "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Architecto dolor eius et\n                                    facere\n                                    fuga quaerat quasi temporibus, tenetur ullam veritatis. Accusamus adipisci aliquid\n                                    assumenda aut autem beatae blanditiis deleniti deserunt distinctio doloremque,\n                                    doloribus\n                                    eius eligendi error eveniet excepturi exercitationem expedita facilis fuga fugit\n                                    harum\n                                    impedit incidunt, inventore iste itaque laboriosam laudantium magni mollitia nemo\n                                    numquam officia possimus quae quaerat repellendus tempore temporibus, ullam vero. Ab\n                                    architecto blanditiis corporis, deleniti dicta excepturi exercitationem id illum\n                                    impedit\n                                    labore molestiae nisi officia praesentium quia saepe suscipit ut velit,\n                                    voluptatibus. A\n                                    animi consequatur, delectus et harum iure, labore maiores necessitatibus nemo omnis\n                                    sapiente voluptates?"
-                      )
-                    ]),
-                    _vm._v(" "),
-                    _c("div", { staticClass: "post-additional-info" }, [
-                      _c("div", { staticClass: "post-like" }, [
-                        _c(
-                          "a",
-                          {
-                            staticClass: "post-add-icon",
-                            attrs: { href: "#" }
-                          },
-                          [
-                            _c("svg", { staticClass: "icon icon-heart" }, [
-                              _c("use", {
-                                attrs: { "xlink:href": "#icon-heart" }
-                              })
-                            ]),
-                            _vm._v(" "),
-                            _c("span", [_vm._v("24")])
-                          ]
-                        ),
-                        _vm._v(" "),
-                        _vm._m(6),
-                        _vm._v(" "),
-                        _vm._m(7)
-                      ]),
-                      _vm._v(" "),
-                      _c("div", { staticClass: "post-comments-shared" }, [
-                        _c(
-                          "a",
-                          {
-                            staticClass: "post-add-icon inline-items",
-                            attrs: { href: "#" }
-                          },
-                          [
-                            _c(
-                              "svg",
-                              { staticClass: "icon icon-chat-comment" },
-                              [
-                                _c("use", {
-                                  attrs: { "xlink:href": "#icon-chat-comment" }
-                                })
-                              ]
-                            ),
-                            _vm._v(" "),
-                            _c("span", [_vm._v("17")])
-                          ]
-                        ),
-                        _vm._v(" "),
-                        _c(
-                          "a",
-                          {
-                            staticClass: "post-add-icon inline-items",
-                            attrs: { href: "#" }
-                          },
-                          [
-                            _c("svg", { staticClass: "icon icon-reply-all" }, [
-                              _c("use", {
-                                attrs: { "xlink:href": "#icon-reply-all" }
-                              })
-                            ]),
-                            _vm._v(" "),
-                            _c("span", [_vm._v("24")])
-                          ]
-                        )
-                      ])
-                    ])
-                  ])
-                ]),
-                _vm._v(" "),
-                _c("div", { staticClass: "white-block" }, [
-                  _c("article", { staticClass: "post" }, [
-                    _c("div", { staticClass: "post--author" }, [
-                      _vm._m(8),
-                      _vm._v(" "),
-                      _c("div", { staticClass: "more" }, [
-                        _c("svg", { staticClass: "icon icon-more-button" }, [
-                          _c("use", {
-                            attrs: { "xlink:href": "#icon-more-button" }
-                          })
-                        ]),
-                        _vm._v(" "),
-                        _vm._m(9)
-                      ])
-                    ]),
-                    _vm._v(" "),
-                    _c("p", [
-                      _vm._v(
-                        "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Architecto dolor eius et\n                                    facere\n                                    fuga quaerat quasi temporibus, tenetur ullam veritatis. Accusamus adipisci aliquid\n                                    assumenda aut autem beatae blanditiis deleniti deserunt distinctio doloremque,\n                                    doloribus\n                                    eius eligendi error eveniet excepturi exercitationem expedita facilis fuga fugit\n                                    harum\n                                    impedit incidunt, inventore iste itaque laboriosam laudantium magni mollitia nemo\n                                    numquam officia possimus quae quaerat repellendus tempore temporibus, ullam vero. Ab\n                                    architecto blanditiis corporis, deleniti dicta excepturi exercitationem id illum\n                                    impedit\n                                    labore molestiae nisi officia praesentium quia saepe suscipit ut velit,\n                                    voluptatibus. A\n                                    animi consequatur, delectus et harum iure, labore maiores necessitatibus nemo omnis\n                                    sapiente voluptates?"
-                      )
-                    ]),
-                    _vm._v(" "),
-                    _c("div", { staticClass: "post-additional-info" }, [
-                      _c("div", { staticClass: "post-like" }, [
-                        _c(
-                          "a",
-                          {
-                            staticClass: "post-add-icon",
-                            attrs: { href: "#" }
-                          },
-                          [
-                            _c("svg", { staticClass: "icon icon-heart" }, [
-                              _c("use", {
-                                attrs: { "xlink:href": "#icon-heart" }
-                              })
-                            ]),
-                            _vm._v(" "),
-                            _c("span", [_vm._v("24")])
-                          ]
-                        ),
-                        _vm._v(" "),
-                        _vm._m(10),
-                        _vm._v(" "),
-                        _vm._m(11)
-                      ]),
-                      _vm._v(" "),
-                      _c("div", { staticClass: "post-comments-shared" }, [
-                        _c(
-                          "a",
-                          {
-                            staticClass: "post-add-icon inline-items",
-                            attrs: { href: "#" }
-                          },
-                          [
-                            _c(
-                              "svg",
-                              { staticClass: "icon icon-chat-comment" },
-                              [
-                                _c("use", {
-                                  attrs: { "xlink:href": "#icon-chat-comment" }
-                                })
-                              ]
-                            ),
-                            _vm._v(" "),
-                            _c("span", [_vm._v("17")])
-                          ]
-                        ),
-                        _vm._v(" "),
-                        _c(
-                          "a",
-                          {
-                            staticClass: "post-add-icon inline-items",
-                            attrs: { href: "#" }
-                          },
-                          [
-                            _c("svg", { staticClass: "icon icon-reply-all" }, [
-                              _c("use", {
-                                attrs: { "xlink:href": "#icon-reply-all" }
-                              })
-                            ]),
-                            _vm._v(" "),
-                            _c("span", [_vm._v("24")])
-                          ]
-                        )
-                      ])
-                    ])
-                  ])
-                ]),
-                _vm._v(" "),
-                _c("div", { staticClass: "white-block" }, [
-                  _c("article", { staticClass: "post" }, [
-                    _c("div", { staticClass: "post--author" }, [
-                      _vm._m(12),
-                      _vm._v(" "),
-                      _c("div", { staticClass: "more" }, [
-                        _c("svg", { staticClass: "icon icon-more-button" }, [
-                          _c("use", {
-                            attrs: { "xlink:href": "#icon-more-button" }
-                          })
-                        ]),
-                        _vm._v(" "),
-                        _vm._m(13)
-                      ])
-                    ]),
-                    _vm._v(" "),
-                    _c("p", [
-                      _vm._v(
-                        "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Architecto dolor eius et\n                                    facere\n                                    fuga quaerat quasi temporibus, tenetur ullam veritatis. Accusamus adipisci aliquid\n                                    assumenda aut autem beatae blanditiis deleniti deserunt distinctio doloremque,\n                                    doloribus\n                                    eius eligendi error eveniet excepturi exercitationem expedita facilis fuga fugit\n                                    harum\n                                    impedit incidunt, inventore iste itaque laboriosam laudantium magni mollitia nemo\n                                    numquam officia possimus quae quaerat repellendus tempore temporibus, ullam vero. Ab\n                                    architecto blanditiis corporis, deleniti dicta excepturi exercitationem id illum\n                                    impedit\n                                    labore molestiae nisi officia praesentium quia saepe suscipit ut velit,\n                                    voluptatibus. A\n                                    animi consequatur, delectus et harum iure, labore maiores necessitatibus nemo omnis\n                                    sapiente voluptates?"
-                      )
-                    ]),
-                    _vm._v(" "),
-                    _c("div", { staticClass: "post-additional-info" }, [
-                      _c("div", { staticClass: "post-like" }, [
-                        _c(
-                          "a",
-                          {
-                            staticClass: "post-add-icon",
-                            attrs: { href: "#" }
-                          },
-                          [
-                            _c("svg", { staticClass: "icon icon-heart" }, [
-                              _c("use", {
-                                attrs: { "xlink:href": "#icon-heart" }
-                              })
-                            ]),
-                            _vm._v(" "),
-                            _c("span", [_vm._v("24")])
-                          ]
-                        ),
-                        _vm._v(" "),
-                        _vm._m(14),
-                        _vm._v(" "),
-                        _vm._m(15)
-                      ]),
-                      _vm._v(" "),
-                      _c("div", { staticClass: "post-comments-shared" }, [
-                        _c(
-                          "a",
-                          {
-                            staticClass: "post-add-icon inline-items",
-                            attrs: { href: "#" }
-                          },
-                          [
-                            _c(
-                              "svg",
-                              { staticClass: "icon icon-chat-comment" },
-                              [
-                                _c("use", {
-                                  attrs: { "xlink:href": "#icon-chat-comment" }
-                                })
-                              ]
-                            ),
-                            _vm._v(" "),
-                            _c("span", [_vm._v("17")])
-                          ]
-                        ),
-                        _vm._v(" "),
-                        _c(
-                          "a",
-                          {
-                            staticClass: "post-add-icon inline-items",
-                            attrs: { href: "#" }
-                          },
-                          [
-                            _c("svg", { staticClass: "icon icon-reply-all" }, [
-                              _c("use", {
-                                attrs: { "xlink:href": "#icon-reply-all" }
-                              })
-                            ]),
-                            _vm._v(" "),
-                            _c("span", [_vm._v("24")])
-                          ]
-                        )
-                      ])
-                    ])
-                  ])
-                ]),
-                _vm._v(" "),
-                _c("div", { staticClass: "white-block" }, [
-                  _c("article", { staticClass: "post" }, [
-                    _c("div", { staticClass: "post--author" }, [
-                      _vm._m(16),
-                      _vm._v(" "),
-                      _c("div", { staticClass: "more" }, [
-                        _c("svg", { staticClass: "icon icon-more-button" }, [
-                          _c("use", {
-                            attrs: { "xlink:href": "#icon-more-button" }
-                          })
-                        ]),
-                        _vm._v(" "),
-                        _vm._m(17)
-                      ])
-                    ]),
-                    _vm._v(" "),
-                    _c("p", [
-                      _vm._v(
-                        "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Architecto dolor eius et\n                                    facere\n                                    fuga quaerat quasi temporibus, tenetur ullam veritatis. Accusamus adipisci aliquid\n                                    assumenda aut autem beatae blanditiis deleniti deserunt distinctio doloremque,\n                                    doloribus\n                                    eius eligendi error eveniet excepturi exercitationem expedita facilis fuga fugit\n                                    harum\n                                    impedit incidunt, inventore iste itaque laboriosam laudantium magni mollitia nemo\n                                    numquam officia possimus quae quaerat repellendus tempore temporibus, ullam vero. Ab\n                                    architecto blanditiis corporis, deleniti dicta excepturi exercitationem id illum\n                                    impedit\n                                    labore molestiae nisi officia praesentium quia saepe suscipit ut velit,\n                                    voluptatibus. A\n                                    animi consequatur, delectus et harum iure, labore maiores necessitatibus nemo omnis\n                                    sapiente voluptates?"
-                      )
-                    ]),
-                    _vm._v(" "),
-                    _c("div", { staticClass: "post-additional-info" }, [
-                      _c("div", { staticClass: "post-like" }, [
-                        _c(
-                          "a",
-                          {
-                            staticClass: "post-add-icon",
-                            attrs: { href: "#" }
-                          },
-                          [
-                            _c("svg", { staticClass: "icon icon-heart" }, [
-                              _c("use", {
-                                attrs: { "xlink:href": "#icon-heart" }
-                              })
-                            ]),
-                            _vm._v(" "),
-                            _c("span", [_vm._v("24")])
-                          ]
-                        ),
-                        _vm._v(" "),
-                        _vm._m(18),
-                        _vm._v(" "),
-                        _vm._m(19)
-                      ]),
-                      _vm._v(" "),
-                      _c("div", { staticClass: "post-comments-shared" }, [
-                        _c(
-                          "a",
-                          {
-                            staticClass: "post-add-icon inline-items",
-                            attrs: { href: "#" }
-                          },
-                          [
-                            _c(
-                              "svg",
-                              { staticClass: "icon icon-chat-comment" },
-                              [
-                                _c("use", {
-                                  attrs: { "xlink:href": "#icon-chat-comment" }
-                                })
-                              ]
-                            ),
-                            _vm._v(" "),
-                            _c("span", [_vm._v("17")])
-                          ]
-                        ),
-                        _vm._v(" "),
-                        _c(
-                          "a",
-                          {
-                            staticClass: "post-add-icon inline-items",
-                            attrs: { href: "#" }
-                          },
-                          [
-                            _c("svg", { staticClass: "icon icon-reply-all" }, [
-                              _c("use", {
-                                attrs: { "xlink:href": "#icon-reply-all" }
-                              })
-                            ]),
-                            _vm._v(" "),
-                            _c("span", [_vm._v("24")])
-                          ]
-                        )
-                      ])
-                    ])
-                  ])
-                ]),
-                _vm._v(" "),
-                _c("div", { staticClass: "white-block" }, [
-                  _c("article", { staticClass: "post" }, [
-                    _c("div", { staticClass: "post--author" }, [
-                      _vm._m(20),
-                      _vm._v(" "),
-                      _c("div", { staticClass: "more" }, [
-                        _c("svg", { staticClass: "icon icon-more-button" }, [
-                          _c("use", {
-                            attrs: { "xlink:href": "#icon-more-button" }
-                          })
-                        ]),
-                        _vm._v(" "),
-                        _vm._m(21)
-                      ])
-                    ]),
-                    _vm._v(" "),
-                    _c("p", [
-                      _vm._v(
-                        "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Architecto dolor eius et\n                                    facere\n                                    fuga quaerat quasi temporibus, tenetur ullam veritatis. Accusamus adipisci aliquid\n                                    assumenda aut autem beatae blanditiis deleniti deserunt distinctio doloremque,\n                                    doloribus\n                                    eius eligendi error eveniet excepturi exercitationem expedita facilis fuga fugit\n                                    harum\n                                    impedit incidunt, inventore iste itaque laboriosam laudantium magni mollitia nemo\n                                    numquam officia possimus quae quaerat repellendus tempore temporibus, ullam vero. Ab\n                                    architecto blanditiis corporis, deleniti dicta excepturi exercitationem id illum\n                                    impedit\n                                    labore molestiae nisi officia praesentium quia saepe suscipit ut velit,\n                                    voluptatibus. A\n                                    animi consequatur, delectus et harum iure, labore maiores necessitatibus nemo omnis\n                                    sapiente voluptates?"
-                      )
-                    ]),
-                    _vm._v(" "),
-                    _c("div", { staticClass: "post-additional-info" }, [
-                      _c("div", { staticClass: "post-like" }, [
-                        _c(
-                          "a",
-                          {
-                            staticClass: "post-add-icon",
-                            attrs: { href: "#" }
-                          },
-                          [
-                            _c("svg", { staticClass: "icon icon-heart" }, [
-                              _c("use", {
-                                attrs: { "xlink:href": "#icon-heart" }
-                              })
-                            ]),
-                            _vm._v(" "),
-                            _c("span", [_vm._v("24")])
-                          ]
-                        ),
-                        _vm._v(" "),
-                        _vm._m(22),
-                        _vm._v(" "),
-                        _vm._m(23)
-                      ]),
-                      _vm._v(" "),
-                      _c("div", { staticClass: "post-comments-shared" }, [
-                        _c(
-                          "a",
-                          {
-                            staticClass: "post-add-icon inline-items",
-                            attrs: { href: "#" }
-                          },
-                          [
-                            _c(
-                              "svg",
-                              { staticClass: "icon icon-chat-comment" },
-                              [
-                                _c("use", {
-                                  attrs: { "xlink:href": "#icon-chat-comment" }
-                                })
-                              ]
-                            ),
-                            _vm._v(" "),
-                            _c("span", [_vm._v("17")])
-                          ]
-                        ),
-                        _vm._v(" "),
-                        _c(
-                          "a",
-                          {
-                            staticClass: "post-add-icon inline-items",
-                            attrs: { href: "#" }
-                          },
-                          [
-                            _c("svg", { staticClass: "icon icon-reply-all" }, [
-                              _c("use", {
-                                attrs: { "xlink:href": "#icon-reply-all" }
-                              })
-                            ]),
-                            _vm._v(" "),
-                            _c("span", [_vm._v("24")])
-                          ]
-                        )
-                      ])
-                    ])
-                  ])
-                ]),
-                _vm._v(" "),
-                _c("div", { staticClass: "white-block" }, [
-                  _c("article", { staticClass: "post" }, [
-                    _c("div", { staticClass: "post--author" }, [
-                      _vm._m(24),
-                      _vm._v(" "),
-                      _c("div", { staticClass: "more" }, [
-                        _c("svg", { staticClass: "icon icon-more-button" }, [
-                          _c("use", {
-                            attrs: { "xlink:href": "#icon-more-button" }
-                          })
-                        ]),
-                        _vm._v(" "),
-                        _vm._m(25)
-                      ])
-                    ]),
-                    _vm._v(" "),
-                    _c("p", [
-                      _vm._v(
-                        "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Architecto dolor eius et\n                                    facere\n                                    fuga quaerat quasi temporibus, tenetur ullam veritatis. Accusamus adipisci aliquid\n                                    assumenda aut autem beatae blanditiis deleniti deserunt distinctio doloremque,\n                                    doloribus\n                                    eius eligendi error eveniet excepturi exercitationem expedita facilis fuga fugit\n                                    harum\n                                    impedit incidunt, inventore iste itaque laboriosam laudantium magni mollitia nemo\n                                    numquam officia possimus quae quaerat repellendus tempore temporibus, ullam vero. Ab\n                                    architecto blanditiis corporis, deleniti dicta excepturi exercitationem id illum\n                                    impedit\n                                    labore molestiae nisi officia praesentium quia saepe suscipit ut velit,\n                                    voluptatibus. A\n                                    animi consequatur, delectus et harum iure, labore maiores necessitatibus nemo omnis\n                                    sapiente voluptates?"
-                      )
-                    ]),
-                    _vm._v(" "),
-                    _c("div", { staticClass: "post-additional-info" }, [
-                      _c("div", { staticClass: "post-like" }, [
-                        _c(
-                          "a",
-                          {
-                            staticClass: "post-add-icon",
-                            attrs: { href: "#" }
-                          },
-                          [
-                            _c("svg", { staticClass: "icon icon-heart" }, [
-                              _c("use", {
-                                attrs: { "xlink:href": "#icon-heart" }
-                              })
-                            ]),
-                            _vm._v(" "),
-                            _c("span", [_vm._v("24")])
-                          ]
-                        ),
-                        _vm._v(" "),
-                        _vm._m(26),
-                        _vm._v(" "),
-                        _vm._m(27)
-                      ]),
-                      _vm._v(" "),
-                      _c("div", { staticClass: "post-comments-shared" }, [
-                        _c(
-                          "a",
-                          {
-                            staticClass: "post-add-icon inline-items",
-                            attrs: { href: "#" }
-                          },
-                          [
-                            _c(
-                              "svg",
-                              { staticClass: "icon icon-chat-comment" },
-                              [
-                                _c("use", {
-                                  attrs: { "xlink:href": "#icon-chat-comment" }
-                                })
-                              ]
-                            ),
-                            _vm._v(" "),
-                            _c("span", [_vm._v("17")])
-                          ]
-                        ),
-                        _vm._v(" "),
-                        _c(
-                          "a",
-                          {
-                            staticClass: "post-add-icon inline-items",
-                            attrs: { href: "#" }
-                          },
-                          [
-                            _c("svg", { staticClass: "icon icon-reply-all" }, [
-                              _c("use", {
-                                attrs: { "xlink:href": "#icon-reply-all" }
-                              })
-                            ]),
-                            _vm._v(" "),
-                            _c("span", [_vm._v("24")])
-                          ]
-                        )
-                      ])
-                    ])
-                  ])
-                ]),
-                _vm._v(" "),
-                _c("div", { staticClass: "white-block" }, [
-                  _c("article", { staticClass: "post" }, [
-                    _c("div", { staticClass: "post--author" }, [
-                      _vm._m(28),
-                      _vm._v(" "),
-                      _c("div", { staticClass: "more" }, [
-                        _c("svg", { staticClass: "icon icon-more-button" }, [
-                          _c("use", {
-                            attrs: { "xlink:href": "#icon-more-button" }
-                          })
-                        ]),
-                        _vm._v(" "),
-                        _vm._m(29)
-                      ])
-                    ]),
-                    _vm._v(" "),
-                    _c("p", [
-                      _vm._v(
-                        "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Architecto dolor eius et\n                                    facere\n                                    fuga quaerat quasi temporibus, tenetur ullam veritatis. Accusamus adipisci aliquid\n                                    assumenda aut autem beatae blanditiis deleniti deserunt distinctio doloremque,\n                                    doloribus\n                                    eius eligendi error eveniet excepturi exercitationem expedita facilis fuga fugit\n                                    harum\n                                    impedit incidunt, inventore iste itaque laboriosam laudantium magni mollitia nemo\n                                    numquam officia possimus quae quaerat repellendus tempore temporibus, ullam vero. Ab\n                                    architecto blanditiis corporis, deleniti dicta excepturi exercitationem id illum\n                                    impedit\n                                    labore molestiae nisi officia praesentium quia saepe suscipit ut velit,\n                                    voluptatibus. A\n                                    animi consequatur, delectus et harum iure, labore maiores necessitatibus nemo omnis\n                                    sapiente voluptates?"
-                      )
-                    ]),
-                    _vm._v(" "),
-                    _c("div", { staticClass: "post-additional-info" }, [
-                      _c("div", { staticClass: "post-like" }, [
-                        _c(
-                          "a",
-                          {
-                            staticClass: "post-add-icon",
-                            attrs: { href: "#" }
-                          },
-                          [
-                            _c("svg", { staticClass: "icon icon-heart" }, [
-                              _c("use", {
-                                attrs: { "xlink:href": "#icon-heart" }
-                              })
-                            ]),
-                            _vm._v(" "),
-                            _c("span", [_vm._v("24")])
-                          ]
-                        ),
-                        _vm._v(" "),
-                        _vm._m(30),
-                        _vm._v(" "),
-                        _vm._m(31)
-                      ]),
-                      _vm._v(" "),
-                      _c("div", { staticClass: "post-comments-shared" }, [
-                        _c(
-                          "a",
-                          {
-                            staticClass: "post-add-icon inline-items",
-                            attrs: { href: "#" }
-                          },
-                          [
-                            _c(
-                              "svg",
-                              { staticClass: "icon icon-chat-comment" },
-                              [
-                                _c("use", {
-                                  attrs: { "xlink:href": "#icon-chat-comment" }
-                                })
-                              ]
-                            ),
-                            _vm._v(" "),
-                            _c("span", [_vm._v("17")])
-                          ]
-                        ),
-                        _vm._v(" "),
-                        _c(
-                          "a",
-                          {
-                            staticClass: "post-add-icon inline-items",
-                            attrs: { href: "#" }
-                          },
-                          [
-                            _c("svg", { staticClass: "icon icon-reply-all" }, [
-                              _c("use", {
-                                attrs: { "xlink:href": "#icon-reply-all" }
-                              })
-                            ]),
-                            _vm._v(" "),
-                            _c("span", [_vm._v("24")])
-                          ]
-                        )
-                      ])
-                    ])
-                  ])
-                ])
-              ])
+              _c(
+                "div",
+                { staticClass: "newsfeed-items-grid" },
+                _vm._l(_vm.list, function(post) {
+                  return _c("app-post", { key: post })
+                })
+              )
             ]
           ),
           _vm._v(" "),
@@ -18421,7 +17320,7 @@ var render = function() {
                         ])
                       ]),
                       _vm._v(" "),
-                      _vm._m(32)
+                      _vm._m(0)
                     ]),
                     _vm._v(" "),
                     _c("span", { staticClass: "notification-icon" }, [
@@ -18455,10 +17354,10 @@ var render = function() {
                         )
                       ]),
                       _vm._v(" "),
-                      _vm._m(33)
+                      _vm._m(1)
                     ]),
                     _vm._v(" "),
-                    _vm._m(34)
+                    _vm._m(2)
                   ])
                 ])
               ])
@@ -18467,803 +17366,11 @@ var render = function() {
         ])
       ]),
       _vm._v(" "),
-      _vm._m(35)
+      _vm._m(3)
     ]
   )
 }
 var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "post--author-user" }, [
-      _c("img", { attrs: { src: "img/bg.jpg", alt: "author" } }),
-      _vm._v(" "),
-      _c("div", { staticClass: "post--author-date" }, [
-        _c(
-          "a",
-          { staticClass: "h6 post--author-name fn", attrs: { href: "#" } },
-          [_vm._v("Телеблог блог о телеграм ")]
-        ),
-        _vm._v(" "),
-        _c("div", { staticClass: "post--date" }, [
-          _c(
-            "time",
-            {
-              staticClass: "published",
-              attrs: { datetime: "2018-05-1T15:18" }
-            },
-            [
-              _c("a", { attrs: { href: "#" } }, [_vm._v("@teleblog")]),
-              _vm._v(
-                " May 1 at 2:05pm\n                                                "
-              )
-            ]
-          )
-        ])
-      ])
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("ul", { staticClass: "more-dropdown d-none" }, [
-      _c("li", [_c("a", { attrs: { href: "#" } }, [_vm._v("Edit Post")])]),
-      _vm._v(" "),
-      _c("li", [_c("a", { attrs: { href: "#" } }, [_vm._v("Delete Post")])]),
-      _vm._v(" "),
-      _c("li", [
-        _c("a", { attrs: { href: "#" } }, [_vm._v("Turn Off Notifications")])
-      ]),
-      _vm._v(" "),
-      _c("li", [
-        _c("a", { attrs: { href: "#" } }, [_vm._v("Select as Featured")])
-      ])
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("ul", { staticClass: "friends-like" }, [
-      _c("li", [
-        _c("a", { attrs: { href: "#" } }, [
-          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
-        ])
-      ]),
-      _vm._v(" "),
-      _c("li", [
-        _c("a", { attrs: { href: "#" } }, [
-          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
-        ])
-      ]),
-      _vm._v(" "),
-      _c("li", [
-        _c("a", { attrs: { href: "#" } }, [
-          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
-        ])
-      ]),
-      _vm._v(" "),
-      _c("li", [
-        _c("a", { attrs: { href: "#" } }, [
-          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
-        ])
-      ]),
-      _vm._v(" "),
-      _c("li", [
-        _c("a", { attrs: { href: "#" } }, [
-          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
-        ])
-      ])
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "names-people-likes" }, [
-      _c("a", { attrs: { href: "#" } }, [_vm._v("You")]),
-      _vm._v(", "),
-      _c("a", { attrs: { href: "#" } }, [_vm._v("Elaine")]),
-      _vm._v(" and\n                                            "),
-      _c("br"),
-      _vm._v("22 more liked this\n                                        ")
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "post--author-user" }, [
-      _c("img", { attrs: { src: "img/bg.jpg", alt: "author" } }),
-      _vm._v(" "),
-      _c("div", { staticClass: "post--author-date" }, [
-        _c(
-          "a",
-          { staticClass: "h6 post--author-name fn", attrs: { href: "#" } },
-          [_vm._v("Телеблог блог о телеграм ")]
-        ),
-        _vm._v(" "),
-        _c("div", { staticClass: "post--date" }, [
-          _c(
-            "time",
-            {
-              staticClass: "published",
-              attrs: { datetime: "2018-05-1T15:18" }
-            },
-            [
-              _c("a", { attrs: { href: "#" } }, [_vm._v("@teleblog")]),
-              _vm._v(
-                " May 1 at 2:05pm\n                                                "
-              )
-            ]
-          )
-        ])
-      ])
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("ul", { staticClass: "more-dropdown d-none" }, [
-      _c("li", [_c("a", { attrs: { href: "#" } }, [_vm._v("Edit Post")])]),
-      _vm._v(" "),
-      _c("li", [_c("a", { attrs: { href: "#" } }, [_vm._v("Delete Post")])]),
-      _vm._v(" "),
-      _c("li", [
-        _c("a", { attrs: { href: "#" } }, [_vm._v("Turn Off Notifications")])
-      ]),
-      _vm._v(" "),
-      _c("li", [
-        _c("a", { attrs: { href: "#" } }, [_vm._v("Select as Featured")])
-      ])
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("ul", { staticClass: "friends-like" }, [
-      _c("li", [
-        _c("a", { attrs: { href: "#" } }, [
-          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
-        ])
-      ]),
-      _vm._v(" "),
-      _c("li", [
-        _c("a", { attrs: { href: "#" } }, [
-          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
-        ])
-      ]),
-      _vm._v(" "),
-      _c("li", [
-        _c("a", { attrs: { href: "#" } }, [
-          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
-        ])
-      ]),
-      _vm._v(" "),
-      _c("li", [
-        _c("a", { attrs: { href: "#" } }, [
-          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
-        ])
-      ]),
-      _vm._v(" "),
-      _c("li", [
-        _c("a", { attrs: { href: "#" } }, [
-          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
-        ])
-      ])
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "names-people-likes" }, [
-      _c("a", { attrs: { href: "#" } }, [_vm._v("You")]),
-      _vm._v(", "),
-      _c("a", { attrs: { href: "#" } }, [_vm._v("Elaine")]),
-      _vm._v(" and\n                                            "),
-      _c("br"),
-      _vm._v("22 more liked this\n                                        ")
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "post--author-user" }, [
-      _c("img", { attrs: { src: "img/bg.jpg", alt: "author" } }),
-      _vm._v(" "),
-      _c("div", { staticClass: "post--author-date" }, [
-        _c(
-          "a",
-          { staticClass: "h6 post--author-name fn", attrs: { href: "#" } },
-          [_vm._v("Телеблог блог о телеграм ")]
-        ),
-        _vm._v(" "),
-        _c("div", { staticClass: "post--date" }, [
-          _c(
-            "time",
-            {
-              staticClass: "published",
-              attrs: { datetime: "2018-05-1T15:18" }
-            },
-            [
-              _c("a", { attrs: { href: "#" } }, [_vm._v("@teleblog")]),
-              _vm._v(
-                " May 1 at 2:05pm\n                                                "
-              )
-            ]
-          )
-        ])
-      ])
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("ul", { staticClass: "more-dropdown d-none" }, [
-      _c("li", [_c("a", { attrs: { href: "#" } }, [_vm._v("Edit Post")])]),
-      _vm._v(" "),
-      _c("li", [_c("a", { attrs: { href: "#" } }, [_vm._v("Delete Post")])]),
-      _vm._v(" "),
-      _c("li", [
-        _c("a", { attrs: { href: "#" } }, [_vm._v("Turn Off Notifications")])
-      ]),
-      _vm._v(" "),
-      _c("li", [
-        _c("a", { attrs: { href: "#" } }, [_vm._v("Select as Featured")])
-      ])
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("ul", { staticClass: "friends-like" }, [
-      _c("li", [
-        _c("a", { attrs: { href: "#" } }, [
-          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
-        ])
-      ]),
-      _vm._v(" "),
-      _c("li", [
-        _c("a", { attrs: { href: "#" } }, [
-          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
-        ])
-      ]),
-      _vm._v(" "),
-      _c("li", [
-        _c("a", { attrs: { href: "#" } }, [
-          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
-        ])
-      ]),
-      _vm._v(" "),
-      _c("li", [
-        _c("a", { attrs: { href: "#" } }, [
-          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
-        ])
-      ]),
-      _vm._v(" "),
-      _c("li", [
-        _c("a", { attrs: { href: "#" } }, [
-          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
-        ])
-      ])
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "names-people-likes" }, [
-      _c("a", { attrs: { href: "#" } }, [_vm._v("You")]),
-      _vm._v(", "),
-      _c("a", { attrs: { href: "#" } }, [_vm._v("Elaine")]),
-      _vm._v(" and\n                                            "),
-      _c("br"),
-      _vm._v("22 more liked this\n                                        ")
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "post--author-user" }, [
-      _c("img", { attrs: { src: "img/bg.jpg", alt: "author" } }),
-      _vm._v(" "),
-      _c("div", { staticClass: "post--author-date" }, [
-        _c(
-          "a",
-          { staticClass: "h6 post--author-name fn", attrs: { href: "#" } },
-          [_vm._v("Телеблог блог о телеграм ")]
-        ),
-        _vm._v(" "),
-        _c("div", { staticClass: "post--date" }, [
-          _c(
-            "time",
-            {
-              staticClass: "published",
-              attrs: { datetime: "2018-05-1T15:18" }
-            },
-            [
-              _c("a", { attrs: { href: "#" } }, [_vm._v("@teleblog")]),
-              _vm._v(
-                " May 1 at 2:05pm\n                                                "
-              )
-            ]
-          )
-        ])
-      ])
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("ul", { staticClass: "more-dropdown d-none" }, [
-      _c("li", [_c("a", { attrs: { href: "#" } }, [_vm._v("Edit Post")])]),
-      _vm._v(" "),
-      _c("li", [_c("a", { attrs: { href: "#" } }, [_vm._v("Delete Post")])]),
-      _vm._v(" "),
-      _c("li", [
-        _c("a", { attrs: { href: "#" } }, [_vm._v("Turn Off Notifications")])
-      ]),
-      _vm._v(" "),
-      _c("li", [
-        _c("a", { attrs: { href: "#" } }, [_vm._v("Select as Featured")])
-      ])
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("ul", { staticClass: "friends-like" }, [
-      _c("li", [
-        _c("a", { attrs: { href: "#" } }, [
-          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
-        ])
-      ]),
-      _vm._v(" "),
-      _c("li", [
-        _c("a", { attrs: { href: "#" } }, [
-          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
-        ])
-      ]),
-      _vm._v(" "),
-      _c("li", [
-        _c("a", { attrs: { href: "#" } }, [
-          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
-        ])
-      ]),
-      _vm._v(" "),
-      _c("li", [
-        _c("a", { attrs: { href: "#" } }, [
-          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
-        ])
-      ]),
-      _vm._v(" "),
-      _c("li", [
-        _c("a", { attrs: { href: "#" } }, [
-          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
-        ])
-      ])
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "names-people-likes" }, [
-      _c("a", { attrs: { href: "#" } }, [_vm._v("You")]),
-      _vm._v(", "),
-      _c("a", { attrs: { href: "#" } }, [_vm._v("Elaine")]),
-      _vm._v(" and\n                                            "),
-      _c("br"),
-      _vm._v("22 more liked this\n                                        ")
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "post--author-user" }, [
-      _c("img", { attrs: { src: "img/bg.jpg", alt: "author" } }),
-      _vm._v(" "),
-      _c("div", { staticClass: "post--author-date" }, [
-        _c(
-          "a",
-          { staticClass: "h6 post--author-name fn", attrs: { href: "#" } },
-          [_vm._v("Телеблог блог о телеграм ")]
-        ),
-        _vm._v(" "),
-        _c("div", { staticClass: "post--date" }, [
-          _c(
-            "time",
-            {
-              staticClass: "published",
-              attrs: { datetime: "2018-05-1T15:18" }
-            },
-            [
-              _c("a", { attrs: { href: "#" } }, [_vm._v("@teleblog")]),
-              _vm._v(
-                " May 1 at 2:05pm\n                                                "
-              )
-            ]
-          )
-        ])
-      ])
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("ul", { staticClass: "more-dropdown d-none" }, [
-      _c("li", [_c("a", { attrs: { href: "#" } }, [_vm._v("Edit Post")])]),
-      _vm._v(" "),
-      _c("li", [_c("a", { attrs: { href: "#" } }, [_vm._v("Delete Post")])]),
-      _vm._v(" "),
-      _c("li", [
-        _c("a", { attrs: { href: "#" } }, [_vm._v("Turn Off Notifications")])
-      ]),
-      _vm._v(" "),
-      _c("li", [
-        _c("a", { attrs: { href: "#" } }, [_vm._v("Select as Featured")])
-      ])
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("ul", { staticClass: "friends-like" }, [
-      _c("li", [
-        _c("a", { attrs: { href: "#" } }, [
-          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
-        ])
-      ]),
-      _vm._v(" "),
-      _c("li", [
-        _c("a", { attrs: { href: "#" } }, [
-          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
-        ])
-      ]),
-      _vm._v(" "),
-      _c("li", [
-        _c("a", { attrs: { href: "#" } }, [
-          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
-        ])
-      ]),
-      _vm._v(" "),
-      _c("li", [
-        _c("a", { attrs: { href: "#" } }, [
-          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
-        ])
-      ]),
-      _vm._v(" "),
-      _c("li", [
-        _c("a", { attrs: { href: "#" } }, [
-          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
-        ])
-      ])
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "names-people-likes" }, [
-      _c("a", { attrs: { href: "#" } }, [_vm._v("You")]),
-      _vm._v(", "),
-      _c("a", { attrs: { href: "#" } }, [_vm._v("Elaine")]),
-      _vm._v(" and\n                                            "),
-      _c("br"),
-      _vm._v("22 more liked this\n                                        ")
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "post--author-user" }, [
-      _c("img", { attrs: { src: "img/bg.jpg", alt: "author" } }),
-      _vm._v(" "),
-      _c("div", { staticClass: "post--author-date" }, [
-        _c(
-          "a",
-          { staticClass: "h6 post--author-name fn", attrs: { href: "#" } },
-          [_vm._v("Телеблог блог о телеграм ")]
-        ),
-        _vm._v(" "),
-        _c("div", { staticClass: "post--date" }, [
-          _c(
-            "time",
-            {
-              staticClass: "published",
-              attrs: { datetime: "2018-05-1T15:18" }
-            },
-            [
-              _c("a", { attrs: { href: "#" } }, [_vm._v("@teleblog")]),
-              _vm._v(
-                " May 1 at 2:05pm\n                                                "
-              )
-            ]
-          )
-        ])
-      ])
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("ul", { staticClass: "more-dropdown d-none" }, [
-      _c("li", [_c("a", { attrs: { href: "#" } }, [_vm._v("Edit Post")])]),
-      _vm._v(" "),
-      _c("li", [_c("a", { attrs: { href: "#" } }, [_vm._v("Delete Post")])]),
-      _vm._v(" "),
-      _c("li", [
-        _c("a", { attrs: { href: "#" } }, [_vm._v("Turn Off Notifications")])
-      ]),
-      _vm._v(" "),
-      _c("li", [
-        _c("a", { attrs: { href: "#" } }, [_vm._v("Select as Featured")])
-      ])
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("ul", { staticClass: "friends-like" }, [
-      _c("li", [
-        _c("a", { attrs: { href: "#" } }, [
-          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
-        ])
-      ]),
-      _vm._v(" "),
-      _c("li", [
-        _c("a", { attrs: { href: "#" } }, [
-          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
-        ])
-      ]),
-      _vm._v(" "),
-      _c("li", [
-        _c("a", { attrs: { href: "#" } }, [
-          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
-        ])
-      ]),
-      _vm._v(" "),
-      _c("li", [
-        _c("a", { attrs: { href: "#" } }, [
-          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
-        ])
-      ]),
-      _vm._v(" "),
-      _c("li", [
-        _c("a", { attrs: { href: "#" } }, [
-          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
-        ])
-      ])
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "names-people-likes" }, [
-      _c("a", { attrs: { href: "#" } }, [_vm._v("You")]),
-      _vm._v(", "),
-      _c("a", { attrs: { href: "#" } }, [_vm._v("Elaine")]),
-      _vm._v(" and\n                                            "),
-      _c("br"),
-      _vm._v("22 more liked this\n                                        ")
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "post--author-user" }, [
-      _c("img", { attrs: { src: "img/bg.jpg", alt: "author" } }),
-      _vm._v(" "),
-      _c("div", { staticClass: "post--author-date" }, [
-        _c(
-          "a",
-          { staticClass: "h6 post--author-name fn", attrs: { href: "#" } },
-          [_vm._v("Телеблог блог о телеграм ")]
-        ),
-        _vm._v(" "),
-        _c("div", { staticClass: "post--date" }, [
-          _c(
-            "time",
-            {
-              staticClass: "published",
-              attrs: { datetime: "2018-05-1T15:18" }
-            },
-            [
-              _c("a", { attrs: { href: "#" } }, [_vm._v("@teleblog")]),
-              _vm._v(
-                " May 1 at 2:05pm\n                                                "
-              )
-            ]
-          )
-        ])
-      ])
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("ul", { staticClass: "more-dropdown d-none" }, [
-      _c("li", [_c("a", { attrs: { href: "#" } }, [_vm._v("Edit Post")])]),
-      _vm._v(" "),
-      _c("li", [_c("a", { attrs: { href: "#" } }, [_vm._v("Delete Post")])]),
-      _vm._v(" "),
-      _c("li", [
-        _c("a", { attrs: { href: "#" } }, [_vm._v("Turn Off Notifications")])
-      ]),
-      _vm._v(" "),
-      _c("li", [
-        _c("a", { attrs: { href: "#" } }, [_vm._v("Select as Featured")])
-      ])
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("ul", { staticClass: "friends-like" }, [
-      _c("li", [
-        _c("a", { attrs: { href: "#" } }, [
-          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
-        ])
-      ]),
-      _vm._v(" "),
-      _c("li", [
-        _c("a", { attrs: { href: "#" } }, [
-          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
-        ])
-      ]),
-      _vm._v(" "),
-      _c("li", [
-        _c("a", { attrs: { href: "#" } }, [
-          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
-        ])
-      ]),
-      _vm._v(" "),
-      _c("li", [
-        _c("a", { attrs: { href: "#" } }, [
-          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
-        ])
-      ]),
-      _vm._v(" "),
-      _c("li", [
-        _c("a", { attrs: { href: "#" } }, [
-          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
-        ])
-      ])
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "names-people-likes" }, [
-      _c("a", { attrs: { href: "#" } }, [_vm._v("You")]),
-      _vm._v(", "),
-      _c("a", { attrs: { href: "#" } }, [_vm._v("Elaine")]),
-      _vm._v(" and\n                                            "),
-      _c("br"),
-      _vm._v("22 more liked this\n                                        ")
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "post--author-user" }, [
-      _c("img", { attrs: { src: "img/bg.jpg", alt: "author" } }),
-      _vm._v(" "),
-      _c("div", { staticClass: "post--author-date" }, [
-        _c(
-          "a",
-          { staticClass: "h6 post--author-name fn", attrs: { href: "#" } },
-          [_vm._v("Телеблог блог о телеграм ")]
-        ),
-        _vm._v(" "),
-        _c("div", { staticClass: "post--date" }, [
-          _c(
-            "time",
-            {
-              staticClass: "published",
-              attrs: { datetime: "2018-05-1T15:18" }
-            },
-            [
-              _c("a", { attrs: { href: "#" } }, [_vm._v("@teleblog")]),
-              _vm._v(
-                " May 1 at 2:05pm\n                                                "
-              )
-            ]
-          )
-        ])
-      ])
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("ul", { staticClass: "more-dropdown d-none" }, [
-      _c("li", [_c("a", { attrs: { href: "#" } }, [_vm._v("Edit Post")])]),
-      _vm._v(" "),
-      _c("li", [_c("a", { attrs: { href: "#" } }, [_vm._v("Delete Post")])]),
-      _vm._v(" "),
-      _c("li", [
-        _c("a", { attrs: { href: "#" } }, [_vm._v("Turn Off Notifications")])
-      ]),
-      _vm._v(" "),
-      _c("li", [
-        _c("a", { attrs: { href: "#" } }, [_vm._v("Select as Featured")])
-      ])
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("ul", { staticClass: "friends-like" }, [
-      _c("li", [
-        _c("a", { attrs: { href: "#" } }, [
-          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
-        ])
-      ]),
-      _vm._v(" "),
-      _c("li", [
-        _c("a", { attrs: { href: "#" } }, [
-          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
-        ])
-      ]),
-      _vm._v(" "),
-      _c("li", [
-        _c("a", { attrs: { href: "#" } }, [
-          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
-        ])
-      ]),
-      _vm._v(" "),
-      _c("li", [
-        _c("a", { attrs: { href: "#" } }, [
-          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
-        ])
-      ]),
-      _vm._v(" "),
-      _c("li", [
-        _c("a", { attrs: { href: "#" } }, [
-          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
-        ])
-      ])
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "names-people-likes" }, [
-      _c("a", { attrs: { href: "#" } }, [_vm._v("You")]),
-      _vm._v(", "),
-      _c("a", { attrs: { href: "#" } }, [_vm._v("Elaine")]),
-      _vm._v(" and\n                                            "),
-      _c("br"),
-      _vm._v("22 more liked this\n                                        ")
-    ])
-  },
   function() {
     var _vm = this
     var _h = _vm.$createElement
@@ -19333,7 +17440,7 @@ if (false) {
 }
 
 /***/ }),
-/* 29 */
+/* 34 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -20278,13 +18385,13 @@ var index_esm = {
 
 
 /***/ }),
-/* 30 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(31);
+module.exports = __webpack_require__(36);
 
 /***/ }),
-/* 31 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -20292,7 +18399,7 @@ module.exports = __webpack_require__(31);
 
 var utils = __webpack_require__(0);
 var bind = __webpack_require__(9);
-var Axios = __webpack_require__(33);
+var Axios = __webpack_require__(38);
 var defaults = __webpack_require__(6);
 
 /**
@@ -20327,14 +18434,14 @@ axios.create = function create(instanceConfig) {
 
 // Expose Cancel & CancelToken
 axios.Cancel = __webpack_require__(13);
-axios.CancelToken = __webpack_require__(47);
+axios.CancelToken = __webpack_require__(52);
 axios.isCancel = __webpack_require__(12);
 
 // Expose all/spread
 axios.all = function all(promises) {
   return Promise.all(promises);
 };
-axios.spread = __webpack_require__(48);
+axios.spread = __webpack_require__(53);
 
 module.exports = axios;
 
@@ -20343,7 +18450,7 @@ module.exports.default = axios;
 
 
 /***/ }),
-/* 32 */
+/* 37 */
 /***/ (function(module, exports) {
 
 /*!
@@ -20370,7 +18477,7 @@ function isSlowBuffer (obj) {
 
 
 /***/ }),
-/* 33 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -20378,8 +18485,8 @@ function isSlowBuffer (obj) {
 
 var defaults = __webpack_require__(6);
 var utils = __webpack_require__(0);
-var InterceptorManager = __webpack_require__(42);
-var dispatchRequest = __webpack_require__(43);
+var InterceptorManager = __webpack_require__(47);
+var dispatchRequest = __webpack_require__(48);
 
 /**
  * Create a new instance of Axios
@@ -20456,7 +18563,7 @@ module.exports = Axios;
 
 
 /***/ }),
-/* 34 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -20475,7 +18582,7 @@ module.exports = function normalizeHeaderName(headers, normalizedName) {
 
 
 /***/ }),
-/* 35 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -20508,7 +18615,7 @@ module.exports = function settle(resolve, reject, response) {
 
 
 /***/ }),
-/* 36 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -20536,7 +18643,7 @@ module.exports = function enhanceError(error, config, code, request, response) {
 
 
 /***/ }),
-/* 37 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -20609,7 +18716,7 @@ module.exports = function buildURL(url, params, paramsSerializer) {
 
 
 /***/ }),
-/* 38 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -20669,7 +18776,7 @@ module.exports = function parseHeaders(headers) {
 
 
 /***/ }),
-/* 39 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -20744,7 +18851,7 @@ module.exports = (
 
 
 /***/ }),
-/* 40 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -20787,7 +18894,7 @@ module.exports = btoa;
 
 
 /***/ }),
-/* 41 */
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -20847,7 +18954,7 @@ module.exports = (
 
 
 /***/ }),
-/* 42 */
+/* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -20906,18 +19013,18 @@ module.exports = InterceptorManager;
 
 
 /***/ }),
-/* 43 */
+/* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 var utils = __webpack_require__(0);
-var transformData = __webpack_require__(44);
+var transformData = __webpack_require__(49);
 var isCancel = __webpack_require__(12);
 var defaults = __webpack_require__(6);
-var isAbsoluteURL = __webpack_require__(45);
-var combineURLs = __webpack_require__(46);
+var isAbsoluteURL = __webpack_require__(50);
+var combineURLs = __webpack_require__(51);
 
 /**
  * Throws a `Cancel` if cancellation has been requested.
@@ -20999,7 +19106,7 @@ module.exports = function dispatchRequest(config) {
 
 
 /***/ }),
-/* 44 */
+/* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -21026,7 +19133,7 @@ module.exports = function transformData(data, headers, fns) {
 
 
 /***/ }),
-/* 45 */
+/* 50 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -21047,7 +19154,7 @@ module.exports = function isAbsoluteURL(url) {
 
 
 /***/ }),
-/* 46 */
+/* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -21068,7 +19175,7 @@ module.exports = function combineURLs(baseURL, relativeURL) {
 
 
 /***/ }),
-/* 47 */
+/* 52 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -21132,7 +19239,7 @@ module.exports = CancelToken;
 
 
 /***/ }),
-/* 48 */
+/* 53 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -21166,7 +19273,7 @@ module.exports = function spread(callback) {
 
 
 /***/ }),
-/* 49 */
+/* 54 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -21177,19 +19284,19 @@ module.exports = function spread(callback) {
 });
 
 /***/ }),
-/* 50 */
+/* 55 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var disposed = false
 function injectStyle (ssrContext) {
   if (disposed) return
-  __webpack_require__(51)
+  __webpack_require__(56)
 }
 var normalizeComponent = __webpack_require__(1)
 /* script */
-var __vue_script__ = __webpack_require__(53)
+var __vue_script__ = __webpack_require__(58)
 /* template */
-var __vue_template__ = __webpack_require__(59)
+var __vue_template__ = __webpack_require__(64)
 /* template functional */
 var __vue_template_functional__ = false
 /* styles */
@@ -21228,17 +19335,17 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 51 */
+/* 56 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(52);
+var content = __webpack_require__(57);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(5)("dd64535e", content, false, {});
+var update = __webpack_require__(3)("dd64535e", content, false, {});
 // Hot Module Replacement
 if(false) {
  // When the styles change, update the <style> tags
@@ -21254,10 +19361,10 @@ if(false) {
 }
 
 /***/ }),
-/* 52 */
+/* 57 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(4)(false);
+exports = module.exports = __webpack_require__(2)(false);
 // imports
 
 
@@ -21268,12 +19375,12 @@ exports.push([module.i, "\n.fade-enter-active[data-v-6dd1125c], .fade-leave-acti
 
 
 /***/ }),
-/* 53 */
+/* 58 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__components_Authorized_Header__ = __webpack_require__(54);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__components_Authorized_Header__ = __webpack_require__(59);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__components_Authorized_Header___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__components_Authorized_Header__);
 //
 //
@@ -21316,19 +19423,19 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 });
 
 /***/ }),
-/* 54 */
+/* 59 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var disposed = false
 function injectStyle (ssrContext) {
   if (disposed) return
-  __webpack_require__(55)
+  __webpack_require__(60)
 }
 var normalizeComponent = __webpack_require__(1)
 /* script */
-var __vue_script__ = __webpack_require__(57)
+var __vue_script__ = __webpack_require__(62)
 /* template */
-var __vue_template__ = __webpack_require__(58)
+var __vue_template__ = __webpack_require__(63)
 /* template functional */
 var __vue_template_functional__ = false
 /* styles */
@@ -21367,17 +19474,17 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 55 */
+/* 60 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(56);
+var content = __webpack_require__(61);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(5)("6e3e534e", content, false, {});
+var update = __webpack_require__(3)("6e3e534e", content, false, {});
 // Hot Module Replacement
 if(false) {
  // When the styles change, update the <style> tags
@@ -21393,10 +19500,10 @@ if(false) {
 }
 
 /***/ }),
-/* 56 */
+/* 61 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(4)(false);
+exports = module.exports = __webpack_require__(2)(false);
 // imports
 
 
@@ -21407,11 +19514,12 @@ exports.push([module.i, "\n.fade-enter-active[data-v-39c822a7], .fade-leave-acti
 
 
 /***/ }),
-/* 57 */
+/* 62 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
 //
 //
 //
@@ -21532,7 +19640,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 });
 
 /***/ }),
-/* 58 */
+/* 63 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var render = function() {
@@ -21652,6 +19760,10 @@ var render = function() {
                   ]),
                   _vm._v(" "),
                   _c("li", [
+                    _c("a", { attrs: { href: "#" } }, [_vm._v("Настройки")])
+                  ]),
+                  _vm._v(" "),
+                  _c("li", [
                     _c(
                       "a",
                       {
@@ -21709,7 +19821,7 @@ if (false) {
 }
 
 /***/ }),
-/* 59 */
+/* 64 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var render = function() {
@@ -21744,7 +19856,7 @@ if (false) {
 }
 
 /***/ }),
-/* 60 */
+/* 65 */
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin

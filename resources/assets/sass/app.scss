@@ -7,6 +7,14 @@
 ::placeholder {
   color: #666;
 }
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .5s;
+}
+
+.fade-enter, .fade-leave-to /* .fade-leave-active до версии 2.1.8 */
+{
+  opacity: 0;
+}
 head{
   font-size: 16px;
 }
@@ -16,6 +24,19 @@ head{
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
+}
+.error{
+  position: relative;
+  padding: .75rem 1.25rem;
+  margin-bottom: 1rem;
+  border: 1px solid transparent;
+  border-radius: .25rem;
+  font-size: 13px;
+}
+.danger{
+  color: #000;
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
 }
 .btn{
   display: inline-block;

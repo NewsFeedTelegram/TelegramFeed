@@ -7,7 +7,8 @@ export const store = new Vuex.Store({
     state: {
         token: localStorage.getItem('access-token') || '',
         status: '',
-        user: {}
+        user: {},
+        error:''
     },
     mutations: {
         AUTH_REQUEST: (state) => {
@@ -18,8 +19,9 @@ export const store = new Vuex.Store({
             state.token = user.token;
             state.user = user
         },
-        AUTH_ERROR: (state) => {
-            state.status = 'error'
+        AUTH_ERROR: (state, err) => {
+            state.status = 'error';
+            state.error = err.response? err.response.data.errors: ''
         },
         AUTH_LOGOUT: (state) => {
             state.user = {};
@@ -62,11 +64,13 @@ export const store = new Vuex.Store({
                         localStorage.setItem('access-token', user.token);
                         axios.defaults.headers.common['Authorization'] = 'Bearer ' + user.token
                         commit('AUTH_SUCCESS', user);
+                        commit('AUTH_ERROR', '');
                         resolve(response)
                     })
                     .catch(err => {
                         commit('AUTH_ERROR', err);
                         localStorage.removeItem('access-token');
+                        commit('AUTH_ERROR', err);
                         reject(err)
                     })
             })
@@ -105,6 +109,7 @@ export const store = new Vuex.Store({
                     .catch(err => {
                         commit('AUTH_ERROR', err);
                         localStorage.removeItem('access-token');
+                        console.log(err.response.data.errors)
                         reject(err)
                     })
             })
@@ -114,6 +119,7 @@ export const store = new Vuex.Store({
     getters: {
         isAuthenticated: state => !!state.token,
         authStatus: state => state.status,
-        user: state => state.user
+        user: state => state.user,
+        error: state => state.error
     }
 });

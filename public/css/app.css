@@ -4187,6 +4187,17 @@ html {
   color: #666;
 }
 
+.fade-enter-active,
+.fade-leave-active {
+  -webkit-transition: opacity .5s;
+  transition: opacity .5s;
+}
+
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
+}
+
 head {
   font-size: 16px;
 }
@@ -4196,6 +4207,21 @@ head {
   padding: 0;
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
+}
+
+.error {
+  position: relative;
+  padding: .75rem 1.25rem;
+  margin-bottom: 1rem;
+  border: 1px solid transparent;
+  border-radius: .25rem;
+  font-size: 13px;
+}
+
+.danger {
+  color: #000;
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
 }
 
 .btn {

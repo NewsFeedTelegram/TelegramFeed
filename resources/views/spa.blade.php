@@ -12,6 +12,7 @@
     <meta name="theme-color" content="#4a4c63">
 
     <!-- Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
     <link href="{{asset('css/app.css')}}" rel="stylesheet" type="text/css">
 </head>
 <body style="overflow: hidden">
