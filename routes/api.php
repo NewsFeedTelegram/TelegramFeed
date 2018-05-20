@@ -1,5 +1,9 @@
 <?php
 
+Route::group(['middleware' => 'jwt.auth'], function () {
+    Route::get('/telegram/posts/', 'Api\FeedController@telegramPosts');
+});
+
 Route::group(['prefix' => 'auth'], function () {
     Route::group(['middleware' => 'jwt.guest'], function () {
         Route::post('login', 'Api\Auth\LoginController@login');

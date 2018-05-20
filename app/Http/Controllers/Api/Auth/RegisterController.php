@@ -35,7 +35,8 @@ class RegisterController extends Controller
         }
     }
 
-    public function validateLogin(Request $request) {
+    public function validateLogin(Request $request)
+    {
         $error = (Validator::make($request->all(), [
             'login' => 'required|unique:users'
         ]))->errors();

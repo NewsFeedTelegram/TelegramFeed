@@ -8,7 +8,7 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 
 class LoginController extends Controller
 {
-    public function login(Request $request, $onlyToken = false)
+    public function login(Request $request)
     {
         $credentials = $request->only('login', 'password');
         if (!$token = JWTAuth::attempt($credentials)) {

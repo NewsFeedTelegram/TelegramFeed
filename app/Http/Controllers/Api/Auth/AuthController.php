@@ -2,12 +2,6 @@
 
 namespace App\Http\Controllers\Api\Auth;
 
-use App\User;
-use danog\MadelineProto\auth;
-use Illuminate\Http\Request;
-use Tymon\JWTAuth\Facades\JWTAuth;
-use App\Http\Requests\RegisterRequest;
-use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\Controller;
 
 class AuthController extends Controller

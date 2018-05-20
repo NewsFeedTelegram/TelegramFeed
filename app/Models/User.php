@@ -9,8 +9,6 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
 class User extends Authenticatable implements JWTSubject
 {
     use Notifiable;
-
-
     protected $fillable = [
         'first_name', 'last_name', 'login', 'avatar', 'password'
     ];
@@ -18,7 +16,6 @@ class User extends Authenticatable implements JWTSubject
     protected $hidden = [
         'password', 'remember_token',
     ];
-
 
     // relations
     public function profile()
@@ -30,11 +27,6 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->belongsToMany(TelegramChannel::class, 'telegram_subscribers',
             'user_id', 'tg_channel_id');
-    }
-
-    public function telegram_messages() {
-        return $this->hasManyThrough(TelegramChannelMessage::class, TelegramSubscriber::class,
-            'user_id', 'tg_channel_id')->take(5)->latest();
     }
 
     // jwt
