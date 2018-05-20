@@ -32,6 +32,11 @@ class User extends Authenticatable implements JWTSubject
             'user_id', 'tg_channel_id');
     }
 
+    public function telegram_messages() {
+        return $this->hasManyThrough(TelegramChannelMessage::class, TelegramSubscriber::class,
+            'user_id', 'tg_channel_id')->take(5)->latest();
+    }
+
     // jwt
     public function getJWTIdentifier()
     {

@@ -2,16 +2,18 @@
 
 Route::group(['prefix' => 'auth'], function () {
     Route::group(['middleware' => 'jwt.guest'], function () {
-        Route::post('register', 'Api\AuthController@register');
-        Route::post('login', 'Api\AuthController@login');
+        Route::post('login', 'Api\Auth\LoginController@login');
+        Route::post('register', 'Api\Auth\RegisterController@register');
+        Route::post('register/validate/login', 'Api\Auth\RegisterController@validateLogin');
     });
 
-    Route::group(['middleware' => 'jwt.refresh'], function () {
-        Route::get('refresh', 'Api\AuthController@refresh');
+    Route::group(['middleware' => ['jwt.refresh', 'jwt.auth']], function () {
+        Route::get('refresh', 'Api\Auth\AuthController@refresh');
     });
+
     Route::group(['middleware' => 'jwt.auth'], function () {
-        Route::get('me', 'Api\AuthController@me');
-        Route::post('logout', 'Api\AuthController@logout');
+        Route::get('me', 'Api\Auth\AuthController@me');
+        Route::post('logout', 'Api\Auth\AuthController@logout');
     });
 });
 

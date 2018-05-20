@@ -11,6 +11,10 @@ use PHPHtmlParser\Dom;
 
 class TelegramController extends Controller
 {
+
+    /*
+     * [message]["reply_to_msg_id"] => 5602 репост своего сообщения
+     */
     public function parsePosts(TelegramChannel $tg_channel, TelegramChannelMessage $tg_message)
     {
         $MadelineProto = new \danog\MadelineProto\API('session.madeline');
@@ -41,6 +45,8 @@ class TelegramController extends Controller
                 $url = null;
                 $preview = null;
                 $link = null;
+                $type = null; // photo 1 , video 2, other 0
+                $name_fwd_channel = $link_fwd_channel = null;
                 if (isset($message['media']) && $message['media']['_'] == 'messageMediaPhoto') {
                     $dom->load($channel->link . '/' . $message['id'] . '/?embed=1');
                     $photo = $dom->getElementsByClass('tgme_widget_message_photo_wrap');
@@ -48,6 +54,7 @@ class TelegramController extends Controller
                         $url[] = preg_replace('/[\s\S]*background-image:[ ]*url\(["\']*([\s\S]*[^"\'])["\']*\)[\s\S]*/u',
                             '$1', $photo->getAttribute('style'));
                     }
+                    $type = 1;
                     $status = true;
                 } elseif (isset($message['media']) && $message['media']['_'] == 'messageMediaDocument') {
                     $dom->load($channel->link . '/' . $message['id'] . '/?embed=1');
@@ -58,6 +65,7 @@ class TelegramController extends Controller
                     if (count($docGifOrVideo)) {
                         $url[] = $docGifOrVideo->getAttribute('src');
                         $status = true;
+                        $type = 2;
                     } elseif (count($docBigVideoFile)) {
                         $preview = preg_replace('/[\s\S]*background-image:[ ]*url\(["\']*([\s\S]*[^"\'])["\']*\)[\s\S]*/u',
                             '$1', $docBigVideoFile->getAttribute('style'));
@@ -87,9 +95,24 @@ class TelegramController extends Controller
                     }
                 }
 
+                $id_fwd_channel = isset($message['fwd_from']) ? $message['fwd_from']['channel_id'] : null;
+                if ($id_fwd_channel) {
+                    foreach ($data['chats'] as $chat) {
+                        if ($chat['id'] == $id_fwd_channel) {
+                            $name_fwd_channel = $chat['title'];
+                            $link_fwd_channel = $chat['username'];
+                            break;
+                        }
+                    }
+                }
+
                 $arr = [
                     'tg_channel_id' => $channel->id,
-                    'fwd_from' => isset($message['fwd_from']) ?: null,
+                    'fwd_from' => json_encode([
+                        'id' => $id_fwd_channel,
+                        'name' => $name_fwd_channel,
+                        'link' => $link_fwd_channel
+                    ]),
                     'message_id' => $message['id'],
                     'date' => Carbon::createFromTimestampUTC($message['date'])->toDateTimeString(),
                     'message' => $message['message'] ?? '',
@@ -97,12 +120,14 @@ class TelegramController extends Controller
                         'status' => $status,
                         'url' => $url,
                         'preview' => $preview,
-                        'webPage' => $link
+                        'webPage' => $link,
+                        'type' => $type,
                     ])
                 ];
                 $tg_message->create($arr);
             }
-            var_dump(count($data['messages'])); echo '<br>';
+            var_dump(count($data['messages']));
+            echo '<br>';
         }
     }
 
