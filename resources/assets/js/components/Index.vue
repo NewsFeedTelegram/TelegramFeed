@@ -1,6 +1,6 @@
 <template>
     <div>
-        <header v-show="!isPreloader">
+        <header id="index-section" v-show="!isPreloader">
             <div class="container-fluid">
                 <div class="row no-gutters bg-wrapper">
                     <div class="col d-none d-sm-none d-md-block">
@@ -157,14 +157,14 @@
                 const { login, password } = this.loginForm
                 this.$store.dispatch('AUTH_REQUEST', { login, password })
                     .then(() => {
-                    this.$router.replace('/test')
+                    this.$router.replace('/feed')
                 })
             },
             registerUser() {
                 const { login, first_name, last_name, password, password_confirmation } = this.registerForm
                 this.$store.dispatch('REGISTER_REQUEST', { login, first_name, last_name, password, password_confirmation })
                     .then(() => {
-                        this.$router.replace('/test')
+                        this.$router.replace('/feed')
                     })
             }
         },
@@ -179,9 +179,8 @@
         },
         beforeRouteEnter(to, from, next) {
             if (window.localStorage[ 'access-token' ] && window.location.pathname === '/' ) {
-                console.log('hren')
                 next(vm => {
-                    vm.$router.replace({name: 'Test'})
+                    vm.$router.replace({name: 'NewsFeed'})
                 })
             }
             if (from.name !== 'Index') {

@@ -375,6 +375,115 @@ module.exports = {
 
 /***/ }),
 /* 1 */
+/***/ (function(module, exports) {
+
+/* globals __VUE_SSR_CONTEXT__ */
+
+// IMPORTANT: Do NOT use ES2015 features in this file.
+// This module is a runtime utility for cleaner component module output and will
+// be included in the final webpack user bundle.
+
+module.exports = function normalizeComponent (
+  rawScriptExports,
+  compiledTemplate,
+  functionalTemplate,
+  injectStyles,
+  scopeId,
+  moduleIdentifier /* server only */
+) {
+  var esModule
+  var scriptExports = rawScriptExports = rawScriptExports || {}
+
+  // ES6 modules interop
+  var type = typeof rawScriptExports.default
+  if (type === 'object' || type === 'function') {
+    esModule = rawScriptExports
+    scriptExports = rawScriptExports.default
+  }
+
+  // Vue.extend constructor export interop
+  var options = typeof scriptExports === 'function'
+    ? scriptExports.options
+    : scriptExports
+
+  // render functions
+  if (compiledTemplate) {
+    options.render = compiledTemplate.render
+    options.staticRenderFns = compiledTemplate.staticRenderFns
+    options._compiled = true
+  }
+
+  // functional template
+  if (functionalTemplate) {
+    options.functional = true
+  }
+
+  // scopedId
+  if (scopeId) {
+    options._scopeId = scopeId
+  }
+
+  var hook
+  if (moduleIdentifier) { // server build
+    hook = function (context) {
+      // 2.3 injection
+      context =
+        context || // cached call
+        (this.$vnode && this.$vnode.ssrContext) || // stateful
+        (this.parent && this.parent.$vnode && this.parent.$vnode.ssrContext) // functional
+      // 2.2 with runInNewContext: true
+      if (!context && typeof __VUE_SSR_CONTEXT__ !== 'undefined') {
+        context = __VUE_SSR_CONTEXT__
+      }
+      // inject component styles
+      if (injectStyles) {
+        injectStyles.call(this, context)
+      }
+      // register component module identifier for async chunk inferrence
+      if (context && context._registeredComponents) {
+        context._registeredComponents.add(moduleIdentifier)
+      }
+    }
+    // used by ssr in case component is cached and beforeCreate
+    // never gets called
+    options._ssrRegister = hook
+  } else if (injectStyles) {
+    hook = injectStyles
+  }
+
+  if (hook) {
+    var functional = options.functional
+    var existing = functional
+      ? options.render
+      : options.beforeCreate
+
+    if (!functional) {
+      // inject component registration as beforeCreate hook
+      options.beforeCreate = existing
+        ? [].concat(existing, hook)
+        : [hook]
+    } else {
+      // for template-only hot-reload because in that case the render fn doesn't
+      // go through the normalizer
+      options._injectStyles = hook
+      // register for functioal component in vue file
+      options.render = function renderWithStyleInjection (h, context) {
+        hook.call(context)
+        return existing(h, context)
+      }
+    }
+  }
+
+  return {
+    esModule: esModule,
+    exports: scriptExports,
+    options: options
+  }
+}
+
+
+/***/ }),
+/* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11337,10 +11446,10 @@ Vue.compile = compileToFunctions;
 
 module.exports = Vue;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2), __webpack_require__(16).setImmediate))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3), __webpack_require__(16).setImmediate))
 
 /***/ }),
-/* 2 */
+/* 3 */
 /***/ (function(module, exports) {
 
 var g;
@@ -11367,410 +11476,7 @@ module.exports = g;
 
 
 /***/ }),
-/* 3 */
-/***/ (function(module, exports) {
-
-/* globals __VUE_SSR_CONTEXT__ */
-
-// IMPORTANT: Do NOT use ES2015 features in this file.
-// This module is a runtime utility for cleaner component module output and will
-// be included in the final webpack user bundle.
-
-module.exports = function normalizeComponent (
-  rawScriptExports,
-  compiledTemplate,
-  functionalTemplate,
-  injectStyles,
-  scopeId,
-  moduleIdentifier /* server only */
-) {
-  var esModule
-  var scriptExports = rawScriptExports = rawScriptExports || {}
-
-  // ES6 modules interop
-  var type = typeof rawScriptExports.default
-  if (type === 'object' || type === 'function') {
-    esModule = rawScriptExports
-    scriptExports = rawScriptExports.default
-  }
-
-  // Vue.extend constructor export interop
-  var options = typeof scriptExports === 'function'
-    ? scriptExports.options
-    : scriptExports
-
-  // render functions
-  if (compiledTemplate) {
-    options.render = compiledTemplate.render
-    options.staticRenderFns = compiledTemplate.staticRenderFns
-    options._compiled = true
-  }
-
-  // functional template
-  if (functionalTemplate) {
-    options.functional = true
-  }
-
-  // scopedId
-  if (scopeId) {
-    options._scopeId = scopeId
-  }
-
-  var hook
-  if (moduleIdentifier) { // server build
-    hook = function (context) {
-      // 2.3 injection
-      context =
-        context || // cached call
-        (this.$vnode && this.$vnode.ssrContext) || // stateful
-        (this.parent && this.parent.$vnode && this.parent.$vnode.ssrContext) // functional
-      // 2.2 with runInNewContext: true
-      if (!context && typeof __VUE_SSR_CONTEXT__ !== 'undefined') {
-        context = __VUE_SSR_CONTEXT__
-      }
-      // inject component styles
-      if (injectStyles) {
-        injectStyles.call(this, context)
-      }
-      // register component module identifier for async chunk inferrence
-      if (context && context._registeredComponents) {
-        context._registeredComponents.add(moduleIdentifier)
-      }
-    }
-    // used by ssr in case component is cached and beforeCreate
-    // never gets called
-    options._ssrRegister = hook
-  } else if (injectStyles) {
-    hook = injectStyles
-  }
-
-  if (hook) {
-    var functional = options.functional
-    var existing = functional
-      ? options.render
-      : options.beforeCreate
-
-    if (!functional) {
-      // inject component registration as beforeCreate hook
-      options.beforeCreate = existing
-        ? [].concat(existing, hook)
-        : [hook]
-    } else {
-      // for template-only hot-reload because in that case the render fn doesn't
-      // go through the normalizer
-      options._injectStyles = hook
-      // register for functioal component in vue file
-      options.render = function renderWithStyleInjection (h, context) {
-        hook.call(context)
-        return existing(h, context)
-      }
-    }
-  }
-
-  return {
-    esModule: esModule,
-    exports: scriptExports,
-    options: options
-  }
-}
-
-
-/***/ }),
 /* 4 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(process) {
-
-var utils = __webpack_require__(0);
-var normalizeHeaderName = __webpack_require__(34);
-
-var DEFAULT_CONTENT_TYPE = {
-  'Content-Type': 'application/x-www-form-urlencoded'
-};
-
-function setContentTypeIfUnset(headers, value) {
-  if (!utils.isUndefined(headers) && utils.isUndefined(headers['Content-Type'])) {
-    headers['Content-Type'] = value;
-  }
-}
-
-function getDefaultAdapter() {
-  var adapter;
-  if (typeof XMLHttpRequest !== 'undefined') {
-    // For browsers use XHR adapter
-    adapter = __webpack_require__(10);
-  } else if (typeof process !== 'undefined') {
-    // For node use HTTP adapter
-    adapter = __webpack_require__(10);
-  }
-  return adapter;
-}
-
-var defaults = {
-  adapter: getDefaultAdapter(),
-
-  transformRequest: [function transformRequest(data, headers) {
-    normalizeHeaderName(headers, 'Content-Type');
-    if (utils.isFormData(data) ||
-      utils.isArrayBuffer(data) ||
-      utils.isBuffer(data) ||
-      utils.isStream(data) ||
-      utils.isFile(data) ||
-      utils.isBlob(data)
-    ) {
-      return data;
-    }
-    if (utils.isArrayBufferView(data)) {
-      return data.buffer;
-    }
-    if (utils.isURLSearchParams(data)) {
-      setContentTypeIfUnset(headers, 'application/x-www-form-urlencoded;charset=utf-8');
-      return data.toString();
-    }
-    if (utils.isObject(data)) {
-      setContentTypeIfUnset(headers, 'application/json;charset=utf-8');
-      return JSON.stringify(data);
-    }
-    return data;
-  }],
-
-  transformResponse: [function transformResponse(data) {
-    /*eslint no-param-reassign:0*/
-    if (typeof data === 'string') {
-      try {
-        data = JSON.parse(data);
-      } catch (e) { /* Ignore */ }
-    }
-    return data;
-  }],
-
-  /**
-   * A timeout in milliseconds to abort a request. If set to 0 (default) a
-   * timeout is not created.
-   */
-  timeout: 0,
-
-  xsrfCookieName: 'XSRF-TOKEN',
-  xsrfHeaderName: 'X-XSRF-TOKEN',
-
-  maxContentLength: -1,
-
-  validateStatus: function validateStatus(status) {
-    return status >= 200 && status < 300;
-  }
-};
-
-defaults.headers = {
-  common: {
-    'Accept': 'application/json, text/plain, */*'
-  }
-};
-
-utils.forEach(['delete', 'get', 'head'], function forEachMethodNoData(method) {
-  defaults.headers[method] = {};
-});
-
-utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
-  defaults.headers[method] = utils.merge(DEFAULT_CONTENT_TYPE);
-});
-
-module.exports = defaults;
-
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5)))
-
-/***/ }),
-/* 5 */
-/***/ (function(module, exports) {
-
-// shim for using process in browser
-var process = module.exports = {};
-
-// cached from whatever global is present so that test runners that stub it
-// don't break things.  But we need to wrap it in a try catch in case it is
-// wrapped in strict mode code which doesn't define any globals.  It's inside a
-// function because try/catches deoptimize in certain engines.
-
-var cachedSetTimeout;
-var cachedClearTimeout;
-
-function defaultSetTimout() {
-    throw new Error('setTimeout has not been defined');
-}
-function defaultClearTimeout () {
-    throw new Error('clearTimeout has not been defined');
-}
-(function () {
-    try {
-        if (typeof setTimeout === 'function') {
-            cachedSetTimeout = setTimeout;
-        } else {
-            cachedSetTimeout = defaultSetTimout;
-        }
-    } catch (e) {
-        cachedSetTimeout = defaultSetTimout;
-    }
-    try {
-        if (typeof clearTimeout === 'function') {
-            cachedClearTimeout = clearTimeout;
-        } else {
-            cachedClearTimeout = defaultClearTimeout;
-        }
-    } catch (e) {
-        cachedClearTimeout = defaultClearTimeout;
-    }
-} ())
-function runTimeout(fun) {
-    if (cachedSetTimeout === setTimeout) {
-        //normal enviroments in sane situations
-        return setTimeout(fun, 0);
-    }
-    // if setTimeout wasn't available but was latter defined
-    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
-        cachedSetTimeout = setTimeout;
-        return setTimeout(fun, 0);
-    }
-    try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedSetTimeout(fun, 0);
-    } catch(e){
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
-            return cachedSetTimeout.call(null, fun, 0);
-        } catch(e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
-            return cachedSetTimeout.call(this, fun, 0);
-        }
-    }
-
-
-}
-function runClearTimeout(marker) {
-    if (cachedClearTimeout === clearTimeout) {
-        //normal enviroments in sane situations
-        return clearTimeout(marker);
-    }
-    // if clearTimeout wasn't available but was latter defined
-    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
-        cachedClearTimeout = clearTimeout;
-        return clearTimeout(marker);
-    }
-    try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedClearTimeout(marker);
-    } catch (e){
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
-            return cachedClearTimeout.call(null, marker);
-        } catch (e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
-            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
-            return cachedClearTimeout.call(this, marker);
-        }
-    }
-
-
-
-}
-var queue = [];
-var draining = false;
-var currentQueue;
-var queueIndex = -1;
-
-function cleanUpNextTick() {
-    if (!draining || !currentQueue) {
-        return;
-    }
-    draining = false;
-    if (currentQueue.length) {
-        queue = currentQueue.concat(queue);
-    } else {
-        queueIndex = -1;
-    }
-    if (queue.length) {
-        drainQueue();
-    }
-}
-
-function drainQueue() {
-    if (draining) {
-        return;
-    }
-    var timeout = runTimeout(cleanUpNextTick);
-    draining = true;
-
-    var len = queue.length;
-    while(len) {
-        currentQueue = queue;
-        queue = [];
-        while (++queueIndex < len) {
-            if (currentQueue) {
-                currentQueue[queueIndex].run();
-            }
-        }
-        queueIndex = -1;
-        len = queue.length;
-    }
-    currentQueue = null;
-    draining = false;
-    runClearTimeout(timeout);
-}
-
-process.nextTick = function (fun) {
-    var args = new Array(arguments.length - 1);
-    if (arguments.length > 1) {
-        for (var i = 1; i < arguments.length; i++) {
-            args[i - 1] = arguments[i];
-        }
-    }
-    queue.push(new Item(fun, args));
-    if (queue.length === 1 && !draining) {
-        runTimeout(drainQueue);
-    }
-};
-
-// v8 likes predictible objects
-function Item(fun, array) {
-    this.fun = fun;
-    this.array = array;
-}
-Item.prototype.run = function () {
-    this.fun.apply(null, this.array);
-};
-process.title = 'browser';
-process.browser = true;
-process.env = {};
-process.argv = [];
-process.version = ''; // empty string to avoid regexp issues
-process.versions = {};
-
-function noop() {}
-
-process.on = noop;
-process.addListener = noop;
-process.once = noop;
-process.off = noop;
-process.removeListener = noop;
-process.removeAllListeners = noop;
-process.emit = noop;
-process.prependListener = noop;
-process.prependOnceListener = noop;
-
-process.listeners = function (name) { return [] }
-
-process.binding = function (name) {
-    throw new Error('process.binding is not supported');
-};
-
-process.cwd = function () { return '/' };
-process.chdir = function (dir) {
-    throw new Error('process.chdir is not supported');
-};
-process.umask = function() { return 0; };
-
-
-/***/ }),
-/* 6 */
 /***/ (function(module, exports) {
 
 /*
@@ -11852,7 +11558,7 @@ function toComment(sourceMap) {
 
 
 /***/ }),
-/* 7 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -12080,12 +11786,306 @@ function applyToTag (styleElement, obj) {
 
 
 /***/ }),
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(process) {
+
+var utils = __webpack_require__(0);
+var normalizeHeaderName = __webpack_require__(34);
+
+var DEFAULT_CONTENT_TYPE = {
+  'Content-Type': 'application/x-www-form-urlencoded'
+};
+
+function setContentTypeIfUnset(headers, value) {
+  if (!utils.isUndefined(headers) && utils.isUndefined(headers['Content-Type'])) {
+    headers['Content-Type'] = value;
+  }
+}
+
+function getDefaultAdapter() {
+  var adapter;
+  if (typeof XMLHttpRequest !== 'undefined') {
+    // For browsers use XHR adapter
+    adapter = __webpack_require__(10);
+  } else if (typeof process !== 'undefined') {
+    // For node use HTTP adapter
+    adapter = __webpack_require__(10);
+  }
+  return adapter;
+}
+
+var defaults = {
+  adapter: getDefaultAdapter(),
+
+  transformRequest: [function transformRequest(data, headers) {
+    normalizeHeaderName(headers, 'Content-Type');
+    if (utils.isFormData(data) ||
+      utils.isArrayBuffer(data) ||
+      utils.isBuffer(data) ||
+      utils.isStream(data) ||
+      utils.isFile(data) ||
+      utils.isBlob(data)
+    ) {
+      return data;
+    }
+    if (utils.isArrayBufferView(data)) {
+      return data.buffer;
+    }
+    if (utils.isURLSearchParams(data)) {
+      setContentTypeIfUnset(headers, 'application/x-www-form-urlencoded;charset=utf-8');
+      return data.toString();
+    }
+    if (utils.isObject(data)) {
+      setContentTypeIfUnset(headers, 'application/json;charset=utf-8');
+      return JSON.stringify(data);
+    }
+    return data;
+  }],
+
+  transformResponse: [function transformResponse(data) {
+    /*eslint no-param-reassign:0*/
+    if (typeof data === 'string') {
+      try {
+        data = JSON.parse(data);
+      } catch (e) { /* Ignore */ }
+    }
+    return data;
+  }],
+
+  /**
+   * A timeout in milliseconds to abort a request. If set to 0 (default) a
+   * timeout is not created.
+   */
+  timeout: 0,
+
+  xsrfCookieName: 'XSRF-TOKEN',
+  xsrfHeaderName: 'X-XSRF-TOKEN',
+
+  maxContentLength: -1,
+
+  validateStatus: function validateStatus(status) {
+    return status >= 200 && status < 300;
+  }
+};
+
+defaults.headers = {
+  common: {
+    'Accept': 'application/json, text/plain, */*'
+  }
+};
+
+utils.forEach(['delete', 'get', 'head'], function forEachMethodNoData(method) {
+  defaults.headers[method] = {};
+});
+
+utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
+  defaults.headers[method] = utils.merge(DEFAULT_CONTENT_TYPE);
+});
+
+module.exports = defaults;
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(7)))
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports) {
+
+// shim for using process in browser
+var process = module.exports = {};
+
+// cached from whatever global is present so that test runners that stub it
+// don't break things.  But we need to wrap it in a try catch in case it is
+// wrapped in strict mode code which doesn't define any globals.  It's inside a
+// function because try/catches deoptimize in certain engines.
+
+var cachedSetTimeout;
+var cachedClearTimeout;
+
+function defaultSetTimout() {
+    throw new Error('setTimeout has not been defined');
+}
+function defaultClearTimeout () {
+    throw new Error('clearTimeout has not been defined');
+}
+(function () {
+    try {
+        if (typeof setTimeout === 'function') {
+            cachedSetTimeout = setTimeout;
+        } else {
+            cachedSetTimeout = defaultSetTimout;
+        }
+    } catch (e) {
+        cachedSetTimeout = defaultSetTimout;
+    }
+    try {
+        if (typeof clearTimeout === 'function') {
+            cachedClearTimeout = clearTimeout;
+        } else {
+            cachedClearTimeout = defaultClearTimeout;
+        }
+    } catch (e) {
+        cachedClearTimeout = defaultClearTimeout;
+    }
+} ())
+function runTimeout(fun) {
+    if (cachedSetTimeout === setTimeout) {
+        //normal enviroments in sane situations
+        return setTimeout(fun, 0);
+    }
+    // if setTimeout wasn't available but was latter defined
+    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+        cachedSetTimeout = setTimeout;
+        return setTimeout(fun, 0);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedSetTimeout(fun, 0);
+    } catch(e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+            return cachedSetTimeout.call(null, fun, 0);
+        } catch(e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+            return cachedSetTimeout.call(this, fun, 0);
+        }
+    }
+
+
+}
+function runClearTimeout(marker) {
+    if (cachedClearTimeout === clearTimeout) {
+        //normal enviroments in sane situations
+        return clearTimeout(marker);
+    }
+    // if clearTimeout wasn't available but was latter defined
+    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+        cachedClearTimeout = clearTimeout;
+        return clearTimeout(marker);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedClearTimeout(marker);
+    } catch (e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+            return cachedClearTimeout.call(null, marker);
+        } catch (e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+            return cachedClearTimeout.call(this, marker);
+        }
+    }
+
+
+
+}
+var queue = [];
+var draining = false;
+var currentQueue;
+var queueIndex = -1;
+
+function cleanUpNextTick() {
+    if (!draining || !currentQueue) {
+        return;
+    }
+    draining = false;
+    if (currentQueue.length) {
+        queue = currentQueue.concat(queue);
+    } else {
+        queueIndex = -1;
+    }
+    if (queue.length) {
+        drainQueue();
+    }
+}
+
+function drainQueue() {
+    if (draining) {
+        return;
+    }
+    var timeout = runTimeout(cleanUpNextTick);
+    draining = true;
+
+    var len = queue.length;
+    while(len) {
+        currentQueue = queue;
+        queue = [];
+        while (++queueIndex < len) {
+            if (currentQueue) {
+                currentQueue[queueIndex].run();
+            }
+        }
+        queueIndex = -1;
+        len = queue.length;
+    }
+    currentQueue = null;
+    draining = false;
+    runClearTimeout(timeout);
+}
+
+process.nextTick = function (fun) {
+    var args = new Array(arguments.length - 1);
+    if (arguments.length > 1) {
+        for (var i = 1; i < arguments.length; i++) {
+            args[i - 1] = arguments[i];
+        }
+    }
+    queue.push(new Item(fun, args));
+    if (queue.length === 1 && !draining) {
+        runTimeout(drainQueue);
+    }
+};
+
+// v8 likes predictible objects
+function Item(fun, array) {
+    this.fun = fun;
+    this.array = array;
+}
+Item.prototype.run = function () {
+    this.fun.apply(null, this.array);
+};
+process.title = 'browser';
+process.browser = true;
+process.env = {};
+process.argv = [];
+process.version = ''; // empty string to avoid regexp issues
+process.versions = {};
+
+function noop() {}
+
+process.on = noop;
+process.addListener = noop;
+process.once = noop;
+process.off = noop;
+process.removeListener = noop;
+process.removeAllListeners = noop;
+process.emit = noop;
+process.prependListener = noop;
+process.prependOnceListener = noop;
+
+process.listeners = function (name) { return [] }
+
+process.binding = function (name) {
+    throw new Error('process.binding is not supported');
+};
+
+process.cwd = function () { return '/' };
+process.chdir = function (dir) {
+    throw new Error('process.chdir is not supported');
+};
+process.umask = function() { return 0; };
+
+
+/***/ }),
 /* 8 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return store; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_vue__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_vuex__ = __webpack_require__(29);
 
@@ -12117,6 +12117,12 @@ var store = new __WEBPACK_IMPORTED_MODULE_1_vuex__["a" /* default */].Store({
         }
     },
     actions: {
+        /**
+         * Получение данных пользователя
+         *
+         * @return {Promise}
+         *
+         */
         USER_PROFILE: function USER_PROFILE(_ref, user) {
             var commit = _ref.commit,
                 dispatch = _ref.dispatch;
@@ -12132,6 +12138,13 @@ var store = new __WEBPACK_IMPORTED_MODULE_1_vuex__["a" /* default */].Store({
                 });
             });
         },
+        /**
+         * Авторизация в системе и обработка запроса
+         *
+         * @param user {object}
+         * @return {Promise}
+         *
+         */
         AUTH_REQUEST: function AUTH_REQUEST(_ref2, user) {
             var commit = _ref2.commit,
                 dispatch = _ref2.dispatch;
@@ -12150,11 +12163,16 @@ var store = new __WEBPACK_IMPORTED_MODULE_1_vuex__["a" /* default */].Store({
                 });
             });
         },
+        /**
+         * Выход из системы
+         *
+         * @return {Promise}
+         *
+         */
         AUTH_LOGOUT: function AUTH_LOGOUT(_ref3) {
-            var commit = _ref3.commit,
-                dispatch = _ref3.dispatch;
+            var commit = _ref3.commit;
 
-            return new Promise(function (resolve, reject) {
+            return new Promise(function (resolve) {
                 axios.post('api/auth/logout');
                 commit('AUTH_LOGOUT');
                 delete axios.defaults.headers.common['Authorization'];
@@ -12162,6 +12180,13 @@ var store = new __WEBPACK_IMPORTED_MODULE_1_vuex__["a" /* default */].Store({
                 resolve();
             });
         },
+        /**
+         * Регистрация в системе и обработка запроса
+         *
+         * @param data {object}
+         * @return {Promise}
+         *
+         */
         REGISTER_REQUEST: function REGISTER_REQUEST(_ref4, data) {
             var commit = _ref4.commit,
                 dispatch = _ref4.dispatch;
@@ -12467,7 +12492,7 @@ module.exports = Cancel;
 /***/ (function(module, exports, __webpack_require__) {
 
 __webpack_require__(15);
-module.exports = __webpack_require__(55);
+module.exports = __webpack_require__(60);
 
 
 /***/ }),
@@ -12476,7 +12501,7 @@ module.exports = __webpack_require__(55);
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_vue__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__router__ = __webpack_require__(18);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_axios__ = __webpack_require__(30);
@@ -12502,6 +12527,54 @@ if (token) {
 }
 
 window.axios = __WEBPACK_IMPORTED_MODULE_2_axios___default.a;
+
+// This callback runs before every route change, including on page load.
+__WEBPACK_IMPORTED_MODULE_1__router__["a" /* default */].beforeEach(function (to, from, next) {
+    // This goes through the matched routes from last to first, finding the closest route with a title.
+    // eg. if we have /some/deep/nested/route and /some, /deep, and /nested have titles, nested's will be chosen.
+    var nearestWithTitle = to.matched.slice().reverse().find(function (r) {
+        return r.meta && r.meta.title;
+    });
+
+    // Find the nearest route element with meta tags.
+    var nearestWithMeta = to.matched.slice().reverse().find(function (r) {
+        return r.meta && r.meta.metaTags;
+    });
+    var previousNearestWithMeta = from.matched.slice().reverse().find(function (r) {
+        return r.meta && r.meta.metaTags;
+    });
+
+    // If a route with a title was found, set the document (page) title to that value.
+    if (nearestWithTitle) document.title = nearestWithTitle.meta.title;
+
+    // Remove any stale meta tags from the document using the key attribute we set below.
+    Array.from(document.querySelectorAll('[data-vue-router-controlled]')).map(function (el) {
+        return el.parentNode.removeChild(el);
+    });
+
+    // Skip rendering meta tags if there are none.
+    if (!nearestWithMeta) return next();
+
+    // Turn the meta tag definitions into actual elements in the head.
+    nearestWithMeta.meta.metaTags.map(function (tagDef) {
+        var tag = document.createElement('meta');
+
+        Object.keys(tagDef).forEach(function (key) {
+            tag.setAttribute(key, tagDef[key]);
+        });
+
+        // We use this to track which meta tags we create, so we don't interfere with other ones.
+        tag.setAttribute('data-vue-router-controlled', '');
+
+        return tag;
+    })
+    // Add the meta tags to the document head.
+    .forEach(function (tag) {
+        return document.head.appendChild(tag);
+    });
+
+    next();
+});
 
 var app = new __WEBPACK_IMPORTED_MODULE_0_vue___default.a({
     el: '#app',
@@ -12578,7 +12651,7 @@ exports.clearImmediate = (typeof self !== "undefined" && self.clearImmediate) ||
                          (typeof global !== "undefined" && global.clearImmediate) ||
                          (this && this.clearImmediate);
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ }),
 /* 17 */
@@ -12771,20 +12844,20 @@ exports.clearImmediate = (typeof self !== "undefined" && self.clearImmediate) ||
     attachTo.clearImmediate = clearImmediate;
 }(typeof self === "undefined" ? typeof global === "undefined" ? this : global : self));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2), __webpack_require__(5)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3), __webpack_require__(7)))
 
 /***/ }),
 /* 18 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_vue__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_vue_router__ = __webpack_require__(19);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__components_Index__ = __webpack_require__(20);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__components_Index___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__components_Index__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__components_Test__ = __webpack_require__(23);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__components_Test___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3__components_Test__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__components_Authorized_Feed__ = __webpack_require__(23);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__components_Authorized_Feed___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3__components_Authorized_Feed__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__store__ = __webpack_require__(8);
 
 
@@ -12819,10 +12892,20 @@ var ifAuthenticated = function ifAuthenticated(to, from, next) {
         name: 'Index',
         component: __WEBPACK_IMPORTED_MODULE_2__components_Index___default.a
     }, {
-        path: '/test',
-        name: 'Test',
-        component: __WEBPACK_IMPORTED_MODULE_3__components_Test___default.a,
-        beforeEnter: ifAuthenticated
+        path: '/feed',
+        name: 'NewsFeed',
+        component: __WEBPACK_IMPORTED_MODULE_3__components_Authorized_Feed___default.a,
+        beforeEnter: ifAuthenticated,
+        meta: {
+            title: 'NewsFeed',
+            metaTags: [{
+                name: 'description',
+                content: 'The about page of our example app.'
+            }, {
+                property: 'og:description',
+                content: 'The about page of our example app.'
+            }]
+        }
     }]
 }));
 
@@ -15461,7 +15544,7 @@ if (inBrowser && window.Vue) {
 /***/ (function(module, exports, __webpack_require__) {
 
 var disposed = false
-var normalizeComponent = __webpack_require__(3)
+var normalizeComponent = __webpack_require__(1)
 /* script */
 var __vue_script__ = __webpack_require__(21)
 /* template */
@@ -15673,7 +15756,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
                 password = _loginForm.password;
 
             this.$store.dispatch('AUTH_REQUEST', { login: login, password: password }).then(function () {
-                _this.$router.replace('/test');
+                _this.$router.replace('/feed');
             });
         },
         registerUser: function registerUser() {
@@ -15687,7 +15770,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
                 password_confirmation = _registerForm.password_confirmation;
 
             this.$store.dispatch('REGISTER_REQUEST', { login: login, first_name: first_name, last_name: last_name, password: password, password_confirmation: password_confirmation }).then(function () {
-                _this2.$router.replace('/test');
+                _this2.$router.replace('/feed');
             });
         }
     },
@@ -15704,9 +15787,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     },
     beforeRouteEnter: function beforeRouteEnter(to, from, next) {
         if (window.localStorage['access-token'] && window.location.pathname === '/') {
-            console.log('hren');
             next(function (vm) {
-                vm.$router.replace({ name: 'Test' });
+                vm.$router.replace({ name: 'NewsFeed' });
             });
         }
         if (from.name !== 'Index') {
@@ -15739,7 +15821,8 @@ var render = function() {
             value: !_vm.isPreloader,
             expression: "!isPreloader"
           }
-        ]
+        ],
+        attrs: { id: "index-section" }
       },
       [
         _c("div", { staticClass: "container-fluid" }, [
@@ -16239,7 +16322,7 @@ function injectStyle (ssrContext) {
   if (disposed) return
   __webpack_require__(24)
 }
-var normalizeComponent = __webpack_require__(3)
+var normalizeComponent = __webpack_require__(1)
 /* script */
 var __vue_script__ = __webpack_require__(27)
 /* template */
@@ -16249,7 +16332,7 @@ var __vue_template_functional__ = false
 /* styles */
 var __vue_styles__ = injectStyle
 /* scopeId */
-var __vue_scopeId__ = "data-v-d4aeccee"
+var __vue_scopeId__ = "data-v-07144db8"
 /* moduleIdentifier (server only) */
 var __vue_module_identifier__ = null
 var Component = normalizeComponent(
@@ -16260,7 +16343,7 @@ var Component = normalizeComponent(
   __vue_scopeId__,
   __vue_module_identifier__
 )
-Component.options.__file = "resources\\assets\\js\\components\\Test.vue"
+Component.options.__file = "resources\\assets\\js\\components\\Authorized\\Feed.vue"
 
 /* hot reload */
 if (false) {(function () {
@@ -16269,9 +16352,9 @@ if (false) {(function () {
   if (!hotAPI.compatible) return
   module.hot.accept()
   if (!module.hot.data) {
-    hotAPI.createRecord("data-v-d4aeccee", Component.options)
+    hotAPI.createRecord("data-v-07144db8", Component.options)
   } else {
-    hotAPI.reload("data-v-d4aeccee", Component.options)
+    hotAPI.reload("data-v-07144db8", Component.options)
   }
   module.hot.dispose(function (data) {
     disposed = true
@@ -16292,13 +16375,13 @@ var content = __webpack_require__(25);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(7)("582f561c", content, false, {});
+var update = __webpack_require__(5)("7e44fd0c", content, false, {});
 // Hot Module Replacement
 if(false) {
  // When the styles change, update the <style> tags
  if(!content.locals) {
-   module.hot.accept("!!../../../../node_modules/css-loader/index.js!../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-d4aeccee\",\"scoped\":true,\"hasInlineConfig\":true}!../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./Test.vue", function() {
-     var newContent = require("!!../../../../node_modules/css-loader/index.js!../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-d4aeccee\",\"scoped\":true,\"hasInlineConfig\":true}!../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./Test.vue");
+   module.hot.accept("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-07144db8\",\"scoped\":true,\"hasInlineConfig\":true}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./Feed.vue", function() {
+     var newContent = require("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-07144db8\",\"scoped\":true,\"hasInlineConfig\":true}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./Feed.vue");
      if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
      update(newContent);
    });
@@ -16311,12 +16394,12 @@ if(false) {
 /* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(6)(false);
+exports = module.exports = __webpack_require__(4)(false);
 // imports
 
 
 // module
-exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
+exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
 
 // exports
 
@@ -16367,6 +16450,1032 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     name: "Test",
@@ -16375,15 +17484,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             return this.$store.getters.user;
         }
     },
-    methods: {
-        logout: function logout() {
-            this.$store.dispatch('AUTH_LOGOUT');
-            this.$router.replace('/');
-        }
-    },
-    mounted: function mounted() {
-        this.$store.dispatch('USER_PROFILE');
-    }
+    methods: {},
+    mounted: function mounted() {}
 });
 
 /***/ }),
@@ -16394,36 +17496,1839 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c("div", [
-    _vm._v(
-      "\n    HELLO " +
-        _vm._s(_vm.user.first_name) +
-        " " +
-        _vm._s(_vm.user.last_name) +
-        "\n    "
-    ),
-    _c(
-      "a",
-      {
-        attrs: { href: "#" },
-        on: {
-          click: function($event) {
-            $event.preventDefault()
-            return _vm.logout($event)
-          }
-        }
-      },
-      [_vm._v(" LOGOUT ")]
-    )
-  ])
+  return _c(
+    "section",
+    { staticClass: "section", attrs: { id: "main-section" } },
+    [
+      _c("div", { staticClass: "container" }, [
+        _c("div", { staticClass: "row" }, [
+          _c(
+            "main",
+            {
+              staticClass:
+                "col col-xl-6 order-xl-2 col-lg-12 order-lg-1 col-md-12 order-sm-2 col-sm-12 col-12 order-2"
+            },
+            [
+              _c("div", { staticClass: "white-block new-post" }, [
+                _c("div", { staticClass: "new-post--header" }, [
+                  _c("h3", { staticClass: "new-post--header--title" }, [
+                    _vm._v(
+                      "\n                                Add new post\n                            "
+                    )
+                  ]),
+                  _vm._v(" "),
+                  _c("span", { staticClass: "new-post--header--more" }, [
+                    _c("svg", { staticClass: "icon icon-more-button" }, [
+                      _c("use", {
+                        attrs: { "xlink:href": "#icon-more-button" }
+                      })
+                    ])
+                  ])
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "new-post--field" }, [
+                  _c("form", [
+                    _c("img", { attrs: { src: "img/bg.jpg", alt: "" } }),
+                    _vm._v(" "),
+                    _c("textarea", {
+                      attrs: {
+                        placeholder: "Share what you are thinking here ..."
+                      }
+                    }),
+                    _vm._v(" "),
+                    _c("div", { staticClass: "new-post--add-photo" }, [
+                      _c("label", [
+                        _c("input", {
+                          attrs: {
+                            type: "file",
+                            multiply: "",
+                            accept: "image/*"
+                          }
+                        }),
+                        _vm._v(" "),
+                        _c("svg", { staticClass: "icon icon-photo-camera" }, [
+                          _c("use", {
+                            attrs: { "xlink:href": "#icon-photo-camera" }
+                          })
+                        ])
+                      ])
+                    ]),
+                    _vm._v(" "),
+                    _c("div", { staticClass: "new-post--control" }, [
+                      _c("div", { staticClass: "new-post--select-files" }, [
+                        _c(
+                          "div",
+                          { staticClass: "new-post--select-files--file" },
+                          [
+                            _c("label", [
+                              _c("input", {
+                                attrs: {
+                                  type: "file",
+                                  multiply: "",
+                                  accept: "image/*"
+                                }
+                              }),
+                              _vm._v(" "),
+                              _c(
+                                "svg",
+                                { staticClass: "icon icon-photo-camera" },
+                                [
+                                  _c("use", {
+                                    attrs: {
+                                      "xlink:href": "#icon-photo-camera"
+                                    }
+                                  })
+                                ]
+                              )
+                            ])
+                          ]
+                        ),
+                        _vm._v(" "),
+                        _c(
+                          "div",
+                          { staticClass: "new-post--select-files--file" },
+                          [
+                            _c("label", [
+                              _c("input", {
+                                attrs: {
+                                  type: "file",
+                                  multiply: "",
+                                  accept: "video/*"
+                                }
+                              }),
+                              _vm._v(" "),
+                              _c(
+                                "svg",
+                                { staticClass: "icon icon-video-player" },
+                                [
+                                  _c("use", {
+                                    attrs: {
+                                      "xlink:href": "#icon-video-player"
+                                    }
+                                  })
+                                ]
+                              )
+                            ])
+                          ]
+                        ),
+                        _vm._v(" "),
+                        _c(
+                          "div",
+                          { staticClass: "new-post--select-files--file" },
+                          [
+                            _c("label", [
+                              _c("input", {
+                                attrs: {
+                                  type: "file",
+                                  multiply: "",
+                                  accept: "audio/*"
+                                }
+                              }),
+                              _vm._v(" "),
+                              _c(
+                                "svg",
+                                { staticClass: "icon icon-musical-note" },
+                                [
+                                  _c("use", {
+                                    attrs: {
+                                      "xlink:href": "#icon-musical-note"
+                                    }
+                                  })
+                                ]
+                              )
+                            ])
+                          ]
+                        )
+                      ]),
+                      _vm._v(" "),
+                      _c("button", { staticClass: "btn btn-green" }, [
+                        _vm._v(
+                          "\n                                        Add post\n                                    "
+                        )
+                      ])
+                    ])
+                  ])
+                ])
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "newsfeed-items-grid" }, [
+                _c("div", { staticClass: "white-block" }, [
+                  _c("article", { staticClass: "post" }, [
+                    _c("div", { staticClass: "post--author" }, [
+                      _vm._m(0),
+                      _vm._v(" "),
+                      _c("div", { staticClass: "more" }, [
+                        _c("svg", { staticClass: "icon icon-more-button" }, [
+                          _c("use", {
+                            attrs: { "xlink:href": "#icon-more-button" }
+                          })
+                        ]),
+                        _vm._v(" "),
+                        _vm._m(1)
+                      ])
+                    ]),
+                    _vm._v(" "),
+                    _c("p", [
+                      _vm._v(
+                        "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Architecto dolor eius et\n                                    facere\n                                    fuga quaerat quasi temporibus, tenetur ullam veritatis. Accusamus adipisci aliquid\n                                    assumenda aut autem beatae blanditiis deleniti deserunt distinctio doloremque,\n                                    doloribus\n                                    eius eligendi error eveniet excepturi exercitationem expedita facilis fuga fugit\n                                    harum\n                                    impedit incidunt, inventore iste itaque laboriosam laudantium magni mollitia nemo\n                                    numquam officia possimus quae quaerat repellendus tempore temporibus, ullam vero. Ab\n                                    architecto blanditiis corporis, deleniti dicta excepturi exercitationem id illum\n                                    impedit\n                                    labore molestiae nisi officia praesentium quia saepe suscipit ut velit,\n                                    voluptatibus. A\n                                    animi consequatur, delectus et harum iure, labore maiores necessitatibus nemo omnis\n                                    sapiente voluptates?"
+                      )
+                    ]),
+                    _vm._v(" "),
+                    _c("div", { staticClass: "post-additional-info" }, [
+                      _c("div", { staticClass: "post-like" }, [
+                        _c(
+                          "a",
+                          {
+                            staticClass: "post-add-icon",
+                            attrs: { href: "#" }
+                          },
+                          [
+                            _c("svg", { staticClass: "icon icon-heart" }, [
+                              _c("use", {
+                                attrs: { "xlink:href": "#icon-heart" }
+                              })
+                            ]),
+                            _vm._v(" "),
+                            _c("span", [_vm._v("24")])
+                          ]
+                        ),
+                        _vm._v(" "),
+                        _vm._m(2),
+                        _vm._v(" "),
+                        _vm._m(3)
+                      ]),
+                      _vm._v(" "),
+                      _c("div", { staticClass: "post-comments-shared" }, [
+                        _c(
+                          "a",
+                          {
+                            staticClass: "post-add-icon inline-items",
+                            attrs: { href: "#" }
+                          },
+                          [
+                            _c(
+                              "svg",
+                              { staticClass: "icon icon-chat-comment" },
+                              [
+                                _c("use", {
+                                  attrs: { "xlink:href": "#icon-chat-comment" }
+                                })
+                              ]
+                            ),
+                            _vm._v(" "),
+                            _c("span", [_vm._v("17")])
+                          ]
+                        ),
+                        _vm._v(" "),
+                        _c(
+                          "a",
+                          {
+                            staticClass: "post-add-icon inline-items",
+                            attrs: { href: "#" }
+                          },
+                          [
+                            _c("svg", { staticClass: "icon icon-reply-all" }, [
+                              _c("use", {
+                                attrs: { "xlink:href": "#icon-reply-all" }
+                              })
+                            ]),
+                            _vm._v(" "),
+                            _c("span", [_vm._v("24")])
+                          ]
+                        )
+                      ])
+                    ])
+                  ])
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "white-block" }, [
+                  _c("article", { staticClass: "post" }, [
+                    _c("div", { staticClass: "post--author" }, [
+                      _vm._m(4),
+                      _vm._v(" "),
+                      _c("div", { staticClass: "more" }, [
+                        _c("svg", { staticClass: "icon icon-more-button" }, [
+                          _c("use", {
+                            attrs: { "xlink:href": "#icon-more-button" }
+                          })
+                        ]),
+                        _vm._v(" "),
+                        _vm._m(5)
+                      ])
+                    ]),
+                    _vm._v(" "),
+                    _c("p", [
+                      _vm._v(
+                        "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Architecto dolor eius et\n                                    facere\n                                    fuga quaerat quasi temporibus, tenetur ullam veritatis. Accusamus adipisci aliquid\n                                    assumenda aut autem beatae blanditiis deleniti deserunt distinctio doloremque,\n                                    doloribus\n                                    eius eligendi error eveniet excepturi exercitationem expedita facilis fuga fugit\n                                    harum\n                                    impedit incidunt, inventore iste itaque laboriosam laudantium magni mollitia nemo\n                                    numquam officia possimus quae quaerat repellendus tempore temporibus, ullam vero. Ab\n                                    architecto blanditiis corporis, deleniti dicta excepturi exercitationem id illum\n                                    impedit\n                                    labore molestiae nisi officia praesentium quia saepe suscipit ut velit,\n                                    voluptatibus. A\n                                    animi consequatur, delectus et harum iure, labore maiores necessitatibus nemo omnis\n                                    sapiente voluptates?"
+                      )
+                    ]),
+                    _vm._v(" "),
+                    _c("div", { staticClass: "post-additional-info" }, [
+                      _c("div", { staticClass: "post-like" }, [
+                        _c(
+                          "a",
+                          {
+                            staticClass: "post-add-icon",
+                            attrs: { href: "#" }
+                          },
+                          [
+                            _c("svg", { staticClass: "icon icon-heart" }, [
+                              _c("use", {
+                                attrs: { "xlink:href": "#icon-heart" }
+                              })
+                            ]),
+                            _vm._v(" "),
+                            _c("span", [_vm._v("24")])
+                          ]
+                        ),
+                        _vm._v(" "),
+                        _vm._m(6),
+                        _vm._v(" "),
+                        _vm._m(7)
+                      ]),
+                      _vm._v(" "),
+                      _c("div", { staticClass: "post-comments-shared" }, [
+                        _c(
+                          "a",
+                          {
+                            staticClass: "post-add-icon inline-items",
+                            attrs: { href: "#" }
+                          },
+                          [
+                            _c(
+                              "svg",
+                              { staticClass: "icon icon-chat-comment" },
+                              [
+                                _c("use", {
+                                  attrs: { "xlink:href": "#icon-chat-comment" }
+                                })
+                              ]
+                            ),
+                            _vm._v(" "),
+                            _c("span", [_vm._v("17")])
+                          ]
+                        ),
+                        _vm._v(" "),
+                        _c(
+                          "a",
+                          {
+                            staticClass: "post-add-icon inline-items",
+                            attrs: { href: "#" }
+                          },
+                          [
+                            _c("svg", { staticClass: "icon icon-reply-all" }, [
+                              _c("use", {
+                                attrs: { "xlink:href": "#icon-reply-all" }
+                              })
+                            ]),
+                            _vm._v(" "),
+                            _c("span", [_vm._v("24")])
+                          ]
+                        )
+                      ])
+                    ])
+                  ])
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "white-block" }, [
+                  _c("article", { staticClass: "post" }, [
+                    _c("div", { staticClass: "post--author" }, [
+                      _vm._m(8),
+                      _vm._v(" "),
+                      _c("div", { staticClass: "more" }, [
+                        _c("svg", { staticClass: "icon icon-more-button" }, [
+                          _c("use", {
+                            attrs: { "xlink:href": "#icon-more-button" }
+                          })
+                        ]),
+                        _vm._v(" "),
+                        _vm._m(9)
+                      ])
+                    ]),
+                    _vm._v(" "),
+                    _c("p", [
+                      _vm._v(
+                        "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Architecto dolor eius et\n                                    facere\n                                    fuga quaerat quasi temporibus, tenetur ullam veritatis. Accusamus adipisci aliquid\n                                    assumenda aut autem beatae blanditiis deleniti deserunt distinctio doloremque,\n                                    doloribus\n                                    eius eligendi error eveniet excepturi exercitationem expedita facilis fuga fugit\n                                    harum\n                                    impedit incidunt, inventore iste itaque laboriosam laudantium magni mollitia nemo\n                                    numquam officia possimus quae quaerat repellendus tempore temporibus, ullam vero. Ab\n                                    architecto blanditiis corporis, deleniti dicta excepturi exercitationem id illum\n                                    impedit\n                                    labore molestiae nisi officia praesentium quia saepe suscipit ut velit,\n                                    voluptatibus. A\n                                    animi consequatur, delectus et harum iure, labore maiores necessitatibus nemo omnis\n                                    sapiente voluptates?"
+                      )
+                    ]),
+                    _vm._v(" "),
+                    _c("div", { staticClass: "post-additional-info" }, [
+                      _c("div", { staticClass: "post-like" }, [
+                        _c(
+                          "a",
+                          {
+                            staticClass: "post-add-icon",
+                            attrs: { href: "#" }
+                          },
+                          [
+                            _c("svg", { staticClass: "icon icon-heart" }, [
+                              _c("use", {
+                                attrs: { "xlink:href": "#icon-heart" }
+                              })
+                            ]),
+                            _vm._v(" "),
+                            _c("span", [_vm._v("24")])
+                          ]
+                        ),
+                        _vm._v(" "),
+                        _vm._m(10),
+                        _vm._v(" "),
+                        _vm._m(11)
+                      ]),
+                      _vm._v(" "),
+                      _c("div", { staticClass: "post-comments-shared" }, [
+                        _c(
+                          "a",
+                          {
+                            staticClass: "post-add-icon inline-items",
+                            attrs: { href: "#" }
+                          },
+                          [
+                            _c(
+                              "svg",
+                              { staticClass: "icon icon-chat-comment" },
+                              [
+                                _c("use", {
+                                  attrs: { "xlink:href": "#icon-chat-comment" }
+                                })
+                              ]
+                            ),
+                            _vm._v(" "),
+                            _c("span", [_vm._v("17")])
+                          ]
+                        ),
+                        _vm._v(" "),
+                        _c(
+                          "a",
+                          {
+                            staticClass: "post-add-icon inline-items",
+                            attrs: { href: "#" }
+                          },
+                          [
+                            _c("svg", { staticClass: "icon icon-reply-all" }, [
+                              _c("use", {
+                                attrs: { "xlink:href": "#icon-reply-all" }
+                              })
+                            ]),
+                            _vm._v(" "),
+                            _c("span", [_vm._v("24")])
+                          ]
+                        )
+                      ])
+                    ])
+                  ])
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "white-block" }, [
+                  _c("article", { staticClass: "post" }, [
+                    _c("div", { staticClass: "post--author" }, [
+                      _vm._m(12),
+                      _vm._v(" "),
+                      _c("div", { staticClass: "more" }, [
+                        _c("svg", { staticClass: "icon icon-more-button" }, [
+                          _c("use", {
+                            attrs: { "xlink:href": "#icon-more-button" }
+                          })
+                        ]),
+                        _vm._v(" "),
+                        _vm._m(13)
+                      ])
+                    ]),
+                    _vm._v(" "),
+                    _c("p", [
+                      _vm._v(
+                        "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Architecto dolor eius et\n                                    facere\n                                    fuga quaerat quasi temporibus, tenetur ullam veritatis. Accusamus adipisci aliquid\n                                    assumenda aut autem beatae blanditiis deleniti deserunt distinctio doloremque,\n                                    doloribus\n                                    eius eligendi error eveniet excepturi exercitationem expedita facilis fuga fugit\n                                    harum\n                                    impedit incidunt, inventore iste itaque laboriosam laudantium magni mollitia nemo\n                                    numquam officia possimus quae quaerat repellendus tempore temporibus, ullam vero. Ab\n                                    architecto blanditiis corporis, deleniti dicta excepturi exercitationem id illum\n                                    impedit\n                                    labore molestiae nisi officia praesentium quia saepe suscipit ut velit,\n                                    voluptatibus. A\n                                    animi consequatur, delectus et harum iure, labore maiores necessitatibus nemo omnis\n                                    sapiente voluptates?"
+                      )
+                    ]),
+                    _vm._v(" "),
+                    _c("div", { staticClass: "post-additional-info" }, [
+                      _c("div", { staticClass: "post-like" }, [
+                        _c(
+                          "a",
+                          {
+                            staticClass: "post-add-icon",
+                            attrs: { href: "#" }
+                          },
+                          [
+                            _c("svg", { staticClass: "icon icon-heart" }, [
+                              _c("use", {
+                                attrs: { "xlink:href": "#icon-heart" }
+                              })
+                            ]),
+                            _vm._v(" "),
+                            _c("span", [_vm._v("24")])
+                          ]
+                        ),
+                        _vm._v(" "),
+                        _vm._m(14),
+                        _vm._v(" "),
+                        _vm._m(15)
+                      ]),
+                      _vm._v(" "),
+                      _c("div", { staticClass: "post-comments-shared" }, [
+                        _c(
+                          "a",
+                          {
+                            staticClass: "post-add-icon inline-items",
+                            attrs: { href: "#" }
+                          },
+                          [
+                            _c(
+                              "svg",
+                              { staticClass: "icon icon-chat-comment" },
+                              [
+                                _c("use", {
+                                  attrs: { "xlink:href": "#icon-chat-comment" }
+                                })
+                              ]
+                            ),
+                            _vm._v(" "),
+                            _c("span", [_vm._v("17")])
+                          ]
+                        ),
+                        _vm._v(" "),
+                        _c(
+                          "a",
+                          {
+                            staticClass: "post-add-icon inline-items",
+                            attrs: { href: "#" }
+                          },
+                          [
+                            _c("svg", { staticClass: "icon icon-reply-all" }, [
+                              _c("use", {
+                                attrs: { "xlink:href": "#icon-reply-all" }
+                              })
+                            ]),
+                            _vm._v(" "),
+                            _c("span", [_vm._v("24")])
+                          ]
+                        )
+                      ])
+                    ])
+                  ])
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "white-block" }, [
+                  _c("article", { staticClass: "post" }, [
+                    _c("div", { staticClass: "post--author" }, [
+                      _vm._m(16),
+                      _vm._v(" "),
+                      _c("div", { staticClass: "more" }, [
+                        _c("svg", { staticClass: "icon icon-more-button" }, [
+                          _c("use", {
+                            attrs: { "xlink:href": "#icon-more-button" }
+                          })
+                        ]),
+                        _vm._v(" "),
+                        _vm._m(17)
+                      ])
+                    ]),
+                    _vm._v(" "),
+                    _c("p", [
+                      _vm._v(
+                        "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Architecto dolor eius et\n                                    facere\n                                    fuga quaerat quasi temporibus, tenetur ullam veritatis. Accusamus adipisci aliquid\n                                    assumenda aut autem beatae blanditiis deleniti deserunt distinctio doloremque,\n                                    doloribus\n                                    eius eligendi error eveniet excepturi exercitationem expedita facilis fuga fugit\n                                    harum\n                                    impedit incidunt, inventore iste itaque laboriosam laudantium magni mollitia nemo\n                                    numquam officia possimus quae quaerat repellendus tempore temporibus, ullam vero. Ab\n                                    architecto blanditiis corporis, deleniti dicta excepturi exercitationem id illum\n                                    impedit\n                                    labore molestiae nisi officia praesentium quia saepe suscipit ut velit,\n                                    voluptatibus. A\n                                    animi consequatur, delectus et harum iure, labore maiores necessitatibus nemo omnis\n                                    sapiente voluptates?"
+                      )
+                    ]),
+                    _vm._v(" "),
+                    _c("div", { staticClass: "post-additional-info" }, [
+                      _c("div", { staticClass: "post-like" }, [
+                        _c(
+                          "a",
+                          {
+                            staticClass: "post-add-icon",
+                            attrs: { href: "#" }
+                          },
+                          [
+                            _c("svg", { staticClass: "icon icon-heart" }, [
+                              _c("use", {
+                                attrs: { "xlink:href": "#icon-heart" }
+                              })
+                            ]),
+                            _vm._v(" "),
+                            _c("span", [_vm._v("24")])
+                          ]
+                        ),
+                        _vm._v(" "),
+                        _vm._m(18),
+                        _vm._v(" "),
+                        _vm._m(19)
+                      ]),
+                      _vm._v(" "),
+                      _c("div", { staticClass: "post-comments-shared" }, [
+                        _c(
+                          "a",
+                          {
+                            staticClass: "post-add-icon inline-items",
+                            attrs: { href: "#" }
+                          },
+                          [
+                            _c(
+                              "svg",
+                              { staticClass: "icon icon-chat-comment" },
+                              [
+                                _c("use", {
+                                  attrs: { "xlink:href": "#icon-chat-comment" }
+                                })
+                              ]
+                            ),
+                            _vm._v(" "),
+                            _c("span", [_vm._v("17")])
+                          ]
+                        ),
+                        _vm._v(" "),
+                        _c(
+                          "a",
+                          {
+                            staticClass: "post-add-icon inline-items",
+                            attrs: { href: "#" }
+                          },
+                          [
+                            _c("svg", { staticClass: "icon icon-reply-all" }, [
+                              _c("use", {
+                                attrs: { "xlink:href": "#icon-reply-all" }
+                              })
+                            ]),
+                            _vm._v(" "),
+                            _c("span", [_vm._v("24")])
+                          ]
+                        )
+                      ])
+                    ])
+                  ])
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "white-block" }, [
+                  _c("article", { staticClass: "post" }, [
+                    _c("div", { staticClass: "post--author" }, [
+                      _vm._m(20),
+                      _vm._v(" "),
+                      _c("div", { staticClass: "more" }, [
+                        _c("svg", { staticClass: "icon icon-more-button" }, [
+                          _c("use", {
+                            attrs: { "xlink:href": "#icon-more-button" }
+                          })
+                        ]),
+                        _vm._v(" "),
+                        _vm._m(21)
+                      ])
+                    ]),
+                    _vm._v(" "),
+                    _c("p", [
+                      _vm._v(
+                        "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Architecto dolor eius et\n                                    facere\n                                    fuga quaerat quasi temporibus, tenetur ullam veritatis. Accusamus adipisci aliquid\n                                    assumenda aut autem beatae blanditiis deleniti deserunt distinctio doloremque,\n                                    doloribus\n                                    eius eligendi error eveniet excepturi exercitationem expedita facilis fuga fugit\n                                    harum\n                                    impedit incidunt, inventore iste itaque laboriosam laudantium magni mollitia nemo\n                                    numquam officia possimus quae quaerat repellendus tempore temporibus, ullam vero. Ab\n                                    architecto blanditiis corporis, deleniti dicta excepturi exercitationem id illum\n                                    impedit\n                                    labore molestiae nisi officia praesentium quia saepe suscipit ut velit,\n                                    voluptatibus. A\n                                    animi consequatur, delectus et harum iure, labore maiores necessitatibus nemo omnis\n                                    sapiente voluptates?"
+                      )
+                    ]),
+                    _vm._v(" "),
+                    _c("div", { staticClass: "post-additional-info" }, [
+                      _c("div", { staticClass: "post-like" }, [
+                        _c(
+                          "a",
+                          {
+                            staticClass: "post-add-icon",
+                            attrs: { href: "#" }
+                          },
+                          [
+                            _c("svg", { staticClass: "icon icon-heart" }, [
+                              _c("use", {
+                                attrs: { "xlink:href": "#icon-heart" }
+                              })
+                            ]),
+                            _vm._v(" "),
+                            _c("span", [_vm._v("24")])
+                          ]
+                        ),
+                        _vm._v(" "),
+                        _vm._m(22),
+                        _vm._v(" "),
+                        _vm._m(23)
+                      ]),
+                      _vm._v(" "),
+                      _c("div", { staticClass: "post-comments-shared" }, [
+                        _c(
+                          "a",
+                          {
+                            staticClass: "post-add-icon inline-items",
+                            attrs: { href: "#" }
+                          },
+                          [
+                            _c(
+                              "svg",
+                              { staticClass: "icon icon-chat-comment" },
+                              [
+                                _c("use", {
+                                  attrs: { "xlink:href": "#icon-chat-comment" }
+                                })
+                              ]
+                            ),
+                            _vm._v(" "),
+                            _c("span", [_vm._v("17")])
+                          ]
+                        ),
+                        _vm._v(" "),
+                        _c(
+                          "a",
+                          {
+                            staticClass: "post-add-icon inline-items",
+                            attrs: { href: "#" }
+                          },
+                          [
+                            _c("svg", { staticClass: "icon icon-reply-all" }, [
+                              _c("use", {
+                                attrs: { "xlink:href": "#icon-reply-all" }
+                              })
+                            ]),
+                            _vm._v(" "),
+                            _c("span", [_vm._v("24")])
+                          ]
+                        )
+                      ])
+                    ])
+                  ])
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "white-block" }, [
+                  _c("article", { staticClass: "post" }, [
+                    _c("div", { staticClass: "post--author" }, [
+                      _vm._m(24),
+                      _vm._v(" "),
+                      _c("div", { staticClass: "more" }, [
+                        _c("svg", { staticClass: "icon icon-more-button" }, [
+                          _c("use", {
+                            attrs: { "xlink:href": "#icon-more-button" }
+                          })
+                        ]),
+                        _vm._v(" "),
+                        _vm._m(25)
+                      ])
+                    ]),
+                    _vm._v(" "),
+                    _c("p", [
+                      _vm._v(
+                        "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Architecto dolor eius et\n                                    facere\n                                    fuga quaerat quasi temporibus, tenetur ullam veritatis. Accusamus adipisci aliquid\n                                    assumenda aut autem beatae blanditiis deleniti deserunt distinctio doloremque,\n                                    doloribus\n                                    eius eligendi error eveniet excepturi exercitationem expedita facilis fuga fugit\n                                    harum\n                                    impedit incidunt, inventore iste itaque laboriosam laudantium magni mollitia nemo\n                                    numquam officia possimus quae quaerat repellendus tempore temporibus, ullam vero. Ab\n                                    architecto blanditiis corporis, deleniti dicta excepturi exercitationem id illum\n                                    impedit\n                                    labore molestiae nisi officia praesentium quia saepe suscipit ut velit,\n                                    voluptatibus. A\n                                    animi consequatur, delectus et harum iure, labore maiores necessitatibus nemo omnis\n                                    sapiente voluptates?"
+                      )
+                    ]),
+                    _vm._v(" "),
+                    _c("div", { staticClass: "post-additional-info" }, [
+                      _c("div", { staticClass: "post-like" }, [
+                        _c(
+                          "a",
+                          {
+                            staticClass: "post-add-icon",
+                            attrs: { href: "#" }
+                          },
+                          [
+                            _c("svg", { staticClass: "icon icon-heart" }, [
+                              _c("use", {
+                                attrs: { "xlink:href": "#icon-heart" }
+                              })
+                            ]),
+                            _vm._v(" "),
+                            _c("span", [_vm._v("24")])
+                          ]
+                        ),
+                        _vm._v(" "),
+                        _vm._m(26),
+                        _vm._v(" "),
+                        _vm._m(27)
+                      ]),
+                      _vm._v(" "),
+                      _c("div", { staticClass: "post-comments-shared" }, [
+                        _c(
+                          "a",
+                          {
+                            staticClass: "post-add-icon inline-items",
+                            attrs: { href: "#" }
+                          },
+                          [
+                            _c(
+                              "svg",
+                              { staticClass: "icon icon-chat-comment" },
+                              [
+                                _c("use", {
+                                  attrs: { "xlink:href": "#icon-chat-comment" }
+                                })
+                              ]
+                            ),
+                            _vm._v(" "),
+                            _c("span", [_vm._v("17")])
+                          ]
+                        ),
+                        _vm._v(" "),
+                        _c(
+                          "a",
+                          {
+                            staticClass: "post-add-icon inline-items",
+                            attrs: { href: "#" }
+                          },
+                          [
+                            _c("svg", { staticClass: "icon icon-reply-all" }, [
+                              _c("use", {
+                                attrs: { "xlink:href": "#icon-reply-all" }
+                              })
+                            ]),
+                            _vm._v(" "),
+                            _c("span", [_vm._v("24")])
+                          ]
+                        )
+                      ])
+                    ])
+                  ])
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "white-block" }, [
+                  _c("article", { staticClass: "post" }, [
+                    _c("div", { staticClass: "post--author" }, [
+                      _vm._m(28),
+                      _vm._v(" "),
+                      _c("div", { staticClass: "more" }, [
+                        _c("svg", { staticClass: "icon icon-more-button" }, [
+                          _c("use", {
+                            attrs: { "xlink:href": "#icon-more-button" }
+                          })
+                        ]),
+                        _vm._v(" "),
+                        _vm._m(29)
+                      ])
+                    ]),
+                    _vm._v(" "),
+                    _c("p", [
+                      _vm._v(
+                        "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Architecto dolor eius et\n                                    facere\n                                    fuga quaerat quasi temporibus, tenetur ullam veritatis. Accusamus adipisci aliquid\n                                    assumenda aut autem beatae blanditiis deleniti deserunt distinctio doloremque,\n                                    doloribus\n                                    eius eligendi error eveniet excepturi exercitationem expedita facilis fuga fugit\n                                    harum\n                                    impedit incidunt, inventore iste itaque laboriosam laudantium magni mollitia nemo\n                                    numquam officia possimus quae quaerat repellendus tempore temporibus, ullam vero. Ab\n                                    architecto blanditiis corporis, deleniti dicta excepturi exercitationem id illum\n                                    impedit\n                                    labore molestiae nisi officia praesentium quia saepe suscipit ut velit,\n                                    voluptatibus. A\n                                    animi consequatur, delectus et harum iure, labore maiores necessitatibus nemo omnis\n                                    sapiente voluptates?"
+                      )
+                    ]),
+                    _vm._v(" "),
+                    _c("div", { staticClass: "post-additional-info" }, [
+                      _c("div", { staticClass: "post-like" }, [
+                        _c(
+                          "a",
+                          {
+                            staticClass: "post-add-icon",
+                            attrs: { href: "#" }
+                          },
+                          [
+                            _c("svg", { staticClass: "icon icon-heart" }, [
+                              _c("use", {
+                                attrs: { "xlink:href": "#icon-heart" }
+                              })
+                            ]),
+                            _vm._v(" "),
+                            _c("span", [_vm._v("24")])
+                          ]
+                        ),
+                        _vm._v(" "),
+                        _vm._m(30),
+                        _vm._v(" "),
+                        _vm._m(31)
+                      ]),
+                      _vm._v(" "),
+                      _c("div", { staticClass: "post-comments-shared" }, [
+                        _c(
+                          "a",
+                          {
+                            staticClass: "post-add-icon inline-items",
+                            attrs: { href: "#" }
+                          },
+                          [
+                            _c(
+                              "svg",
+                              { staticClass: "icon icon-chat-comment" },
+                              [
+                                _c("use", {
+                                  attrs: { "xlink:href": "#icon-chat-comment" }
+                                })
+                              ]
+                            ),
+                            _vm._v(" "),
+                            _c("span", [_vm._v("17")])
+                          ]
+                        ),
+                        _vm._v(" "),
+                        _c(
+                          "a",
+                          {
+                            staticClass: "post-add-icon inline-items",
+                            attrs: { href: "#" }
+                          },
+                          [
+                            _c("svg", { staticClass: "icon icon-reply-all" }, [
+                              _c("use", {
+                                attrs: { "xlink:href": "#icon-reply-all" }
+                              })
+                            ]),
+                            _vm._v(" "),
+                            _c("span", [_vm._v("24")])
+                          ]
+                        )
+                      ])
+                    ])
+                  ])
+                ])
+              ])
+            ]
+          ),
+          _vm._v(" "),
+          _c(
+            "aside",
+            {
+              staticClass:
+                "col col-xl-3 order-xl-1 col-lg-6 order-lg-2 col-md-12 order-sm-3 col-sm-12 col-12 order-3"
+            },
+            [
+              _c("div", { staticClass: "white-block" }, [
+                _c("div", { staticClass: "white-block-title" }, [
+                  _c("h6", { staticClass: "title" }, [_vm._v("Add chanel")]),
+                  _vm._v(" "),
+                  _c("a", { staticClass: "more", attrs: { href: "#" } }, [
+                    _c("svg", { staticClass: "icon icon-more-button" }, [
+                      _c("use", {
+                        attrs: { "xlink:href": "#icon-more-button" }
+                      })
+                    ])
+                  ])
+                ])
+              ])
+            ]
+          ),
+          _vm._v(" "),
+          _c(
+            "aside",
+            {
+              staticClass:
+                "col col-xl-3 order-xl-3 col-lg-6 order-lg-3 col-md-12 order-sm-1 col-sm-12 col-12 order-1"
+            },
+            [
+              _c("div", { staticClass: "white-block" }, [
+                _c("div", { staticClass: "white-block-title" }, [
+                  _c("h6", { staticClass: "title" }, [_vm._v("Add chanel")]),
+                  _vm._v(" "),
+                  _c("a", { staticClass: "more", attrs: { href: "#" } }, [
+                    _c("svg", { staticClass: "icon icon-more-button" }, [
+                      _c("use", {
+                        attrs: { "xlink:href": "#icon-more-button" }
+                      })
+                    ])
+                  ])
+                ]),
+                _vm._v(" "),
+                _c("ul", { staticClass: "widget--chanel" }, [
+                  _c("li", { staticClass: "inline-items" }, [
+                    _c("div", { staticClass: "sn" }, [
+                      _c("div", { staticClass: "sn-thumb" }, [
+                        _c("svg", { staticClass: "icon icon-telegram" }, [
+                          _c("use", {
+                            attrs: { "xlink:href": "#icon-telegram" }
+                          })
+                        ])
+                      ]),
+                      _vm._v(" "),
+                      _vm._m(32)
+                    ]),
+                    _vm._v(" "),
+                    _c("span", { staticClass: "notification-icon" }, [
+                      _c(
+                        "a",
+                        { staticClass: "btn btn-accept", attrs: { href: "#" } },
+                        [
+                          _c("span", { staticClass: "icon-add without-text" }, [
+                            _c("svg", { staticClass: "icon icon-add" }, [
+                              _c("use", {
+                                attrs: { "xlink:href": "#icon-add" }
+                              })
+                            ])
+                          ])
+                        ]
+                      )
+                    ])
+                  ]),
+                  _vm._v(" "),
+                  _c("li", { staticClass: "inline-items" }, [
+                    _c("div", { staticClass: "sn" }, [
+                      _c("div", { staticClass: "sn-thumb" }, [
+                        _c(
+                          "svg",
+                          { staticClass: "icon icon-twitter-bird-logo" },
+                          [
+                            _c("use", {
+                              attrs: { "xlink:href": "#icon-twitter-bird-logo" }
+                            })
+                          ]
+                        )
+                      ]),
+                      _vm._v(" "),
+                      _vm._m(33)
+                    ]),
+                    _vm._v(" "),
+                    _vm._m(34)
+                  ])
+                ])
+              ])
+            ]
+          )
+        ])
+      ]),
+      _vm._v(" "),
+      _vm._m(35)
+    ]
+  )
 }
-var staticRenderFns = []
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "post--author-user" }, [
+      _c("img", { attrs: { src: "img/bg.jpg", alt: "author" } }),
+      _vm._v(" "),
+      _c("div", { staticClass: "post--author-date" }, [
+        _c(
+          "a",
+          { staticClass: "h6 post--author-name fn", attrs: { href: "#" } },
+          [_vm._v("Телеблог блог о телеграм ")]
+        ),
+        _vm._v(" "),
+        _c("div", { staticClass: "post--date" }, [
+          _c(
+            "time",
+            {
+              staticClass: "published",
+              attrs: { datetime: "2018-05-1T15:18" }
+            },
+            [
+              _c("a", { attrs: { href: "#" } }, [_vm._v("@teleblog")]),
+              _vm._v(
+                " May 1 at 2:05pm\n                                                "
+              )
+            ]
+          )
+        ])
+      ])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("ul", { staticClass: "more-dropdown d-none" }, [
+      _c("li", [_c("a", { attrs: { href: "#" } }, [_vm._v("Edit Post")])]),
+      _vm._v(" "),
+      _c("li", [_c("a", { attrs: { href: "#" } }, [_vm._v("Delete Post")])]),
+      _vm._v(" "),
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [_vm._v("Turn Off Notifications")])
+      ]),
+      _vm._v(" "),
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [_vm._v("Select as Featured")])
+      ])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("ul", { staticClass: "friends-like" }, [
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [
+          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
+        ])
+      ]),
+      _vm._v(" "),
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [
+          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
+        ])
+      ]),
+      _vm._v(" "),
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [
+          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
+        ])
+      ]),
+      _vm._v(" "),
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [
+          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
+        ])
+      ]),
+      _vm._v(" "),
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [
+          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
+        ])
+      ])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "names-people-likes" }, [
+      _c("a", { attrs: { href: "#" } }, [_vm._v("You")]),
+      _vm._v(", "),
+      _c("a", { attrs: { href: "#" } }, [_vm._v("Elaine")]),
+      _vm._v(" and\n                                            "),
+      _c("br"),
+      _vm._v("22 more liked this\n                                        ")
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "post--author-user" }, [
+      _c("img", { attrs: { src: "img/bg.jpg", alt: "author" } }),
+      _vm._v(" "),
+      _c("div", { staticClass: "post--author-date" }, [
+        _c(
+          "a",
+          { staticClass: "h6 post--author-name fn", attrs: { href: "#" } },
+          [_vm._v("Телеблог блог о телеграм ")]
+        ),
+        _vm._v(" "),
+        _c("div", { staticClass: "post--date" }, [
+          _c(
+            "time",
+            {
+              staticClass: "published",
+              attrs: { datetime: "2018-05-1T15:18" }
+            },
+            [
+              _c("a", { attrs: { href: "#" } }, [_vm._v("@teleblog")]),
+              _vm._v(
+                " May 1 at 2:05pm\n                                                "
+              )
+            ]
+          )
+        ])
+      ])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("ul", { staticClass: "more-dropdown d-none" }, [
+      _c("li", [_c("a", { attrs: { href: "#" } }, [_vm._v("Edit Post")])]),
+      _vm._v(" "),
+      _c("li", [_c("a", { attrs: { href: "#" } }, [_vm._v("Delete Post")])]),
+      _vm._v(" "),
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [_vm._v("Turn Off Notifications")])
+      ]),
+      _vm._v(" "),
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [_vm._v("Select as Featured")])
+      ])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("ul", { staticClass: "friends-like" }, [
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [
+          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
+        ])
+      ]),
+      _vm._v(" "),
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [
+          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
+        ])
+      ]),
+      _vm._v(" "),
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [
+          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
+        ])
+      ]),
+      _vm._v(" "),
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [
+          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
+        ])
+      ]),
+      _vm._v(" "),
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [
+          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
+        ])
+      ])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "names-people-likes" }, [
+      _c("a", { attrs: { href: "#" } }, [_vm._v("You")]),
+      _vm._v(", "),
+      _c("a", { attrs: { href: "#" } }, [_vm._v("Elaine")]),
+      _vm._v(" and\n                                            "),
+      _c("br"),
+      _vm._v("22 more liked this\n                                        ")
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "post--author-user" }, [
+      _c("img", { attrs: { src: "img/bg.jpg", alt: "author" } }),
+      _vm._v(" "),
+      _c("div", { staticClass: "post--author-date" }, [
+        _c(
+          "a",
+          { staticClass: "h6 post--author-name fn", attrs: { href: "#" } },
+          [_vm._v("Телеблог блог о телеграм ")]
+        ),
+        _vm._v(" "),
+        _c("div", { staticClass: "post--date" }, [
+          _c(
+            "time",
+            {
+              staticClass: "published",
+              attrs: { datetime: "2018-05-1T15:18" }
+            },
+            [
+              _c("a", { attrs: { href: "#" } }, [_vm._v("@teleblog")]),
+              _vm._v(
+                " May 1 at 2:05pm\n                                                "
+              )
+            ]
+          )
+        ])
+      ])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("ul", { staticClass: "more-dropdown d-none" }, [
+      _c("li", [_c("a", { attrs: { href: "#" } }, [_vm._v("Edit Post")])]),
+      _vm._v(" "),
+      _c("li", [_c("a", { attrs: { href: "#" } }, [_vm._v("Delete Post")])]),
+      _vm._v(" "),
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [_vm._v("Turn Off Notifications")])
+      ]),
+      _vm._v(" "),
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [_vm._v("Select as Featured")])
+      ])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("ul", { staticClass: "friends-like" }, [
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [
+          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
+        ])
+      ]),
+      _vm._v(" "),
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [
+          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
+        ])
+      ]),
+      _vm._v(" "),
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [
+          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
+        ])
+      ]),
+      _vm._v(" "),
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [
+          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
+        ])
+      ]),
+      _vm._v(" "),
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [
+          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
+        ])
+      ])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "names-people-likes" }, [
+      _c("a", { attrs: { href: "#" } }, [_vm._v("You")]),
+      _vm._v(", "),
+      _c("a", { attrs: { href: "#" } }, [_vm._v("Elaine")]),
+      _vm._v(" and\n                                            "),
+      _c("br"),
+      _vm._v("22 more liked this\n                                        ")
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "post--author-user" }, [
+      _c("img", { attrs: { src: "img/bg.jpg", alt: "author" } }),
+      _vm._v(" "),
+      _c("div", { staticClass: "post--author-date" }, [
+        _c(
+          "a",
+          { staticClass: "h6 post--author-name fn", attrs: { href: "#" } },
+          [_vm._v("Телеблог блог о телеграм ")]
+        ),
+        _vm._v(" "),
+        _c("div", { staticClass: "post--date" }, [
+          _c(
+            "time",
+            {
+              staticClass: "published",
+              attrs: { datetime: "2018-05-1T15:18" }
+            },
+            [
+              _c("a", { attrs: { href: "#" } }, [_vm._v("@teleblog")]),
+              _vm._v(
+                " May 1 at 2:05pm\n                                                "
+              )
+            ]
+          )
+        ])
+      ])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("ul", { staticClass: "more-dropdown d-none" }, [
+      _c("li", [_c("a", { attrs: { href: "#" } }, [_vm._v("Edit Post")])]),
+      _vm._v(" "),
+      _c("li", [_c("a", { attrs: { href: "#" } }, [_vm._v("Delete Post")])]),
+      _vm._v(" "),
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [_vm._v("Turn Off Notifications")])
+      ]),
+      _vm._v(" "),
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [_vm._v("Select as Featured")])
+      ])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("ul", { staticClass: "friends-like" }, [
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [
+          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
+        ])
+      ]),
+      _vm._v(" "),
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [
+          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
+        ])
+      ]),
+      _vm._v(" "),
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [
+          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
+        ])
+      ]),
+      _vm._v(" "),
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [
+          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
+        ])
+      ]),
+      _vm._v(" "),
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [
+          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
+        ])
+      ])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "names-people-likes" }, [
+      _c("a", { attrs: { href: "#" } }, [_vm._v("You")]),
+      _vm._v(", "),
+      _c("a", { attrs: { href: "#" } }, [_vm._v("Elaine")]),
+      _vm._v(" and\n                                            "),
+      _c("br"),
+      _vm._v("22 more liked this\n                                        ")
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "post--author-user" }, [
+      _c("img", { attrs: { src: "img/bg.jpg", alt: "author" } }),
+      _vm._v(" "),
+      _c("div", { staticClass: "post--author-date" }, [
+        _c(
+          "a",
+          { staticClass: "h6 post--author-name fn", attrs: { href: "#" } },
+          [_vm._v("Телеблог блог о телеграм ")]
+        ),
+        _vm._v(" "),
+        _c("div", { staticClass: "post--date" }, [
+          _c(
+            "time",
+            {
+              staticClass: "published",
+              attrs: { datetime: "2018-05-1T15:18" }
+            },
+            [
+              _c("a", { attrs: { href: "#" } }, [_vm._v("@teleblog")]),
+              _vm._v(
+                " May 1 at 2:05pm\n                                                "
+              )
+            ]
+          )
+        ])
+      ])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("ul", { staticClass: "more-dropdown d-none" }, [
+      _c("li", [_c("a", { attrs: { href: "#" } }, [_vm._v("Edit Post")])]),
+      _vm._v(" "),
+      _c("li", [_c("a", { attrs: { href: "#" } }, [_vm._v("Delete Post")])]),
+      _vm._v(" "),
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [_vm._v("Turn Off Notifications")])
+      ]),
+      _vm._v(" "),
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [_vm._v("Select as Featured")])
+      ])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("ul", { staticClass: "friends-like" }, [
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [
+          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
+        ])
+      ]),
+      _vm._v(" "),
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [
+          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
+        ])
+      ]),
+      _vm._v(" "),
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [
+          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
+        ])
+      ]),
+      _vm._v(" "),
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [
+          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
+        ])
+      ]),
+      _vm._v(" "),
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [
+          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
+        ])
+      ])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "names-people-likes" }, [
+      _c("a", { attrs: { href: "#" } }, [_vm._v("You")]),
+      _vm._v(", "),
+      _c("a", { attrs: { href: "#" } }, [_vm._v("Elaine")]),
+      _vm._v(" and\n                                            "),
+      _c("br"),
+      _vm._v("22 more liked this\n                                        ")
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "post--author-user" }, [
+      _c("img", { attrs: { src: "img/bg.jpg", alt: "author" } }),
+      _vm._v(" "),
+      _c("div", { staticClass: "post--author-date" }, [
+        _c(
+          "a",
+          { staticClass: "h6 post--author-name fn", attrs: { href: "#" } },
+          [_vm._v("Телеблог блог о телеграм ")]
+        ),
+        _vm._v(" "),
+        _c("div", { staticClass: "post--date" }, [
+          _c(
+            "time",
+            {
+              staticClass: "published",
+              attrs: { datetime: "2018-05-1T15:18" }
+            },
+            [
+              _c("a", { attrs: { href: "#" } }, [_vm._v("@teleblog")]),
+              _vm._v(
+                " May 1 at 2:05pm\n                                                "
+              )
+            ]
+          )
+        ])
+      ])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("ul", { staticClass: "more-dropdown d-none" }, [
+      _c("li", [_c("a", { attrs: { href: "#" } }, [_vm._v("Edit Post")])]),
+      _vm._v(" "),
+      _c("li", [_c("a", { attrs: { href: "#" } }, [_vm._v("Delete Post")])]),
+      _vm._v(" "),
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [_vm._v("Turn Off Notifications")])
+      ]),
+      _vm._v(" "),
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [_vm._v("Select as Featured")])
+      ])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("ul", { staticClass: "friends-like" }, [
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [
+          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
+        ])
+      ]),
+      _vm._v(" "),
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [
+          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
+        ])
+      ]),
+      _vm._v(" "),
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [
+          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
+        ])
+      ]),
+      _vm._v(" "),
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [
+          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
+        ])
+      ]),
+      _vm._v(" "),
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [
+          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
+        ])
+      ])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "names-people-likes" }, [
+      _c("a", { attrs: { href: "#" } }, [_vm._v("You")]),
+      _vm._v(", "),
+      _c("a", { attrs: { href: "#" } }, [_vm._v("Elaine")]),
+      _vm._v(" and\n                                            "),
+      _c("br"),
+      _vm._v("22 more liked this\n                                        ")
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "post--author-user" }, [
+      _c("img", { attrs: { src: "img/bg.jpg", alt: "author" } }),
+      _vm._v(" "),
+      _c("div", { staticClass: "post--author-date" }, [
+        _c(
+          "a",
+          { staticClass: "h6 post--author-name fn", attrs: { href: "#" } },
+          [_vm._v("Телеблог блог о телеграм ")]
+        ),
+        _vm._v(" "),
+        _c("div", { staticClass: "post--date" }, [
+          _c(
+            "time",
+            {
+              staticClass: "published",
+              attrs: { datetime: "2018-05-1T15:18" }
+            },
+            [
+              _c("a", { attrs: { href: "#" } }, [_vm._v("@teleblog")]),
+              _vm._v(
+                " May 1 at 2:05pm\n                                                "
+              )
+            ]
+          )
+        ])
+      ])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("ul", { staticClass: "more-dropdown d-none" }, [
+      _c("li", [_c("a", { attrs: { href: "#" } }, [_vm._v("Edit Post")])]),
+      _vm._v(" "),
+      _c("li", [_c("a", { attrs: { href: "#" } }, [_vm._v("Delete Post")])]),
+      _vm._v(" "),
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [_vm._v("Turn Off Notifications")])
+      ]),
+      _vm._v(" "),
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [_vm._v("Select as Featured")])
+      ])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("ul", { staticClass: "friends-like" }, [
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [
+          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
+        ])
+      ]),
+      _vm._v(" "),
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [
+          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
+        ])
+      ]),
+      _vm._v(" "),
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [
+          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
+        ])
+      ]),
+      _vm._v(" "),
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [
+          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
+        ])
+      ]),
+      _vm._v(" "),
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [
+          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
+        ])
+      ])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "names-people-likes" }, [
+      _c("a", { attrs: { href: "#" } }, [_vm._v("You")]),
+      _vm._v(", "),
+      _c("a", { attrs: { href: "#" } }, [_vm._v("Elaine")]),
+      _vm._v(" and\n                                            "),
+      _c("br"),
+      _vm._v("22 more liked this\n                                        ")
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "post--author-user" }, [
+      _c("img", { attrs: { src: "img/bg.jpg", alt: "author" } }),
+      _vm._v(" "),
+      _c("div", { staticClass: "post--author-date" }, [
+        _c(
+          "a",
+          { staticClass: "h6 post--author-name fn", attrs: { href: "#" } },
+          [_vm._v("Телеблог блог о телеграм ")]
+        ),
+        _vm._v(" "),
+        _c("div", { staticClass: "post--date" }, [
+          _c(
+            "time",
+            {
+              staticClass: "published",
+              attrs: { datetime: "2018-05-1T15:18" }
+            },
+            [
+              _c("a", { attrs: { href: "#" } }, [_vm._v("@teleblog")]),
+              _vm._v(
+                " May 1 at 2:05pm\n                                                "
+              )
+            ]
+          )
+        ])
+      ])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("ul", { staticClass: "more-dropdown d-none" }, [
+      _c("li", [_c("a", { attrs: { href: "#" } }, [_vm._v("Edit Post")])]),
+      _vm._v(" "),
+      _c("li", [_c("a", { attrs: { href: "#" } }, [_vm._v("Delete Post")])]),
+      _vm._v(" "),
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [_vm._v("Turn Off Notifications")])
+      ]),
+      _vm._v(" "),
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [_vm._v("Select as Featured")])
+      ])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("ul", { staticClass: "friends-like" }, [
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [
+          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
+        ])
+      ]),
+      _vm._v(" "),
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [
+          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
+        ])
+      ]),
+      _vm._v(" "),
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [
+          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
+        ])
+      ]),
+      _vm._v(" "),
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [
+          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
+        ])
+      ]),
+      _vm._v(" "),
+      _c("li", [
+        _c("a", { attrs: { href: "#" } }, [
+          _c("img", { attrs: { src: "img/bg.jpg", alt: "friend" } })
+        ])
+      ])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "names-people-likes" }, [
+      _c("a", { attrs: { href: "#" } }, [_vm._v("You")]),
+      _vm._v(", "),
+      _c("a", { attrs: { href: "#" } }, [_vm._v("Elaine")]),
+      _vm._v(" and\n                                            "),
+      _c("br"),
+      _vm._v("22 more liked this\n                                        ")
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "sn-event" }, [
+      _c("p", [_vm._v("Telegram")])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "sn-event" }, [
+      _c("p", [_vm._v("Twitter")])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("span", { staticClass: "notification-icon" }, [
+      _c("a", { staticClass: "btn btn-login", attrs: { href: "#" } }, [
+        _c("span", { staticClass: "icon-add without-text" }, [
+          _vm._v(
+            "\n                                    login\n\t\t\t\t\t\t\t\t"
+          )
+        ])
+      ])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "white-block column-friends" }, [
+      _c("ul", { staticClass: "column-friends-list" }, [
+        _c("li", { staticClass: "column-friends-list-item" }, [_vm._v("1")]),
+        _vm._v(" "),
+        _c("li", { staticClass: "column-friends-list-item" }, [_vm._v("2")]),
+        _vm._v(" "),
+        _c("li", { staticClass: "column-friends-list-item" }, [_vm._v("3")]),
+        _vm._v(" "),
+        _c("li", { staticClass: "column-friends-list-item" }, [_vm._v("4")]),
+        _vm._v(" "),
+        _c("li", { staticClass: "column-friends-list-item" }, [_vm._v("5")]),
+        _vm._v(" "),
+        _c("li", { staticClass: "column-friends-list-item" }, [_vm._v("6")]),
+        _vm._v(" "),
+        _c("li", { staticClass: "column-friends-list-item" }, [_vm._v("7")]),
+        _vm._v(" "),
+        _c("li", { staticClass: "column-friends-list-item" }, [_vm._v("8")]),
+        _vm._v(" "),
+        _c("li", { staticClass: "column-friends-list-item" }, [_vm._v("9")]),
+        _vm._v(" "),
+        _c("li", { staticClass: "column-friends-list-item" }, [_vm._v("10")])
+      ])
+    ])
+  }
+]
 render._withStripped = true
 module.exports = { render: render, staticRenderFns: staticRenderFns }
 if (false) {
   module.hot.accept()
   if (module.hot.data) {
-    require("vue-hot-reload-api")      .rerender("data-v-d4aeccee", module.exports)
+    require("vue-hot-reload-api")      .rerender("data-v-07144db8", module.exports)
   }
 }
 
@@ -17388,7 +20293,7 @@ module.exports = __webpack_require__(31);
 var utils = __webpack_require__(0);
 var bind = __webpack_require__(9);
 var Axios = __webpack_require__(33);
-var defaults = __webpack_require__(4);
+var defaults = __webpack_require__(6);
 
 /**
  * Create an instance of Axios
@@ -17471,7 +20376,7 @@ function isSlowBuffer (obj) {
 "use strict";
 
 
-var defaults = __webpack_require__(4);
+var defaults = __webpack_require__(6);
 var utils = __webpack_require__(0);
 var InterceptorManager = __webpack_require__(42);
 var dispatchRequest = __webpack_require__(43);
@@ -18010,7 +20915,7 @@ module.exports = InterceptorManager;
 var utils = __webpack_require__(0);
 var transformData = __webpack_require__(44);
 var isCancel = __webpack_require__(12);
-var defaults = __webpack_require__(4);
+var defaults = __webpack_require__(6);
 var isAbsoluteURL = __webpack_require__(45);
 var combineURLs = __webpack_require__(46);
 
@@ -18280,11 +21185,11 @@ function injectStyle (ssrContext) {
   if (disposed) return
   __webpack_require__(51)
 }
-var normalizeComponent = __webpack_require__(3)
+var normalizeComponent = __webpack_require__(1)
 /* script */
 var __vue_script__ = __webpack_require__(53)
 /* template */
-var __vue_template__ = __webpack_require__(54)
+var __vue_template__ = __webpack_require__(59)
 /* template functional */
 var __vue_template_functional__ = false
 /* styles */
@@ -18333,7 +21238,7 @@ var content = __webpack_require__(52);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(7)("dd64535e", content, false, {});
+var update = __webpack_require__(5)("dd64535e", content, false, {});
 // Hot Module Replacement
 if(false) {
  // When the styles change, update the <style> tags
@@ -18352,12 +21257,12 @@ if(false) {
 /* 52 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(6)(false);
+exports = module.exports = __webpack_require__(4)(false);
 // imports
 
 
 // module
-exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
+exports.push([module.i, "\n.fade-enter-active[data-v-6dd1125c], .fade-leave-active[data-v-6dd1125c] {\n    -webkit-transition: opacity .5s;\n    transition: opacity .5s;\n}\n.fade-enter[data-v-6dd1125c], .fade-leave-to[data-v-6dd1125c] /* .fade-leave-active до версии 2.1.8 */\n{\n    opacity: 0;\n}\n", ""]);
 
 // exports
 
@@ -18368,24 +21273,465 @@ exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__components_Authorized_Header__ = __webpack_require__(54);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__components_Authorized_Header___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__components_Authorized_Header__);
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
 //
 
+
+
 /* harmony default export */ __webpack_exports__["default"] = ({
-    name: "App"
+    name: "App",
+    components: {
+        AppHeader: __WEBPACK_IMPORTED_MODULE_0__components_Authorized_Header___default.a
+    },
+    mounted: function mounted() {
+        var _this = this;
+
+        if (this.$store.getters.isAuthenticated) {
+            this.$store.dispatch('USER_PROFILE').catch(function () {
+                _this.$store.dispatch('AUTH_LOGOUT');
+                _this.$router.replace('/');
+            });
+        }
+    },
+
+    computed: {
+        isIndex: function isIndex() {
+            return this.$route.name === 'Index' ? true : false;
+        }
+    }
 });
 
 /***/ }),
 /* 54 */
 /***/ (function(module, exports, __webpack_require__) {
 
+var disposed = false
+function injectStyle (ssrContext) {
+  if (disposed) return
+  __webpack_require__(55)
+}
+var normalizeComponent = __webpack_require__(1)
+/* script */
+var __vue_script__ = __webpack_require__(57)
+/* template */
+var __vue_template__ = __webpack_require__(58)
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = injectStyle
+/* scopeId */
+var __vue_scopeId__ = "data-v-39c822a7"
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources\\assets\\js\\components\\Authorized\\Header.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-39c822a7", Component.options)
+  } else {
+    hotAPI.reload("data-v-39c822a7", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 55 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(56);
+if(typeof content === 'string') content = [[module.i, content, '']];
+if(content.locals) module.exports = content.locals;
+// add the styles to the DOM
+var update = __webpack_require__(5)("6e3e534e", content, false, {});
+// Hot Module Replacement
+if(false) {
+ // When the styles change, update the <style> tags
+ if(!content.locals) {
+   module.hot.accept("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-39c822a7\",\"scoped\":true,\"hasInlineConfig\":true}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./Header.vue", function() {
+     var newContent = require("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-39c822a7\",\"scoped\":true,\"hasInlineConfig\":true}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./Header.vue");
+     if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+     update(newContent);
+   });
+ }
+ // When the module is disposed, remove the <style> tags
+ module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 56 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(4)(false);
+// imports
+
+
+// module
+exports.push([module.i, "\n.fade-enter-active[data-v-39c822a7], .fade-leave-active[data-v-39c822a7] {\n    -webkit-transition: all .3s;\n    transition: all .3s;\n}\n.fade-enter[data-v-39c822a7], .fade-leave-to[data-v-39c822a7] /* .fade-leave-active до версии 2.1.8 */\n{\n    opacity: 0;\n}\n", ""]);
+
+// exports
+
+
+/***/ }),
+/* 57 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+    name: "Header",
+    data: function data() {
+        return {
+            active: false
+        };
+    },
+
+    methods: {
+        toggleDropdown: function toggleDropdown() {
+            this.active = !this.active;
+        },
+        logout: function logout() {
+            this.$store.dispatch('AUTH_LOGOUT');
+            this.$router.replace('/');
+        }
+    },
+    computed: {
+        titlePage: function titlePage() {
+            return this.$route.meta.title;
+        },
+        userFullName: function userFullName() {
+            return this.$store.getters.user.first_name + ' ' + this.$store.getters.user.last_name;
+        }
+    },
+    mounted: function mounted() {
+        var _this = this;
+
+        window.addEventListener('click', function (e) {
+            if (e.target.parentNode.classList !== 'header-page--dropdown') {
+                _this.active = false;
+            }
+        });
+    }
+});
+
+/***/ }),
+/* 58 */
+/***/ (function(module, exports, __webpack_require__) {
+
 var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c("router-view")
+  return _c("header", { staticClass: "header-page", attrs: { id: "header" } }, [
+    _vm._m(0),
+    _vm._v(" "),
+    _c("div", { staticClass: "header-page--pagename" }, [
+      _c("p", { staticClass: "header-page--pagename-text" }, [
+        _vm._v(_vm._s(_vm.titlePage))
+      ])
+    ]),
+    _vm._v(" "),
+    _c("div", { staticClass: "header-page-content-wrapper" }, [
+      _c("form", { staticClass: "header-page--search" }, [
+        _c("input", {
+          staticClass: "header-page--search-input",
+          attrs: { type: "text", placeholder: "Search here people" }
+        }),
+        _vm._v(" "),
+        _c("button", [
+          _c("svg", { staticClass: "icon icon-magnifier-tool" }, [
+            _c("use", { attrs: { "xlink:href": "#icon-magnifier-tool" } })
+          ])
+        ])
+      ]),
+      _vm._v(" "),
+      _c("div", { staticClass: "header-page--navmenu" }, [
+        _c("ul", { staticClass: "header-page--navmenu--items" }, [
+          _c("li", { staticClass: "header-page--navmenu-item" }, [
+            _c("a", { attrs: { href: "#" } }, [
+              _c("svg", { staticClass: "icon icon-newspaper" }, [
+                _c("use", { attrs: { "xlink:href": "#icon-newspaper" } })
+              ])
+            ])
+          ]),
+          _vm._v(" "),
+          _c("li", { staticClass: "header-page--navmenu-item" }, [
+            _c("a", { attrs: { href: "#" } }, [
+              _c("svg", { staticClass: "icon icon-bookmark-white" }, [
+                _c("use", { attrs: { "xlink:href": "#icon-bookmark-white" } })
+              ])
+            ])
+          ]),
+          _vm._v(" "),
+          _c("li", { staticClass: "header-page--navmenu-item" }, [
+            _c("a", { attrs: { href: "#" } }, [
+              _c("svg", { staticClass: "icon icon-envelope" }, [
+                _c("use", { attrs: { "xlink:href": "#icon-envelope" } })
+              ])
+            ])
+          ]),
+          _vm._v(" "),
+          _c("li", { staticClass: "header-page--navmenu-item" }, [
+            _c("a", { attrs: { href: "#" } }, [
+              _c("svg", { staticClass: "icon icon-alarm" }, [
+                _c("use", { attrs: { "xlink:href": "#icon-alarm" } })
+              ])
+            ]),
+            _vm._v(" "),
+            _c("span", { staticClass: "header-page--navmenu-item-notify" })
+          ]),
+          _vm._v(" "),
+          _c("li", { staticClass: "header-page--navmenu-item" }, [
+            _c("a", { attrs: { href: "#" } }, [
+              _c("svg", { staticClass: "icon icon-more-button" }, [
+                _c("use", { attrs: { "xlink:href": "#icon-more-button" } })
+              ])
+            ])
+          ])
+        ]),
+        _vm._v(" "),
+        _c(
+          "div",
+          {
+            staticClass: "header-page--dropdown",
+            class: { active: _vm.active },
+            on: {
+              click: function($event) {
+                $event.stopPropagation()
+                return _vm.toggleDropdown($event)
+              }
+            }
+          },
+          [
+            _c("div", { staticClass: "header-page--dropdown-wrapper" }, [
+              _c("span", { staticClass: "header-page--dropdown-username" }, [
+                _vm._v(_vm._s(_vm.userFullName))
+              ]),
+              _vm._v(" "),
+              _vm._m(1),
+              _vm._v(" "),
+              _c("svg", { staticClass: "icon icon-down-arrow" }, [
+                _c("use", { attrs: { "xlink:href": "#icon-down-arrow" } })
+              ])
+            ]),
+            _vm._v(" "),
+            _c("transition", { attrs: { name: "fade" } }, [
+              _c(
+                "ul",
+                {
+                  directives: [
+                    {
+                      name: "show",
+                      rawName: "v-show",
+                      value: _vm.active,
+                      expression: "active"
+                    }
+                  ],
+                  staticClass: "header-page--dropdown-menu"
+                },
+                [
+                  _c("li", [
+                    _c("a", { attrs: { href: "#" } }, [_vm._v("Моя страница")])
+                  ]),
+                  _vm._v(" "),
+                  _c("li", [
+                    _c(
+                      "a",
+                      {
+                        attrs: { href: "/logout" },
+                        on: {
+                          click: function($event) {
+                            $event.preventDefault()
+                            return _vm.logout($event)
+                          }
+                        }
+                      },
+                      [_vm._v("Выйти")]
+                    )
+                  ])
+                ]
+              )
+            ])
+          ],
+          1
+        )
+      ])
+    ])
+  ])
+}
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "header-page--logo" }, [
+      _c("a", { attrs: { href: "#" } }, [
+        _c("img", {
+          staticClass: "header-page--logo-img",
+          attrs: { src: "img/logo-mini.png", alt: "" }
+        })
+      ])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("span", { staticClass: "header-page--dropdown-useravatar" }, [
+      _c("img", { attrs: { src: "img/bg.jpg", alt: "" } })
+    ])
+  }
+]
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-39c822a7", module.exports)
+  }
+}
+
+/***/ }),
+/* 59 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c("div", [
+    _c(
+      "div",
+      [
+        _c(
+          "transition",
+          { attrs: { name: "fade" } },
+          [!_vm.isIndex ? _c("app-header") : _vm._e()],
+          1
+        ),
+        _vm._v(" "),
+        _c("transition", { attrs: { name: "fade" } }, [_c("router-view")], 1)
+      ],
+      1
+    )
+  ])
 }
 var staticRenderFns = []
 render._withStripped = true
@@ -18398,7 +21744,7 @@ if (false) {
 }
 
 /***/ }),
-/* 55 */
+/* 60 */
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin

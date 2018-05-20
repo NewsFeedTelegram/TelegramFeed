@@ -27,6 +27,12 @@ export const store = new Vuex.Store({
         },
     },
     actions: {
+        /**
+         * Получение данных пользователя
+         *
+         * @return {Promise}
+         *
+         */
         USER_PROFILE: ({commit, dispatch}, user) => {
             return new Promise((resolve, reject) => {
                 axios.get('api/auth/me')
@@ -41,6 +47,13 @@ export const store = new Vuex.Store({
                     })
             })
         },
+        /**
+         * Авторизация в системе и обработка запроса
+         *
+         * @param user {object}
+         * @return {Promise}
+         *
+         */
         AUTH_REQUEST: ({commit, dispatch}, user) => {
             return new Promise((resolve, reject) => {
                 axios.post('api/auth/login', user)
@@ -58,8 +71,14 @@ export const store = new Vuex.Store({
                     })
             })
         },
-        AUTH_LOGOUT: ({commit, dispatch}) => {
-            return new Promise((resolve, reject) => {
+        /**
+         * Выход из системы
+         *
+         * @return {Promise}
+         *
+         */
+        AUTH_LOGOUT: ({commit}) => {
+            return new Promise((resolve) => {
                 axios.post('api/auth/logout')
                 commit('AUTH_LOGOUT')
                 delete axios.defaults.headers.common['Authorization']
@@ -67,6 +86,13 @@ export const store = new Vuex.Store({
                 resolve()
             })
         },
+        /**
+         * Регистрация в системе и обработка запроса
+         *
+         * @param data {object}
+         * @return {Promise}
+         *
+         */
         REGISTER_REQUEST: ({commit, dispatch}, data) => {
             return new Promise((resolve, reject) => {
                 axios.post('api/auth/register', data)
