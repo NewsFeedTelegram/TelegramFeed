@@ -11,6 +11,6 @@ trait AjaxResponse
     {
         throw new HttpResponseException(response()->json([
             'errors' => $validator->errors()
-        ], 422));
+        ], 400));
     }
 }

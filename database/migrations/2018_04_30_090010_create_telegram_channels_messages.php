@@ -11,7 +11,7 @@ class CreateTelegramChannelsMessages extends Migration
         Schema::create('telegram_channels_messages', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('tg_channel_id')->unsigned();
-            $table->integer('fwd_from')->nullable()->unsigned();
+            $table->json('fwd_from')->nullable();
             $table->integer('message_id')->unsigned();
             $table->timestamp('date');
             $table->text('message');
@@ -23,11 +23,11 @@ class CreateTelegramChannelsMessages extends Migration
                 ->on('telegram_channels')
                 ->onUpdate('cascade')
                 ->onDelete('cascade');
-            $table->foreign('fwd_from')
-                ->references('id')
-                ->on('telegram_channels')
-                ->onUpdate('cascade')
-                ->onDelete('cascade');
+//            $table->foreign('fwd_from')
+//                ->references('id')
+//                ->on('telegram_channels')
+//                ->onUpdate('cascade')
+//                ->onDelete('cascade');
         });
     }
 

@@ -9,8 +9,6 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
 class User extends Authenticatable implements JWTSubject
 {
     use Notifiable;
-
-
     protected $fillable = [
         'first_name', 'last_name', 'login', 'avatar', 'password'
     ];
@@ -18,7 +16,6 @@ class User extends Authenticatable implements JWTSubject
     protected $hidden = [
         'password', 'remember_token',
     ];
-
 
     // relations
     public function profile()
