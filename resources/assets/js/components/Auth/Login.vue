@@ -64,7 +64,7 @@ export default {
       if ( this.login !== '' && this.password !== '' ) {
         this.$store.dispatch ( 'AUTH_REQUEST', form )
           .then ( () => {
-            this.$router.replace ( '/feed' )
+            this.$router.replace( {name : 'newsfeed'} )
           } )
       } else {
         if ( this.login === '' ) {

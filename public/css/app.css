@@ -5258,6 +5258,32 @@ strong {
   border-color: #50bfa4;
 }
 
+#index-section .valid-block {
+  position: relative;
+}
+
+#index-section span.valid {
+  position: absolute;
+  right: 10px;
+  top: 0;
+  width: 40px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  height: 51px;
+  -webkit-box-pack: end;
+      -ms-flex-pack: end;
+          justify-content: flex-end;
+}
+
+#index-section svg#L9 {
+  position: absolute;
+  top: 0;
+}
+
 #index-section .bg2 {
   height: 100%;
   width: 100%;
@@ -5329,13 +5355,16 @@ strong {
   margin-bottom: 50px;
 }
 
+#index-section .bg2 form .form-group {
+  margin-bottom: 20px;
+}
+
 #index-section .bg2 form .field {
   width: 100%;
   border-radius: 3px;
   border: 1px solid #4a4c63;
   padding: 15px;
   background-color: transparent;
-  margin-bottom: 20px;
   color: #4a4c63;
   font-size: 16px;
   font-weight: 400;

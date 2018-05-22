@@ -1,49 +1,71 @@
 <template>
+  <div>
     <div>
-        <div>
-            <transition name="fade">
-                <app-header v-if="!isIndex"></app-header>
-            </transition>
-
-            <transition name="fade">
-                <router-view></router-view>
-            </transition>
-        </div>
+      <transition name="fade">
+        <app-header v-if="!isIndex"></app-header>
+      </transition>
+      <transition name="fade">
+        <router-view/>
+      </transition>
+      <right-panel-friends v-if="!isIndex"/>
+      <add-chanel-telegram/>
     </div>
+  </div>
 </template>
 
 <script>
-    import AppHeader from './components/Authorized/Header'
+import AppHeader from './components/Authorized/Header'
+import RightPanelFriends from './components/Shared/parts/RightPanelFriends'
+import AddChanelTelegram from './components/Shared/parts/Modal/AddChanelTelegram'
 
-    export default {
-        name: "App",
-        components: {
-            AppHeader
-        },
-        mounted() {
-            if (this.$store.getters.isAuthenticated) {
-                this.$store.dispatch('USER_PROFILE')
-                    .catch(() => {
-                        this.$store.dispatch('AUTH_LOGOUT')
-                        this.$router.replace('/')
-                    })
-            }
-        },
-        computed: {
-            isIndex() {
-                return this.$route.name === 'Index' ? true : false
-            }
-        }
+
+export default {
+  name : "App",
+  components : {
+    AppHeader,
+    RightPanelFriends,
+    AddChanelTelegram
+  },
+  beforeMount () {
+    if (this.$store.getters.isAuthenticated) {
+        this.$store.dispatch('USER_PROFILE')
+            .catch(() => {
+              
+                // this.$store.dispatch('AUTH_LOGOUT')
+                // this.$router.replace('/')
+            })
     }
+  },
+  computed : {
+    isIndex () {
+      return this.$route.name === 'index' ? true : false
+    }
+  }
+}
 </script>
 
 <style scoped>
-    .fade-enter-active, .fade-leave-active {
-        transition: opacity .5s;
-    }
+  .fade-enter-active {
+    transition: all .5s ease-out;
+    position: absolute;
+    right: 0;
+    left: 0;
+    z-index: 0;
+  }
 
-    .fade-enter, .fade-leave-to /* .fade-leave-active до версии 2.1.8 */
-    {
-        opacity: 0;
-    }
+  .fade-leave-active {
+    transition: all .5s ease-in;
+    position: absolute;
+    left: -100%;
+    z-index: 0;
+  }
+
+  .fade-enter, .fade-leave-to {
+    opacity: 0;
+  }
+
+  .fade-enter {
+    left: -100%;
+    opacity: 1;
+  }
 </style>

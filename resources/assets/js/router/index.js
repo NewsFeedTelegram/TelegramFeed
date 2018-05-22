@@ -13,15 +13,14 @@ const ifNotAuthenticated = ( to, from, next ) => {
     next ()
     return
   }
-  next ( '/' )
+  next ({ name: 'index' } )
 }
 
 const ifAuthenticated = ( to, from, next ) => {
   if ( store.getters.isAuthenticated ) {
-    next ()
-    return
+    return next ()
   }
-  next ( '/' )
+  next ({ name: 'index' })
 }
 
 
@@ -29,13 +28,13 @@ export default new Router ( {
   mode : 'history',
   routes : [
     {
-      path : '/',
-      name : 'Index',
+      path : '',
+      name : 'index',
       component : Index
     },
     {
       path : '/feed',
-      name : 'NewsFeed',
+      name : 'newsfeed',
       component : AppFeed,
       beforeEnter : ifAuthenticated,
       meta : {
@@ -53,8 +52,8 @@ export default new Router ( {
       },
     },
     {
-      path : '/profile/:id',
-      name : 'Profile',
+      path : '/:id',
+      name : 'profile',
       component : AppProfile,
       beforeEnter : ifAuthenticated,
       meta : {

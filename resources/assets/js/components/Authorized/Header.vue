@@ -1,9 +1,7 @@
 <template>
   <header id="header" class="header-page">
     <div class="header-page--logo">
-      <a href="#">
-        <img src="img/logo-mini.png" alt="" class="header-page--logo-img">
-      </a>
+      <router-link :to="'/feed'"><img src="img/logo-mini.png" alt="" class="header-page--logo-img"></router-link>
     </div>
     <div class="header-page--pagename">
       <p class="header-page--pagename-text">{{titlePage}}</p>
@@ -21,7 +19,7 @@
       <div class="header-page--navmenu">
         <ul class="header-page--navmenu--items">
           <li class="header-page--navmenu-item">
-            <router-link :to="{name: 'NewsFeed'}">
+            <router-link :to="{name: 'newsfeed'}">
               <svg class="icon icon-newspaper">
                 <use xlink:href="#icon-newspaper"></use>
               </svg>
@@ -59,7 +57,7 @@
         </ul>
         <div class="header-page--dropdown" @click.stop="toggleDropdown" :class="{active}">
           <div class="header-page--dropdown-wrapper">
-            <span class="header-page--dropdown-username">{{userFullName}}</span>
+            <span class="header-page--dropdown-username">{{ userFullName ? userFullName : ''}}</span>
             <span class="header-page--dropdown-useravatar">
                             <img src="img/bg.jpg" alt="">
                         </span>
@@ -70,9 +68,8 @@
           <transition name="fade">
             <ul class="header-page--dropdown-menu" v-show="active">
               <li>
-                <router-link :to="{ name: 'Profile', params: { id: 123 }}">User</router-link>
+                <router-link :to="{ name: 'profile', params: { id: user.id }}">Моя страница</router-link>
               </li>
-              <li><a href="#">Моя страница</a></li>
               <li><a href="#">Настройки</a></li>
               <li><a href="/logout" @click.prevent="logout">Выйти</a></li>
             </ul>
@@ -86,7 +83,6 @@
 
 <script>
 export default {
-  name : "Header",
   data () {
     return {
       active : false
@@ -108,6 +104,9 @@ export default {
     },
     userFullName () {
       return `${this.$store.getters.user.first_name} ${this.$store.getters.user.last_name}`
+    },
+    user () {
+      return this.$store.getters.user
     }
   },
   mounted () {
@@ -121,12 +120,22 @@ export default {
 </script>
 
 <style scoped>
-  .fade-enter-active, .fade-leave-active {
-    transition: all .3s;
+  .fade-enter-active {
+    transition: all 300ms ease-out;
   }
 
-  .fade-enter, .fade-leave-to /* .fade-leave-active до версии 2.1.8 */
-  {
+  .fade-leave-active {
+    transition: all 200ms ease-in;
+    position: absolute;
+    z-index: 0;
+  }
+
+  .fade-enter, .fade-leave-to {
     opacity: 0;
+  }
+
+  .fade-enter {
+    -webkit-transform: scale(0.9);
+    transform: scale(0.9);
   }
 </style>

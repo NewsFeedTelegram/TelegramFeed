@@ -1,5 +1,19 @@
 <template>
   <div>
+    <div class="holder" v-show="isPreloader">
+      <div class="preloader">
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+      </div>
+    </div>
     <header id="index-section" v-show="!isPreloader">
       <div class="container-fluid">
         <div class="row no-gutters bg-wrapper">
@@ -42,24 +56,25 @@
 <script>
 import AppLogin from '../components/Auth/Login'
 import AppRegister from '../components/Auth/Register'
-
 export default {
   data () {
     return {
       register : true,
-      isPreloader : true,
     }
   },
   methods : {
     toggleState () {
       hideLoader ();
-      this.isPreloader = false;
+      this.$store.commit ( 'INDEX_PRELOADER', false );
     },
-    change(){
+    change () {
       this.register = !this.register
     }
   },
   computed : {
+    isPreloader () {
+      return this.$store.getters.isPreloader
+    },
     error () {
       return this.$store.getters.error
     }
@@ -84,17 +99,22 @@ export default {
     }
     if ( from.name !== 'Index' ) {
       next ( vm => {
-        vm.isPreloader = false;
-        vm.isPreloader = true;
-        vm.isPreloader = false;
+        vm.$store.commit ( 'INDEX_PRELOADER', false );
+        vm.$store.commit ( 'INDEX_PRELOADER', true );
+        vm.$store.commit ( 'INDEX_PRELOADER', false );
       } )
     }
     next ()
-
   },
 
 }
 </script>
 <style scoped>
+  .holder {
+    background-color: #edf2f6;
+  }
 
+  .preloader div:before {
+    background-color: #404257;
+  }
 </style>

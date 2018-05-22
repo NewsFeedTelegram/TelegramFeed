@@ -9,9 +9,24 @@ import AppIndex from './App'
 const token = localStorage[ 'access-token' ]
 
 
-if ( token ) {
+if( token ) {
   axios.defaults.headers.common[ 'Authorization' ] = 'Bearer ' + token
 }
+  // axios.defaults.headers.common[ 'Authorization' ] = 'Bearer ' + token
+
+// axios.interceptors.response.use(undefined, function (err) {
+//   if (err.response.status === 401 ) {
+//     axios.get('api/auth/refresh')
+//       .then(res => {
+//         console.log(res)
+//       })
+//       .catch(error => {
+//         console.log(error)
+//       } )
+//     return axios;
+//   }
+//   throw err
+// })
 
 window.axios = axios
 

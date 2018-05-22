@@ -97,7 +97,7 @@
                   </div>
                 </div>
                 <span class="notification-icon">
-							<a href="#" class="btn btn-accept">
+							<a href="#" class="btn btn-accept" @click.stop.prevent="openTelegramModal">
 								<span class="icon-add without-text">
                                      <svg class="icon icon-add">
                                         <use xlink:href="#icon-add"></use>
@@ -133,21 +133,6 @@
         </aside>
       </div>
     </div>
-    <div class="white-block column-friends">
-      <ul class="column-friends-list">
-        <li class="column-friends-list-item">1</li>
-        <li class="column-friends-list-item">2</li>
-        <li class="column-friends-list-item">3</li>
-        <li class="column-friends-list-item">4</li>
-        <li class="column-friends-list-item">5</li>
-        <li class="column-friends-list-item">6</li>
-        <li class="column-friends-list-item">7</li>
-        <li class="column-friends-list-item">8</li>
-        <li class="column-friends-list-item">9</li>
-        <li class="column-friends-list-item">10</li>
-      </ul>
-
-    </div>
   </section>
 </template>
 
@@ -166,12 +151,16 @@ export default {
       return this.$store.getters.user
     }
   },
-  methods : {},
+  methods : {
+    openTelegramModal(){
+      this.$store.commit('TOGGLE_MODAL_TELEGRAM')
+    }
+  },
   components : {
     AppPost
   },
   mounted () {
-
+    // this.$store.dispatch ( 'USER_PROFILE' )
   }
 }
 </script>
