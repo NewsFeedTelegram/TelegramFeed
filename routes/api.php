@@ -11,7 +11,7 @@ Route::group(['prefix' => 'auth'], function () {
         Route::post('register/validate/login', 'Api\Auth\RegisterController@validateLogin');
     });
 
-    Route::group(['middleware' => ['jwt.refresh', 'jwt.auth']], function () {
+    Route::group(['middleware' => ['jwt.refresh']], function () {
         Route::get('refresh', 'Api\Auth\AuthController@refresh');
     });
 
