@@ -30,7 +30,6 @@ export default {
     if (this.$store.getters.isAuthenticated) {
         this.$store.dispatch('USER_PROFILE')
             .catch(() => {
-              
                 // this.$store.dispatch('AUTH_LOGOUT')
                 // this.$router.replace('/')
             })
