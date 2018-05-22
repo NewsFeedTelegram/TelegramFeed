@@ -1,3 +1,5 @@
+import axios from "axios/index";
+
 const state = {
   token : false,
   status : '',
@@ -47,9 +49,11 @@ const actions = {
    * @return {Promise}
    *
    */
-  USER_PROFILE : ( { commit, dispatch } ) => {
+  USER_PROFILE : ( { commit } ) => {
     return new Promise ( ( resolve, reject ) => {
-      axios.get ( 'api/auth/me' )
+      axios.get ( 'api/auth/me', {
+        authorization: localStorage[ 'access-token' ]
+      } )
         .then ( response => {
           const user = response.data.data
           commit ( 'AUTH_SUCCESS', user );
@@ -57,7 +61,7 @@ const actions = {
         } )
         .catch ( err => {
           commit ( 'AUTH_ERROR', err );
-          // dispatch ( 'AUTH_LOGOUT' )
+          dispatch ( 'AUTH_LOGOUT' )
           reject ( err )
         } )
     } )
@@ -77,7 +81,7 @@ const actions = {
           let user_data = {};
           user_data.token = response.headers.authorization
           user.token = response.headers.authorization
-          localStorage.setItem ( 'access-token', response.headers.authorization );
+          localStorage.setItem ( 'access-token', 'Bearer ' + response.headers.authorization );
           axios.defaults.headers.common[ 'Authorization' ] = 'Bearer ' + user.token
           commit ( 'AUTH_SUCCESS', user_data );
           dispatch('USER_PROFILE')
@@ -91,7 +95,7 @@ const actions = {
         .catch ( err => {
           commit('INDEX_PRELOADER', false)
           commit ( 'AUTH_ERROR', err );
-          localStorage.removeItem ( 'access-token' );
+          // localStorage.removeItem ( 'access-token' );
           commit ( 'AUTH_ERROR', err );
           reject ( err )
         } )
@@ -104,8 +108,11 @@ const actions = {
    *
    */
   AUTH_LOGOUT : ( { commit } ) => {
+    axios.defaults.headers.common[ 'Authorization' ] = localStorage[ 'access-token' ]
     return new Promise ( ( resolve ) => {
-      axios.post ( 'api/auth/logout' )
+      axios.post ( 'api/auth/logout', {
+        authorization: localStorage[ 'access-token' ]
+      } )
       commit ( 'AUTH_LOGOUT' )
       commit ( 'VALIDATE_STATUS', {
         v_loading : false,
@@ -131,7 +138,7 @@ const actions = {
         .then ( response => {
           let user = {};
           user.token = response.headers.authorization
-          localStorage.setItem ( 'access-token', response.headers.authorization );
+          localStorage.setItem ( 'access-token', 'Bearer ' + response.headers.authorization );
           axios.defaults.headers.common[ 'Authorization' ] = 'Bearer ' + response.headers.authorization
           commit ( 'AUTH_SUCCESS', user )
           commit('SET_TOKEN', user.token)
@@ -181,6 +188,21 @@ const actions = {
           reject ( error )
         } )
     } )
+  },
+  REFRESH_TOKEN : ({commit, dispatch}) => {
+    return new Promise ( ( resolve, reject ) => {
+      axios.get ( 'api/auth/refresh' )
+        .then ( response => {
+          localStorage.setItem ( 'access-token', response.headers.authorization );
+          axios.defaults.headers.common[ 'Authorization' ] = response.headers.authorization
+          dispatch('USER_PROFILE')
+          resolve(response)
+        } )
+        .catch ( error => {
+          localStorage.removeItem ( 'access-token' )
+          reject ( error )
+        } )
+    })
   }
 }
 const getters = {

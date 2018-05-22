@@ -12406,24 +12406,28 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 var token = localStorage['access-token'];
 
-if (token) {
-  __WEBPACK_IMPORTED_MODULE_2_axios___default.a.defaults.headers.common['Authorization'] = 'Bearer ' + token;
-}
-// axios.defaults.headers.common[ 'Authorization' ] = 'Bearer ' + token
-
-// axios.interceptors.response.use(undefined, function (err) {
-//   if (err.response.status === 401 ) {
-//     axios.get('api/auth/refresh')
-//       .then(res => {
-//         console.log(res)
-//       })
-//       .catch(error => {
-//         console.log(error)
-//       } )
-//     return axios;
-//   }
-//   throw err
-// })
+__WEBPACK_IMPORTED_MODULE_2_axios___default.a.interceptors.request.use(function (config) {
+  if (token) {
+    __WEBPACK_IMPORTED_MODULE_2_axios___default.a.defaults.headers.common['Authorization'] = '' + token;
+  }
+  return config;
+}, function (err) {
+  __WEBPACK_IMPORTED_MODULE_2_axios___default.a.interceptors.response.use(undefined, function (err) {
+    return new Promise(function (resolve, reject) {
+      if (err.response.status === 401 && token) {
+        __WEBPACK_IMPORTED_MODULE_2_axios___default.a.get('api/auth/refresh').then(function (response) {
+          __WEBPACK_IMPORTED_MODULE_3__store__["a" /* store */].dispatch('REFRESH_TOKEN');
+          resolve(response);
+        }).catch(function (error) {
+          localStorage.removeItem('access-token');
+          reject(error);
+        });
+      }
+      throw err;
+    });
+  });
+  return Promise.reject(err);
+});
 
 window.axios = __WEBPACK_IMPORTED_MODULE_2_axios___default.a;
 
@@ -19123,6 +19127,10 @@ var index_esm = {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_axios_index__ = __webpack_require__(54);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_axios_index___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_axios_index__);
+
+
 var state = {
   token: false,
   status: '',
@@ -19173,17 +19181,18 @@ var actions = {
    *
    */
   USER_PROFILE: function USER_PROFILE(_ref) {
-    var commit = _ref.commit,
-        dispatch = _ref.dispatch;
+    var commit = _ref.commit;
 
     return new Promise(function (resolve, reject) {
-      axios.get('api/auth/me').then(function (response) {
+      __WEBPACK_IMPORTED_MODULE_0_axios_index___default.a.get('api/auth/me', {
+        authorization: localStorage['access-token']
+      }).then(function (response) {
         var user = response.data.data;
         commit('AUTH_SUCCESS', user);
         resolve(response);
       }).catch(function (err) {
         commit('AUTH_ERROR', err);
-        // dispatch ( 'AUTH_LOGOUT' )
+        dispatch('AUTH_LOGOUT');
         reject(err);
       });
     });
@@ -19201,12 +19210,12 @@ var actions = {
 
     commit('INDEX_PRELOADER', true);
     return new Promise(function (resolve, reject) {
-      axios.post('api/auth/login', user).then(function (response) {
+      __WEBPACK_IMPORTED_MODULE_0_axios_index___default.a.post('api/auth/login', user).then(function (response) {
         var user_data = {};
         user_data.token = response.headers.authorization;
         user.token = response.headers.authorization;
-        localStorage.setItem('access-token', response.headers.authorization);
-        axios.defaults.headers.common['Authorization'] = 'Bearer ' + user.token;
+        localStorage.setItem('access-token', 'Bearer ' + response.headers.authorization);
+        __WEBPACK_IMPORTED_MODULE_0_axios_index___default.a.defaults.headers.common['Authorization'] = 'Bearer ' + user.token;
         commit('AUTH_SUCCESS', user_data);
         dispatch('USER_PROFILE');
         commit('AUTH_ERROR', '');
@@ -19218,7 +19227,7 @@ var actions = {
       }).catch(function (err) {
         commit('INDEX_PRELOADER', false);
         commit('AUTH_ERROR', err);
-        localStorage.removeItem('access-token');
+        // localStorage.removeItem ( 'access-token' );
         commit('AUTH_ERROR', err);
         reject(err);
       });
@@ -19233,15 +19242,18 @@ var actions = {
   AUTH_LOGOUT: function AUTH_LOGOUT(_ref3) {
     var commit = _ref3.commit;
 
+    __WEBPACK_IMPORTED_MODULE_0_axios_index___default.a.defaults.headers.common['Authorization'] = localStorage['access-token'];
     return new Promise(function (resolve) {
-      axios.post('api/auth/logout');
+      __WEBPACK_IMPORTED_MODULE_0_axios_index___default.a.post('api/auth/logout', {
+        authorization: localStorage['access-token']
+      });
       commit('AUTH_LOGOUT');
       commit('VALIDATE_STATUS', {
         v_loading: false,
         v_error: false,
         v_success: false
       });
-      delete axios.defaults.headers.common['Authorization'];
+      delete __WEBPACK_IMPORTED_MODULE_0_axios_index___default.a.defaults.headers.common['Authorization'];
       localStorage.removeItem('access-token');
       resolve();
     });
@@ -19259,11 +19271,11 @@ var actions = {
 
     commit('INDEX_PRELOADER', true);
     return new Promise(function (resolve, reject) {
-      axios.post('api/auth/register', data).then(function (response) {
+      __WEBPACK_IMPORTED_MODULE_0_axios_index___default.a.post('api/auth/register', data).then(function (response) {
         var user = {};
         user.token = response.headers.authorization;
-        localStorage.setItem('access-token', response.headers.authorization);
-        axios.defaults.headers.common['Authorization'] = 'Bearer ' + response.headers.authorization;
+        localStorage.setItem('access-token', 'Bearer ' + response.headers.authorization);
+        __WEBPACK_IMPORTED_MODULE_0_axios_index___default.a.defaults.headers.common['Authorization'] = 'Bearer ' + response.headers.authorization;
         commit('AUTH_SUCCESS', user);
         commit('SET_TOKEN', user.token);
         setTimeout(function () {
@@ -19294,7 +19306,7 @@ var actions = {
       v_success: false
     });
     return new Promise(function (resolve, reject) {
-      axios.post('api/auth/register/validate/login', { login: login }).then(function (response) {
+      __WEBPACK_IMPORTED_MODULE_0_axios_index___default.a.post('api/auth/register/validate/login', { login: login }).then(function (response) {
         commit('VALIDATE_STATUS', {
           v_loading: false,
           v_error: false,
@@ -19309,6 +19321,22 @@ var actions = {
           v_success: false
         });
         throw error;
+        reject(error);
+      });
+    });
+  },
+  REFRESH_TOKEN: function REFRESH_TOKEN(_ref6) {
+    var commit = _ref6.commit,
+        dispatch = _ref6.dispatch;
+
+    return new Promise(function (resolve, reject) {
+      __WEBPACK_IMPORTED_MODULE_0_axios_index___default.a.get('api/auth/refresh').then(function (response) {
+        localStorage.setItem('access-token', response.headers.authorization);
+        __WEBPACK_IMPORTED_MODULE_0_axios_index___default.a.defaults.headers.common['Authorization'] = response.headers.authorization;
+        dispatch('USER_PROFILE');
+        resolve(response);
+      }).catch(function (error) {
+        localStorage.removeItem('access-token');
         reject(error);
       });
     });
@@ -25497,11 +25525,12 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     AddChanelTelegram: __WEBPACK_IMPORTED_MODULE_2__components_Shared_parts_Modal_AddChanelTelegram___default.a
   },
   beforeMount: function beforeMount() {
-    if (this.$store.getters.isAuthenticated) {
-      this.$store.dispatch('USER_PROFILE').catch(function () {
+    var _this = this;
 
-        // this.$store.dispatch('AUTH_LOGOUT')
-        // this.$router.replace('/')
+    if (this.$store.getters.isAuthenticated) {
+      this.$store.dispatch('REFRESH_TOKEN').catch(function () {
+        _this.$store.dispatch('AUTH_LOGOUT');
+        _this.$router.replace('/');
       });
     }
   },

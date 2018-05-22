@@ -28,10 +28,10 @@ export default {
   },
   beforeMount () {
     if (this.$store.getters.isAuthenticated) {
-        this.$store.dispatch('USER_PROFILE')
+        this.$store.dispatch('REFRESH_TOKEN')
             .catch(() => {
-                // this.$store.dispatch('AUTH_LOGOUT')
-                // this.$router.replace('/')
+                this.$store.dispatch('AUTH_LOGOUT')
+                this.$router.replace('/')
             })
     }
   },
