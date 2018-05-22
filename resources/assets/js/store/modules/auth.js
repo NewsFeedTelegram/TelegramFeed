@@ -191,7 +191,9 @@ const actions = {
   },
   REFRESH_TOKEN : ({commit, dispatch}) => {
     return new Promise ( ( resolve, reject ) => {
-      axios.get ( 'api/auth/refresh' )
+      axios.get ( 'api/auth/refresh', {
+        authorization: localStorage[ 'access-token' ]
+      } )
         .then ( response => {
           localStorage.setItem ( 'access-token', response.headers.authorization );
           axios.defaults.headers.common[ 'Authorization' ] = response.headers.authorization

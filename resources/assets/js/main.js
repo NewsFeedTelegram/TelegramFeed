@@ -8,6 +8,9 @@ import AppIndex from './App'
 
 const token = localStorage[ 'access-token' ]
 
+if ( token ) {
+  axios.defaults.headers.common[ 'Authorization' ] = `${token}`;
+}
 
 axios.interceptors.request.use ( function ( config ) {
   if ( token ) {
