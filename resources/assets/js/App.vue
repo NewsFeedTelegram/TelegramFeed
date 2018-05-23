@@ -30,7 +30,7 @@ export default {
     if ( this.$store.getters.isAuthenticated ) {
       this.$store.dispatch ( 'REFRESH_TOKEN' )
         .then ( () => {
-          this.$router.replace ( '/feed' )
+            this.$router.replace ( '' )
         } )
         .catch ( () => {
           this.$store.dispatch ( 'AUTH_LOGOUT' )

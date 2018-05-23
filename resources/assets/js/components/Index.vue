@@ -94,7 +94,7 @@ export default {
   beforeRouteEnter ( to, from, next ) {
     if ( window.localStorage[ 'access-token' ] && window.location.pathname === '/' ) {
       next ( vm => {
-        vm.$router.replace ( { name : 'NewsFeed' } )
+        vm.$router.replace ( { name : 'newsfeed' } )
       } )
     }
     if ( from.name !== 'Index' ) {

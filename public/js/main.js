@@ -15691,7 +15691,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
   beforeRouteEnter: function beforeRouteEnter(to, from, next) {
     if (window.localStorage['access-token'] && window.location.pathname === '/') {
       next(function (vm) {
-        vm.$router.replace({ name: 'NewsFeed' });
+        vm.$router.replace({ name: 'newsfeed' });
       });
     }
     if (from.name !== 'Index') {
@@ -25535,7 +25535,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
     if (this.$store.getters.isAuthenticated) {
       this.$store.dispatch('REFRESH_TOKEN').then(function () {
-        _this.$router.replace('/feed');
+        _this.$router.replace('');
       }).catch(function () {
         _this.$store.dispatch('AUTH_LOGOUT');
         _this.$router.replace('/');
