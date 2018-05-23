@@ -27,12 +27,15 @@ export default {
     AddChanelTelegram
   },
   beforeMount () {
-    if (this.$store.getters.isAuthenticated) {
-        this.$store.dispatch('REFRESH_TOKEN')
-            .catch(() => {
-                this.$store.dispatch('AUTH_LOGOUT')
-                this.$router.replace('/')
-            })
+    if ( this.$store.getters.isAuthenticated ) {
+      this.$store.dispatch ( 'REFRESH_TOKEN' )
+        .then ( () => {
+          this.$router.replace ( '/feed' )
+        } )
+        .catch ( () => {
+          this.$store.dispatch ( 'AUTH_LOGOUT' )
+          this.$router.replace ( '/' )
+        } )
     }
   },
   computed : {

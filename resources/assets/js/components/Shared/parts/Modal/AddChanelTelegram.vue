@@ -55,6 +55,8 @@ export default {
     justify-content: center;
     z-index: 9999;
     cursor: pointer;
+    overflow: auto;
+    padding: 30px 0;
   }
 
   .modal_container {
