@@ -1,0 +1,142 @@
+@import "vars";
+
+/*==========  Desktop First  ==========*/
+
+// ≥1200px
+@include media-breakpoint-down(xl) {
+
+}
+
+@include media-breakpoint-down(lg) {
+  .header-page--dropdown-username{
+    display: none;
+  }
+}
+
+// ≥992px
+@include media-breakpoint-down(md) {
+  .header-page--search{
+    display: none;
+  }
+  .header-page-content-wrapper{
+    justify-content: flex-end;
+    padding-left: 15px;
+  }
+  .column-friends{
+    display: none;
+  }
+  .header-page{
+    padding-right: 0;
+  }
+
+  .slogan {
+    &--text {
+      color: $catskill-white;
+      text-shadow: 4px 0 8px rgba(114, 114, 114, 0.3);
+      line-height: 1.5;
+      font-size: 48px !important;
+      font-weight: 700;
+      letter-spacing: 1.8px;
+      margin-bottom: 50px;
+    }
+  }
+}
+
+// ≥768px
+@include media-breakpoint-down(sm) {
+  .header-page-content-wrapper{
+    width: calc(100% - 70px);
+    justify-content: space-between;
+  }
+  .header-page--navmenu{
+    width: 100%;
+    justify-content: space-between;
+  }
+  .header-page--pagename{
+    display: none;
+  }
+  .section{
+    padding: 0;
+  }
+  .bg2 {
+    flex-direction: column;
+    justify-content: flex-start !important;
+
+    .header {
+      padding-bottom: 2rem;
+      padding-top: 1.5rem !important;
+    }
+    .logo {
+      img {
+        width: 100px;
+      }
+    }
+    form {
+      margin-top: auto;
+      margin-bottom: auto;
+    }
+  }
+
+}
+
+// ≥576px
+@include media-breakpoint-down(xs) {
+
+}
+
+@media (max-width: 1500px) {
+  .header-page--search {
+   max-width: 400px;
+  }
+}
+@media (max-width: 1350px) {
+  .header-page--search {
+    max-width: 300px;
+  }
+  .header-page--pagename{
+    min-width: 150px;
+  }
+  .header-page--navmenu-item {
+    margin: 15px;
+  }
+}
+@media (max-width: 480px) {
+  .header-page--navmenu--items{
+    display: none;
+  }
+  .header-page--navmenu{
+    justify-content: flex-end;
+  }
+    .share{
+      display: block;
+    }
+
+  .section .post .friends-like, .names-people-likes{
+    display: none;
+  }
+  //.section .post--author-date {
+  //  font-size: 0.75rem;
+  //}
+}
+
+/*==========  Mobile First  ==========*/
+
+// ≤576px
+@include media-breakpoint-up(sm) {
+
+}
+
+// ≤768px
+@include media-breakpoint-up(md) {
+
+}
+
+// ≤992px
+@include media-breakpoint-up(lg) {
+
+}
+
+// ≤1200px
+@include media-breakpoint-up(xl) {
+
+}
