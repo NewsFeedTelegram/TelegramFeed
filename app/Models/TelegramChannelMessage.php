@@ -34,7 +34,7 @@ class TelegramChannelMessage extends Model
                         ->where('user_id', 1)->get();
                 })
                 ->orderBy('m.date', 'DESK')
-                ->limit(10)
+                ->limit(100)
                 ->get();
     }
 }

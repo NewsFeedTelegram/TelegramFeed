@@ -1,7 +1,7 @@
 <?php
 
+Route::get('/telegram/posts/', 'Api\FeedController@telegramPosts');
 Route::group(['middleware' => 'jwt.auth'], function () {
-    Route::get('/telegram/posts/', 'Api\FeedController@telegramPosts');
 });
 
 Route::group(['prefix' => 'auth'], function () {

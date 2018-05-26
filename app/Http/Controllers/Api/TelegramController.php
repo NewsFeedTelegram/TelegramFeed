@@ -4,131 +4,21 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\TelegramStoreRequest;
 use App\Http\Controllers\Controller;
+use App\Services\TelegramService;
 use App\TelegramChannel;
-use App\TelegramChannelMessage;
-use Carbon\Carbon;
 use PHPHtmlParser\Dom;
 
 class TelegramController extends Controller
 {
 
-    /*
-     * [message]["reply_to_msg_id"] => 5602 репост своего сообщения
-     */
-    public function parsePosts(TelegramChannel $tg_channel, TelegramChannelMessage $tg_message)
+    public function parsePosts()
     {
-        $MadelineProto = new \danog\MadelineProto\API('session.madeline');
-        $dom = new Dom();
+        $telegramService = new TelegramService();
+        $count = $telegramService->parsePosts();
 
-        $channels = $tg_channel->all();
-
-        foreach ($channels as $channel) {
-            $settings = array(
-                'peer' => '@' . basename($channel->link),
-                'offset_id' => 0,
-                'offset_date' => 0,
-                'add_offset' => 0,
-                'limit' => 100,
-                'max_id' => 0,
-                'min_id' => $channel->last_post_id ?: 0,
-                'hash' => 0
-            );
-
-            $data = $MadelineProto->messages->getHistory($settings);
-            if (count($data['messages'])) {
-                $channel->last_post_id = $data['messages'][0]['id'];
-                $channel->save();
-            }
-
-            foreach ($data['messages'] as $message) {
-                $status = false;
-                $url = null;
-                $preview = null;
-                $link = null;
-                $type = null; // photo 1 , video 2, other 0
-                $name_fwd_channel = $link_fwd_channel = null;
-                if (isset($message['media']) && $message['media']['_'] == 'messageMediaPhoto') {
-                    $dom->load($channel->link . '/' . $message['id'] . '/?embed=1');
-                    $photo = $dom->getElementsByClass('tgme_widget_message_photo_wrap');
-                    foreach ($photo as $item) {
-                        $url[] = preg_replace('/[\s\S]*background-image:[ ]*url\(["\']*([\s\S]*[^"\'])["\']*\)[\s\S]*/u',
-                            '$1', $photo->getAttribute('style'));
-                    }
-                    $type = 1;
-                    $status = true;
-                } elseif (isset($message['media']) && $message['media']['_'] == 'messageMediaDocument') {
-                    $dom->load($channel->link . '/' . $message['id'] . '/?embed=1');
-                    $docGifOrVideo = $dom->getElementsByTag('video');
-                    $docBigVideoFile = $dom->getElementsByClass('tgme_widget_message_video_thumb');
-                    $docAudio = $dom->getElementsByClass('tgme_widget_message_video_thumb');
-                    $docSticker = $dom->getElementsByClass('tgme_widget_message_sticker');
-                    if (count($docGifOrVideo)) {
-                        $url[] = $docGifOrVideo->getAttribute('src');
-                        $status = true;
-                        $type = 2;
-                    } elseif (count($docBigVideoFile)) {
-                        $preview = preg_replace('/[\s\S]*background-image:[ ]*url\(["\']*([\s\S]*[^"\'])["\']*\)[\s\S]*/u',
-                            '$1', $docBigVideoFile->getAttribute('style'));
-                        $status = false;
-                    } elseif (count($docAudio)) { // для message voice нужна отдельная проверка!
-                        $preview = 'music!!!заглушка';
-                    } elseif (count($docSticker)) {
-                        $url[] = preg_replace('/[\s\S]*background-image:[ ]*url\(["\']*([\s\S]*[^"\'])["\']*\)[\s\S]*/u',
-                            '$1', $docSticker->getAttribute('style'));
-                    }
-                } elseif (isset($message['media']) && $message['media']['_'] == 'messageMediaWebPage') {
-                    $dom->load($channel->link . '/' . $message['id'] . '/?embed=1');
-                    $webPage = $dom->getElementsByClass('tgme_widget_message_link_preview');
-                    if (count($webPage)) {
-                        $photo = $dom->getElementsByClass('link_preview_right_image');
-                        $photo = count($photo) ? preg_replace('/[\s\S]*background-image:[ ]*url\(["\']*([\s\S]*[^"\'])["\']*\)[\s\S]*/u',
-                            '$1', $photo->getAttribute('style')) : null;
-                        $link = [
-                            'url' => $message['media']['webpage']['url'] ?? null,
-                            'display_url' => $message['media']['webpage']['display_url'] ?? null,
-                            'type' => $message['media']['webpage']['type'] ?? null,
-                            'site_name' => $message['media']['webpage']['site_name'] ?? null,
-                            'title' => $message['media']['webpage']['title'] ?? null,
-                            'description' => $message['media']['webpage']['description'] ?? null,
-                            'photo' => $photo
-                        ];
-                    }
-                }
-
-                $id_fwd_channel = isset($message['fwd_from']) ? $message['fwd_from']['channel_id'] : null;
-                if ($id_fwd_channel) {
-                    foreach ($data['chats'] as $chat) {
-                        if ($chat['id'] == $id_fwd_channel) {
-                            $name_fwd_channel = $chat['title'];
-                            $link_fwd_channel = $chat['username'];
-                            break;
-                        }
-                    }
-                }
-
-                $arr = [
-                    'tg_channel_id' => $channel->id,
-                    'fwd_from' => json_encode([
-                        'id' => $id_fwd_channel,
-                        'name' => $name_fwd_channel,
-                        'link' => $link_fwd_channel
-                    ]),
-                    'message_id' => $message['id'],
-                    'date' => Carbon::createFromTimestampUTC($message['date'])->toDateTimeString(),
-                    'message' => $message['message'] ?? '',
-                    'media' => json_encode([
-                        'status' => $status,
-                        'url' => $url,
-                        'preview' => $preview,
-                        'webPage' => $link,
-                        'type' => $type,
-                    ])
-                ];
-                $tg_message->create($arr);
-            }
-            var_dump(count($data['messages']));
-            echo '<br>';
-        }
+        return response()->json([
+           'new_messages' => $count
+        ]);
     }
 
     public function store(TelegramStoreRequest $request, TelegramChannel $telegramChannel)
