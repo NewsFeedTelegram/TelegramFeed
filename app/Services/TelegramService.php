@@ -2,24 +2,61 @@
 
 namespace App\Services;
 
-use App\TelegramChannel;
-use App\TelegramChannelMessage;
+use App\Models\TelegramChannel;
+use App\Models\TelegramChannelMessage;
 use Carbon\Carbon;
 use danog\MadelineProto\API;
 use PHPHtmlParser\Dom;
 
 class TelegramService
 {
+    public function parseChannelPhoto($link)
+    {
+        $dom = new Dom();
+        $dom->load($link);
+        $isChannel = count($dom->getElementsByClass('tgme_action_button_new'));
+
+        if ($isChannel) {
+            $name = $photo = $description = null;
+
+            $nameTag = $dom->getElementsByClass('tgme_page_title');
+            if (count($nameTag)) {
+                $name = $nameTag->innerHtml;
+            }
+
+            $imageTag = $dom->getElementsByClass('tgme_page_photo_image');
+            if (count($imageTag)) {
+                $photo = $imageTag->getAttribute('src');
+            }
+
+            $descriptionTag = $dom->getElementsByClass('tgme_page_description');
+            if (count($descriptionTag)) {
+                $description = $descriptionTag->innerHtml;
+            }
+
+            if ($name) {
+                return [
+                    'status' => true,
+                    'name' => $name,
+                    'photo' => $photo,
+                    'description' => $description
+                ];
+            }
+        }
+
+        return ['status' => false];
+    }
+
     public function parsePosts()
     {
         $tg_channel = new TelegramChannel();
         $tg_message = new TelegramChannelMessage();
 
-        $MadelineProto = new API('session.madeline');
+        $MadelineProto = new API('/var/www/html/telegram-rss/public/session.madeline');
         $dom = new Dom();
 
         $channels = $tg_channel->all();
-
+//        $forward_message = [];
         foreach ($channels as $channel) {
             $settings = array(
                 'peer' => '@' . basename($channel->link),
@@ -50,6 +87,8 @@ class TelegramService
                  * type 7 sticker messageMediaDocument
                  * type 8 document audio messageMediaDocument
                  */
+//                $forward_message[basename($channel->link)][] = $message['id'];
+
                 $view_status = false;
                 $links_media = $preview = $link = $type = $name_fwd_channel
                     = $link_fwd_channel = $preview_doc = null;
@@ -153,6 +192,6 @@ class TelegramService
             }
         }
 
-        return count($data['messages']);
+        return true;
     }
 }

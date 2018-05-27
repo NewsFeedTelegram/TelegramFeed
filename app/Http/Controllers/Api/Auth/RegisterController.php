@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api\Auth;
 
-use App\User;
+use App\Models\User;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RegisterRequest;
 use Illuminate\Http\Request;
@@ -27,7 +27,7 @@ class RegisterController extends Controller
         if ($user) {
             return response()->json([
                 'status' => 'true',
-            ], 201)->header('Authorization', $token);
+            ], 201)->header('Authorization', 'Bearer ' . $token);
         } else {
             return response()->json([
                 'errors' => 'При регистрации произошла ошибка!'

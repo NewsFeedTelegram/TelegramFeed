@@ -4,75 +4,64 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\TelegramStoreRequest;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\TelegramChannelResource;
 use App\Services\TelegramService;
-use App\TelegramChannel;
-use PHPHtmlParser\Dom;
+use App\Models\TelegramChannel;
 
 class TelegramController extends Controller
 {
 
-    public function parsePosts()
+    public function getChannels()
     {
-        $telegramService = new TelegramService();
-        $count = $telegramService->parsePosts();
+        $channels = auth()->user()->telegram_channels;
 
-        return response()->json([
-           'new_messages' => $count
-        ]);
+        return TelegramChannelResource::collection($channels);
     }
 
-    public function store(TelegramStoreRequest $request, TelegramChannel $telegramChannel)
+    public function saveChannel(TelegramStoreRequest $request, TelegramChannel $telegramChannel)
     {
-        $link = 'https://t.me/' . trim($request->link, '/@');
+        $tg_service = new TelegramService();
+        $link = 'https://t.me/' . trim(basename($request->link), '/@');
         $channel = $telegramChannel->findChannelByLink($link);
         if (!$channel) {
-            $dom = new Dom();
-            $dom->load($link);
-            $isChannel = count($dom->getElementsByClass('tgme_action_button_new'));
-
-            if ($isChannel) {
-                $name = $photo = $description = null;
-
-                $nameTag = $dom->getElementsByClass('tgme_page_title');
-                if (count($nameTag)) {
-                    $name = $nameTag->innerHtml;
-                }
-
-                $imageTag = $dom->getElementsByClass('tgme_page_photo_image');
-                if (count($imageTag)) {
-                    $photo = $imageTag->getAttribute('src');
-                }
-
-                $descriptionTag = $dom->getElementsByClass('tgme_page_description');
-                if (count($descriptionTag)) {
-                    $description = $descriptionTag->innerHtml;
-                }
-
-                if ($name) {
-                    $channel = $telegramChannel->create([
-                        'name' => $name,
-                        'link' => $link,
-                        'photo' => $photo,
-                        'description' => $description
-                    ]);
-                } else {
-                    return response()->json([
-                        'errors' => 'Произошла ошибка.'
-                    ], 400);
-                }
+            $channel = $tg_service->parseChannelPhoto($link);
+            if ($channel['status']) {
+                $channel = $telegramChannel->saveChannel($channel, $link);
             } else {
                 return response()->json([
-                    'errors' => '404 канал не найден'
+                    'errors' => '404: канал не найден'
                 ], 404);
             }
         }
+        $channel->users()->syncWithoutDetaching(auth()->id());
 
-        $telegram_subscribers = $channel->users()->syncWithoutDetaching(auth()->id());
+        return new TelegramChannelResource($channel);
+    }
+
+    public function deleteChannel($id)
+    {
+        if (auth()->user()->telegram_channels()->detach($id)) {
+            return response()->json([
+                'status' => true
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => false
+            ], 200);
+        }
+    }
+
+    /*
+     * for test
+     */
+    public function parsePosts()
+    {
+        $tg_service = new TelegramService();
+        $status = $tg_service->parsePosts();
 
         return response()->json([
-            'status' => true
-        ], 201);
-
+            'status' => $status
+        ]);
     }
 
     public function installMadelineProto()
