@@ -2,7 +2,6 @@
 
 Route::group(['middleware' => 'jwt.auth'], function () {
     Route::get('/telegram/posts/', 'Api\FeedController@telegramPosts');
-
     Route::get('/telegram/channel', 'Api\TelegramController@getChannels');
     Route::post('/telegram/channel', 'Api\TelegramController@saveChannel');
     Route::delete('/telegram/channel/{id}', 'Api\TelegramController@deleteChannel');
