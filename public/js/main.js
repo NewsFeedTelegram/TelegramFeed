@@ -20901,7 +20901,8 @@ var actions = {
     commit('STATUS_ADD_CHANNEL');
     return new Promise(function (resolve, reject) {
       __WEBPACK_IMPORTED_MODULE_0_axios_index___default.a.defaults.headers.common['Authorization'] = localStorage['access-token'];
-      __WEBPACK_IMPORTED_MODULE_0_axios_index___default.a.post('api/telegram_channel', { link: link }).then(function (response) {
+
+      __WEBPACK_IMPORTED_MODULE_0_axios_index___default.a.post('api/telegram/channel', { link: link }).then(function (response) {
         commit('STATUS_ADD_CHANNEL');
         resolve(response);
       }, function (err) {

@@ -19,7 +19,8 @@ const actions = {
     commit('STATUS_ADD_CHANNEL')
     return new Promise ( ( resolve, reject ) => {
       axios.defaults.headers.common[ 'Authorization' ] = localStorage[ 'access-token' ]
-      axios.post ( 'api/telegram_channel', { link } )
+
+      axios.post ( 'api/telegram/channel', { link } )
         .then ( response => {
           commit('STATUS_ADD_CHANNEL')
           resolve(response)
