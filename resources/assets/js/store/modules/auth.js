@@ -81,8 +81,8 @@ const actions = {
           let user_data = {};
           user_data.token = response.headers.authorization
           user.token = response.headers.authorization
-          localStorage.setItem ( 'access-token', 'Bearer ' + response.headers.authorization );
-          axios.defaults.headers.common[ 'Authorization' ] = 'Bearer ' + user.token
+          localStorage.setItem ( 'access-token',  response.headers.authorization );
+          axios.defaults.headers.common[ 'Authorization' ] = user.token
           commit ( 'AUTH_SUCCESS', user_data );
           dispatch('USER_PROFILE')
           commit ( 'AUTH_ERROR', '' );
@@ -138,8 +138,8 @@ const actions = {
         .then ( response => {
           let user = {};
           user.token = response.headers.authorization
-          localStorage.setItem ( 'access-token', 'Bearer ' + response.headers.authorization );
-          axios.defaults.headers.common[ 'Authorization' ] = 'Bearer ' + response.headers.authorization
+          localStorage.setItem ( 'access-token', response.headers.authorization );
+          axios.defaults.headers.common[ 'Authorization' ] = response.headers.authorization
           commit ( 'AUTH_SUCCESS', user )
           commit('SET_TOKEN', user.token)
           setTimeout ( () => {
@@ -191,7 +191,7 @@ const actions = {
   },
   REFRESH_TOKEN : ({commit, dispatch}) => {
     return new Promise ( ( resolve, reject ) => {
-      axios.get ( 'api/auth/refresh', {
+      axios.post ( 'api/auth/refresh', {
         authorization: localStorage[ 'access-token' ]
       } )
         .then ( response => {

@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -13,7 +13,7 @@ class TelegramChannelMessage extends Model
         'tg_channel_id', 'fwd_from', 'message_id', 'date', 'message', 'media'
     ];
 
-    public function lastMessages($date, $id)
+    public function lastMessages($id)
     {
         $query = DB::table('telegram_channels_messages as m')
             ->select([
@@ -22,8 +22,13 @@ class TelegramChannelMessage extends Model
             ])
             ->join('telegram_channels as c', 'c.id', 'tg_channel_id');
 
-        if ($date !== null && $id !== null) {
-            $query->where([['m.date', '<=', $date], ['m.id', '!=', $id]]);
+        if ($id !== null) {
+            $query->where([['m.date', '<=', function($query) use ($id) {
+                $query->select('date')
+                    ->from('telegram_channels_messages')
+                    ->where('id', $id)
+                    ->first();
+            }], ['m.id', '!=', $id]]);
         }
 
         return

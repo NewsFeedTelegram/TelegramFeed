@@ -19,7 +19,7 @@ class LoginController extends Controller
 
         return response()->json([
             'status' => true,
-        ], 200)->header('Authorization', $token);
+        ], 200)->header('Authorization', 'Bearer ' . $token);
     }
 
 }

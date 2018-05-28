@@ -19831,8 +19831,8 @@ var actions = {
         var user_data = {};
         user_data.token = response.headers.authorization;
         user.token = response.headers.authorization;
-        localStorage.setItem('access-token', 'Bearer ' + response.headers.authorization);
-        __WEBPACK_IMPORTED_MODULE_0_axios_index___default.a.defaults.headers.common['Authorization'] = 'Bearer ' + user.token;
+        localStorage.setItem('access-token', response.headers.authorization);
+        __WEBPACK_IMPORTED_MODULE_0_axios_index___default.a.defaults.headers.common['Authorization'] = user.token;
         commit('AUTH_SUCCESS', user_data);
         dispatch('USER_PROFILE');
         commit('AUTH_ERROR', '');
@@ -19891,8 +19891,8 @@ var actions = {
       __WEBPACK_IMPORTED_MODULE_0_axios_index___default.a.post('api/auth/register', data).then(function (response) {
         var user = {};
         user.token = response.headers.authorization;
-        localStorage.setItem('access-token', 'Bearer ' + response.headers.authorization);
-        __WEBPACK_IMPORTED_MODULE_0_axios_index___default.a.defaults.headers.common['Authorization'] = 'Bearer ' + response.headers.authorization;
+        localStorage.setItem('access-token', response.headers.authorization);
+        __WEBPACK_IMPORTED_MODULE_0_axios_index___default.a.defaults.headers.common['Authorization'] = response.headers.authorization;
         commit('AUTH_SUCCESS', user);
         commit('SET_TOKEN', user.token);
         setTimeout(function () {
@@ -19947,7 +19947,7 @@ var actions = {
         dispatch = _ref6.dispatch;
 
     return new Promise(function (resolve, reject) {
-      __WEBPACK_IMPORTED_MODULE_0_axios_index___default.a.get('api/auth/refresh', {
+      __WEBPACK_IMPORTED_MODULE_0_axios_index___default.a.post('api/auth/refresh', {
         authorization: localStorage['access-token']
       }).then(function (response) {
         localStorage.setItem('access-token', response.headers.authorization);
