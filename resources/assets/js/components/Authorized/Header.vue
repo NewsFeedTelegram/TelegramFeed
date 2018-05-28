@@ -59,7 +59,7 @@
           <div class="header-page--dropdown-wrapper">
             <span class="header-page--dropdown-username">{{ userFullName ? userFullName : ''}}</span>
             <span class="header-page--dropdown-useravatar">
-                            <img src="img/bg.jpg" alt="">
+                            <img src="img/180.jpg" alt="">
                         </span>
             <svg class="icon icon-down-arrow">
               <use xlink:href="#icon-down-arrow"></use>

@@ -1,14 +1,20 @@
 <template>
   <div>
-    <div>
-      <transition name="fade">
+    <div class="vuebar-element" v-bar> <!-- el1 -->
+      <div> <!-- el2 -->
+        <div>
+        <transition name="fade">
         <app-header v-if="!isIndex"></app-header>
-      </transition>
-      <transition name="fade">
+        </transition>
+        <transition name="fade">
         <router-view/>
-      </transition>
-      <right-panel-friends v-if="!isIndex"/>
-      <add-chanel-telegram/>
+        </transition>
+        <right-panel-friends v-if="!isIndex"/>
+        <add-chanel-telegram/>
+        </div>
+        <!-- your scrollable content -->
+      </div>
+      <!-- dragger will be automatically added here -->
     </div>
   </div>
 </template>
@@ -30,7 +36,7 @@ export default {
     if ( this.$store.getters.isAuthenticated ) {
       this.$store.dispatch ( 'REFRESH_TOKEN' )
         .then ( () => {
-            this.$router.replace ( '' )
+          this.$router.replace ( '' )
         } )
         .catch ( () => {
           this.$store.dispatch ( 'AUTH_LOGOUT' )
@@ -49,7 +55,6 @@ export default {
 <style scoped>
   .fade-enter-active {
     transition: all .5s ease-out;
-    position: absolute;
     right: 0;
     left: 0;
     z-index: 0;
@@ -70,4 +75,5 @@ export default {
     left: -100%;
     opacity: 1;
   }
+
 </style>

@@ -3,6 +3,8 @@ import router from './router'
 import axios from 'axios'
 import { store } from './store'
 import VeeValidate from 'vee-validate';
+import Vuebar from 'vuebar';
+Vue.use(Vuebar);
 
 import AppIndex from './App'
 

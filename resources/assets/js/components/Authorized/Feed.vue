@@ -60,6 +60,7 @@
           </div>
           <div class="newsfeed-items-grid">
             <app-post v-for="post in list" :key="post"></app-post>
+            <button @click="add">add</button>
           </div>
         </main>
         <aside class="col col-xl-3 order-xl-1 col-lg-6 order-lg-2 col-md-12 order-sm-3 col-sm-12 col-12 order-3">
@@ -143,7 +144,7 @@ export default {
   name : "Test",
   data () {
     return {
-      list : [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ]
+      list : 10
     }
   },
   computed : {
@@ -152,6 +153,14 @@ export default {
     }
   },
   methods : {
+    scroll(){
+      window.onscroll = () => {
+        console.log(1)
+      }
+    },
+    add(){
+      this.list+=10
+    },
     openTelegramModal(){
       this.$store.commit('TOGGLE_MODAL_TELEGRAM')
     }
@@ -161,6 +170,7 @@ export default {
   },
   mounted () {
     // this.$store.dispatch ( 'USER_PROFILE' )
+      this.scroll();
   }
 }
 </script>

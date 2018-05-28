@@ -4373,6 +4373,7 @@ head {
   border-radius: 5px;
   border: 1px solid #e6ecf5;
   margin-bottom: 15px;
+  overflow: hidden;
 }
 
 .white-block-title {
@@ -4418,7 +4419,6 @@ body {
   position: relative;
   line-height: 1.65;
   font-family: "Roboto", sans-serif;
-  overflow-x: hidden;
   color: #333;
   background-color: #edf2f6;
 }
