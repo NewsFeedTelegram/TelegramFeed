@@ -79,11 +79,24 @@ const actions = {
     return new Promise ( ( resolve, reject ) => {
       axios.get ( 'api/telegram/posts/', {
         params:{
-          id: state.listPost[lastPost].id
+          id: state.listPost[lastPost].id || ''
         }
       })
         .then ( response => {
           commit('LOAD_MORE', response.data.data)
+          resolve ( response )
+        }, ( err ) => {
+          commit ( 'STATUS_ADD_CHANNEL' )
+        } )
+
+    } )
+  },
+  DELETE_CHANNEL : ({commit,dispatch}, id) => {
+    axios.defaults.headers.common[ 'Authorization' ] = localStorage[ 'access-token' ]
+    return new Promise ( ( resolve, reject ) => {
+      axios.delete( `api/telegram/channel/${id}`)
+        .then ( response => {
+          dispatch('LIST_CHANNEL')
           resolve ( response )
         }, ( err ) => {
           commit ( 'STATUS_ADD_CHANNEL' )

@@ -15,6 +15,7 @@ class TelegramChannelResource extends JsonResource
     public function toArray($request)
     {
         return [
+            'id' => $this->id,
             'name' => $this->name,
             'link' => $this->link,
             'photo' => $this->photo,
