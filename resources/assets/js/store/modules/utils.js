@@ -7,6 +7,7 @@ const state = {
   listChannel : [],
   listPost : [],
   loadPost : true,
+  loadMore : false,
   statusAddRequest : false
 }
 const mutations = {
@@ -22,6 +23,10 @@ const mutations = {
   LIST_POST : ( state, post ) => {
     state.listPost = post
     state.loadPost = false
+  },
+  LOAD_MORE : (state, post) => {
+    state.listPost = state.listPost.concat(post)
+    state.loadMore = false
   }
 }
 const actions = {
@@ -66,15 +71,34 @@ const actions = {
         } )
 
     } )
-  }
+  },
+  LOAD_MORE_POST : ({commit, state}) =>{
+    let lastPost = state.listPost.length-1
+    state.loadMore = true
+    axios.defaults.headers.common[ 'Authorization' ] = localStorage[ 'access-token' ]
+    return new Promise ( ( resolve, reject ) => {
+      axios.get ( 'api/telegram/posts/', {
+        params:{
+          id: state.listPost[lastPost].id
+        }
+      })
+        .then ( response => {
+          commit('LOAD_MORE', response.data.data)
+          resolve ( response )
+        }, ( err ) => {
+          commit ( 'STATUS_ADD_CHANNEL' )
+        } )
 
+    } )
+  }
 }
 const getters = {
   modalAddChanelTelegram : state => state.modalAddChanelTelegram,
   statusAddRequest : state => state.statusAddRequest,
   listChannel : state => state.listChannel.reverse (),
   listPost : state => state.listPost,
-  loadPost : state => state.loadPost
+  loadPost : state => state.loadPost,
+  loadMore: state => state.loadMore
 }
 
 export default {

@@ -33700,7 +33700,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     listChannel: function listChannel() {
       return this.$store.getters.listChannel;
     },
-    listPost: function listPost() {
+    loadMore: function loadMore() {
+      return this.$store.getters.loadMore;
+    },
+    listPosts: function listPosts() {
       return this.$store.getters.listPost;
     },
     refreshToken: function refreshToken() {
@@ -33729,12 +33732,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             listHeight = list.offsetHeight;
         var diffHeight = listHeight - wrapperHeight;
         // console.log ( diffHeight , scrollTop+500)
-        if (diffHeight <= scrollTop + 300 && !_this.load) {
-          _this.load = true;
-          console.log(diffHeight, scrollTop);
-          setTimeout(function () {
-            _this.load = false;
-          }, 500);
+        if (diffHeight <= scrollTop + 300 && !_this.loadMore) {
+          _this.$store.dispatch('LOAD_MORE_POST');
         }
       };
     }
@@ -34052,7 +34051,7 @@ var render = function() {
                       : _vm._e()
                   }),
                   _vm._v(" "),
-                  _vm._l(_vm.listPost, function(post) {
+                  _vm._l(_vm.listPosts, function(post) {
                     return !_vm.isLoadPost
                       ? _c("app-post", { key: post.id, attrs: { post: post } })
                       : _vm._e()
@@ -34653,7 +34652,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     userFullName: function userFullName() {
       return this.$store.getters.user.first_name + " " + this.$store.getters.user.last_name;
     },
-    listPost: function listPost() {
+    listPosts: function listPosts() {
       return this.$store.getters.listPost;
     }
   },
@@ -34868,7 +34867,7 @@ var render = function() {
               _c(
                 "div",
                 { staticClass: "newsfeed-items-grid" },
-                _vm._l(_vm.listPost, function(post) {
+                _vm._l(_vm.listPosts, function(post) {
                   return _c("app-post", { key: post.id, attrs: { post: post } })
                 })
               )
@@ -37186,6 +37185,7 @@ var state = {
   listChannel: [],
   listPost: [],
   loadPost: true,
+  loadMore: false,
   statusAddRequest: false
 };
 var mutations = {
@@ -37201,6 +37201,10 @@ var mutations = {
   LIST_POST: function LIST_POST(state, post) {
     state.listPost = post;
     state.loadPost = false;
+  },
+  LOAD_MORE: function LOAD_MORE(state, post) {
+    state.listPost = state.listPost.concat(post);
+    state.loadMore = false;
   }
 };
 var actions = {
@@ -37247,8 +37251,27 @@ var actions = {
         commit('STATUS_ADD_CHANNEL');
       });
     });
-  }
+  },
+  LOAD_MORE_POST: function LOAD_MORE_POST(_ref4) {
+    var commit = _ref4.commit,
+        state = _ref4.state;
 
+    var lastPost = state.listPost.length - 1;
+    state.loadMore = true;
+    __WEBPACK_IMPORTED_MODULE_0_axios_index___default.a.defaults.headers.common['Authorization'] = localStorage['access-token'];
+    return new Promise(function (resolve, reject) {
+      __WEBPACK_IMPORTED_MODULE_0_axios_index___default.a.get('api/telegram/posts/', {
+        params: {
+          id: state.listPost[lastPost].id
+        }
+      }).then(function (response) {
+        commit('LOAD_MORE', response.data.data);
+        resolve(response);
+      }, function (err) {
+        commit('STATUS_ADD_CHANNEL');
+      });
+    });
+  }
 };
 var getters = {
   modalAddChanelTelegram: function modalAddChanelTelegram(state) {
@@ -37265,6 +37288,9 @@ var getters = {
   },
   loadPost: function loadPost(state) {
     return state.loadPost;
+  },
+  loadMore: function loadMore(state) {
+    return state.loadMore;
   }
 };
 

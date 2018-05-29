@@ -13,7 +13,7 @@
                 <rect x="10" y="85" rx="4" ry="4" width="calc(100% - 20px)" height="8" />
               </vue-content-loading>
             </div>
-            <app-post v-for="post in listPost" :key="post.id" :post="post" v-if="!isLoadPost"></app-post>
+            <app-post v-for="post in listPosts" :key="post.id" :post="post" v-if="!isLoadPost"></app-post>
           </div>
         </main>
         <aside class="col col-xl-3 order-xl-1 col-lg-6 order-lg-2 col-md-12 order-sm-3 col-sm-12 col-12 order-3">
@@ -165,7 +165,10 @@ export default {
     listChannel () {
       return this.$store.getters.listChannel
     },
-    listPost () {
+    loadMore(){
+      return this.$store.getters.loadMore
+    },
+    listPosts () {
       return this.$store.getters.listPost
     },
     refreshToken () {
@@ -192,12 +195,8 @@ export default {
           listHeight = list.offsetHeight
         let diffHeight = listHeight - wrapperHeight
         // console.log ( diffHeight , scrollTop+500)
-        if ( diffHeight <= scrollTop + 300 && !this.load ) {
-          this.load = true
-          console.log ( diffHeight, scrollTop )
-          setTimeout ( () => {
-            this.load = false
-          }, 500 )
+        if ( diffHeight <= scrollTop + 300 && !this.loadMore ) {
+          this.$store.dispatch('LOAD_MORE_POST')
         }
       }
     }

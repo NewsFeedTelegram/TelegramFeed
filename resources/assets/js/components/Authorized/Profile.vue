@@ -109,7 +109,7 @@
             </div>
           </div>
           <div class="newsfeed-items-grid">
-            <app-post v-for="post in listPost" :key="post.id" :post="post"></app-post>
+            <app-post v-for="post in listPosts" :key="post.id" :post="post"></app-post>
           </div>
         </main>
         <aside class="col col-xl-3 order-xl-1 col-lg-6 order-lg-2 col-md-12 order-sm-3 col-sm-12 col-12 order-3">
@@ -204,7 +204,7 @@ export default {
     userFullName () {
       return `${this.$store.getters.user.first_name} ${this.$store.getters.user.last_name}`
     },
-    listPost () {
+    listPosts () {
       return this.$store.getters.listPost
     }
   },
