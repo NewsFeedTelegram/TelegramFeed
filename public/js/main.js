@@ -36116,6 +36116,7 @@ var actions = {
         dispatch = _ref2.dispatch;
 
     commit('INDEX_PRELOADER', true);
+    commit('TOKEN', false);
     return new Promise(function (resolve, reject) {
       __WEBPACK_IMPORTED_MODULE_0_axios_index___default.a.post('api/auth/login', user).then(function (response) {
         var user_data = {};
@@ -36126,6 +36127,7 @@ var actions = {
         commit('AUTH_SUCCESS', user_data);
         dispatch('USER_PROFILE');
         commit('AUTH_ERROR', '');
+        commit('TOKEN', true);
         commit('SET_TOKEN', user.token);
         setTimeout(function () {
           commit('INDEX_PRELOADER', false);
@@ -36239,6 +36241,7 @@ var actions = {
         dispatch = _ref6.dispatch;
 
     return new Promise(function (resolve, reject) {
+      commit('TOKEN', false);
       __WEBPACK_IMPORTED_MODULE_0_axios_index___default.a.post('api/auth/refresh', {
         authorization: localStorage['access-token']
       }).then(function (response) {

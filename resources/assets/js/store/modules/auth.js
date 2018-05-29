@@ -79,6 +79,7 @@ const actions = {
    */
   AUTH_REQUEST : ( { commit, dispatch }, user ) => {
     commit('INDEX_PRELOADER', true)
+    commit('TOKEN', false)
     return new Promise ( ( resolve, reject ) => {
       axios.post ( 'api/auth/login', user )
         .then ( response => {
@@ -90,6 +91,7 @@ const actions = {
           commit ( 'AUTH_SUCCESS', user_data );
           dispatch('USER_PROFILE')
           commit ( 'AUTH_ERROR', '' );
+          commit('TOKEN', true)
           commit('SET_TOKEN', user.token)
           setTimeout ( () => {
             commit('INDEX_PRELOADER', false)
@@ -196,6 +198,7 @@ const actions = {
   },
   REFRESH_TOKEN : ({commit, dispatch}) => {
     return new Promise ( ( resolve, reject ) => {
+      commit('TOKEN', false)
       axios.post ( 'api/auth/refresh', {
         authorization: localStorage[ 'access-token' ]
       } )
