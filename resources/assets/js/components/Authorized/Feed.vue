@@ -214,7 +214,7 @@ export default {
       this.loadPost ()
     }
     setTimeout ( () => {
-      document: document.documentElement.scrollTop = 0
+      document.documentElement.scrollTop = 0
       this.scroll ();
     }, 300 )
   }

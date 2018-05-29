@@ -44,6 +44,7 @@ axios.interceptors.request.use ( function ( config ) {
 window.axios = axios
 
 router.beforeEach ( ( to, from, next ) => {
+  document.documentElement.scrollTop = 0
   const nearestWithTitle = to.matched.slice ().reverse ().find ( r => r.meta && r.meta.title );
   const nearestWithMeta = to.matched.slice ().reverse ().find ( r => r.meta && r.meta.metaTags );
   const previousNearestWithMeta = from.matched.slice ().reverse ().find ( r => r.meta && r.meta.metaTags );

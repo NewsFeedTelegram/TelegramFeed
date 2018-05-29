@@ -24,6 +24,26 @@ export default {
     RightPanelFriends,
     AddChanelTelegram
   },
+  methods: {
+    scroll () {
+      let header = document.querySelector('header')
+      document.onscroll = ( event ) => {
+        let wrapper = event.target;
+        let scrollTop = wrapper.documentElement.scrollTop,
+          wrapperWidth = wrapper.documentElement.clientWidth
+        if ( scrollTop-70 > header.clientHeight && wrapperWidth > 978  ) {
+          header.style.top = '-100%'
+        }else if(scrollTop-70<=header.clientHeight ) {
+          header.style.top = '0'
+        }
+      }
+      document.onmousemove = ( event ) => {
+        if(event.clientY-30<=header.clientHeight){
+          header.style.top = '0'
+        }
+      }
+    }
+  },
   // beforeMount () {
   //   if ( this.$store.getters.isAuthenticated ) {
   //     this.$store.dispatch ( 'REFRESH_TOKEN' )
@@ -36,6 +56,9 @@ export default {
   //       } )
   //   }
   // },
+  mounted(){
+    this.scroll ();
+  },
   computed : {
     isIndex () {
       return this.$route.name === 'index' ? true : false

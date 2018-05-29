@@ -68,7 +68,7 @@
           <transition name="fade">
             <ul class="header-page--dropdown-menu" v-show="active">
               <li>
-                <router-link :to="{ name: 'profile', params: { id: user.id }}">Моя страница</router-link>
+                <router-link :to="{ name: 'profile', params: { id: 1 }}">Моя страница</router-link>
               </li>
               <li><a href="#">Настройки</a></li>
               <li><a href="/logout" @click.prevent="logout">Выйти</a></li>

@@ -4518,6 +4518,8 @@ strong {
   -ms-flex-wrap: wrap;
       flex-wrap: wrap;
   position: fixed;
+  -webkit-transition: .3s;
+  transition: .3s;
   top: 0;
   left: 0;
   z-index: 99;

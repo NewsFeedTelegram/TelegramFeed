@@ -28857,6 +28857,7 @@ __WEBPACK_IMPORTED_MODULE_2_axios___default.a.interceptors.request.use(function 
 window.axios = __WEBPACK_IMPORTED_MODULE_2_axios___default.a;
 
 __WEBPACK_IMPORTED_MODULE_1__router__["a" /* default */].beforeEach(function (to, from, next) {
+  document.documentElement.scrollTop = 0;
   var nearestWithTitle = to.matched.slice().reverse().find(function (r) {
     return r.meta && r.meta.title;
   });
@@ -33753,7 +33754,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
       this.loadPost();
     }
     setTimeout(function () {
-      document: document.documentElement.scrollTop = 0;
+      document.documentElement.scrollTop = 0;
       _this2.scroll();
     }, 300);
   }
@@ -44037,6 +44038,26 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     RightPanelFriends: __WEBPACK_IMPORTED_MODULE_1__components_Shared_parts_RightPanelFriends___default.a,
     AddChanelTelegram: __WEBPACK_IMPORTED_MODULE_2__components_Shared_parts_Modal_AddChanelTelegram___default.a
   },
+  methods: {
+    scroll: function scroll() {
+      var header = document.querySelector('header');
+      document.onscroll = function (event) {
+        var wrapper = event.target;
+        var scrollTop = wrapper.documentElement.scrollTop,
+            wrapperWidth = wrapper.documentElement.clientWidth;
+        if (scrollTop - 70 > header.clientHeight && wrapperWidth > 978) {
+          header.style.top = '-100%';
+        } else if (scrollTop - 70 <= header.clientHeight) {
+          header.style.top = '0';
+        }
+      };
+      document.onmousemove = function (event) {
+        if (event.clientY - 30 <= header.clientHeight) {
+          header.style.top = '0';
+        }
+      };
+    }
+  },
   // beforeMount () {
   //   if ( this.$store.getters.isAuthenticated ) {
   //     this.$store.dispatch ( 'REFRESH_TOKEN' )
@@ -44049,6 +44070,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
   //       } )
   //   }
   // },
+  mounted: function mounted() {
+    this.scroll();
+  },
+
   computed: {
     isIndex: function isIndex() {
       return this.$route.name === 'index' ? true : false;
@@ -44414,9 +44439,7 @@ var render = function() {
                       _c(
                         "router-link",
                         {
-                          attrs: {
-                            to: { name: "profile", params: { id: _vm.user.id } }
-                          }
+                          attrs: { to: { name: "profile", params: { id: 1 } } }
                         },
                         [_vm._v("Моя страница")]
                       )
