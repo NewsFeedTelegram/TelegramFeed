@@ -230,6 +230,8 @@
       text-decoration: none;
       transition: .3s;
       display: block;
+      color: #404257;
+      font-weight: 700;
       &:hover {
         color: #50bfa4;
       }
@@ -357,7 +359,6 @@
   }
   .post {
     padding: 15px 15px 0 15px;
-
     border-bottom: 1px solid #e6ecf5;
     &--author {
       display: flex;
@@ -382,6 +383,10 @@
       &-name, a {
         color: #404257;
         font-weight: 700;
+      }
+      &-channel{
+        margin-right: 5px;
+        font-size: 12px;
       }
     }
     &--date {
@@ -420,7 +425,6 @@
       padding-left: 15px;
       padding-bottom: 15px;
     }
-
     &-additional-comment {
       border-top: 1px solid #e6ecf5;
       margin-left: -15px;
@@ -488,8 +492,6 @@
         float: right;
       }
     }
-
-
     &-like, &-comments-shared{
       display: flex;
     }

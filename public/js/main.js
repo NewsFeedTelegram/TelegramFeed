@@ -33902,6 +33902,12 @@ var render = function() {
                 [_vm._v(_vm._s(_vm.post.channel.name) + " ")]
               ),
               _vm._v(" "),
+              _c(
+                "a",
+                { staticClass: "post--author-channel", attrs: { href: "#" } },
+                [_vm._v("@teleblog")]
+              ),
+              _vm._v(" "),
               _c("div", { staticClass: "post--date" }, [
                 _c(
                   "time",
@@ -33910,9 +33916,8 @@ var render = function() {
                     attrs: { datetime: "2018-05-1T15:18" }
                   },
                   [
-                    _c("a", { attrs: { href: "#" } }, [_vm._v("@teleblog")]),
                     _vm._v(
-                      " " +
+                      "\n               " +
                         _vm._s(
                           _vm._f("moment")(_vm.post.data, "MMMM Do YYYY, kk:mm")
                         ) +
@@ -33933,6 +33938,8 @@ var render = function() {
           ])
         ]),
         _vm._v(" "),
+        _c("p", { domProps: { innerHTML: _vm._s(_vm.postMessage) } }),
+        _vm._v(" "),
         _vm._l(_vm.post.media.links_media, function(img) {
           return _vm.post.media.links_media.length && _vm.post.media.type === 1
             ? _c("img", {
@@ -33941,8 +33948,6 @@ var render = function() {
               })
             : _vm._e()
         }),
-        _vm._v(" "),
-        _c("p", { domProps: { innerHTML: _vm._s(_vm.postMessage) } }),
         _vm._v(" "),
         _vm._l(_vm.post.media.links_media, function(video) {
           return _vm.post.media.links_media.length && _vm.post.media.type === 3
@@ -34210,7 +34215,7 @@ var render = function() {
               _vm._v(" "),
               _c("div", { staticClass: "white-block" }, [
                 _c("div", { staticClass: "white-block-title" }, [
-                  _c("h6", { staticClass: "title" }, [_vm._v("Channel")]),
+                  _c("h6", { staticClass: "title" }, [_vm._v("Channels")]),
                   _vm._v(" "),
                   _c("a", { staticClass: "more", attrs: { href: "#" } }, [
                     _c("svg", { staticClass: "icon icon-more-button" }, [
