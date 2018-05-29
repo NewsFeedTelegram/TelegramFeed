@@ -33517,7 +33517,7 @@ exports = module.exports = __webpack_require__(2)(false);
 
 
 // module
-exports.push([module.i, "\n.list-channel[data-v-07144db8] {\n  height: 292px;\n}\n", ""]);
+exports.push([module.i, "\n.list-channel[data-v-07144db8] {\n  height: 292px;\n}\n.loader[data-v-07144db8] {\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  -ms-flex-item-align: center;\n      align-self: center;\n  -webkit-box-pack: center;\n      -ms-flex-pack: center;\n          justify-content: center;\n  margin-bottom: 15px;\n}\n.loader img[data-v-07144db8] {\n    width: 50px;\n}\n", ""]);
 
 // exports
 
@@ -33532,6 +33532,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Shared_parts_Post___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__Shared_parts_Post__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_vue_content_loading__ = __webpack_require__(170);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_vue_content_loading___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_vue_content_loading__);
+//
 //
 //
 //
@@ -33846,6 +33847,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "Post",
@@ -33879,53 +33881,70 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c("div", { staticClass: "white-block" }, [
-    _c("article", { staticClass: "post" }, [
-      _c("div", { staticClass: "post--author" }, [
-        _c("div", { staticClass: "post--author-user" }, [
-          _c("img", {
-            attrs: { src: _vm.post.channel.photo, alt: _vm.post.channel.name }
-          }),
-          _vm._v(" "),
-          _c("div", { staticClass: "post--author-date" }, [
-            _c(
-              "a",
-              { staticClass: "h6 post--author-name fn", attrs: { href: "#" } },
-              [_vm._v(_vm._s(_vm.post.channel.name) + " ")]
-            ),
+    _c(
+      "article",
+      { staticClass: "post" },
+      [
+        _c("div", { staticClass: "post--author" }, [
+          _c("div", { staticClass: "post--author-user" }, [
+            _c("img", {
+              attrs: { src: _vm.post.channel.photo, alt: _vm.post.channel.name }
+            }),
             _vm._v(" "),
-            _c("div", { staticClass: "post--date" }, [
+            _c("div", { staticClass: "post--author-date" }, [
               _c(
-                "time",
+                "a",
                 {
-                  staticClass: "published",
-                  attrs: { datetime: "2018-05-1T15:18" }
+                  staticClass: "h6 post--author-name fn",
+                  attrs: { href: "#" }
                 },
-                [
-                  _c("a", { attrs: { href: "#" } }, [_vm._v("@teleblog")]),
-                  _vm._v(
-                    " " +
-                      _vm._s(
-                        _vm._f("moment")(_vm.post.data, "MMMM Do YYYY, kk:mm")
-                      ) +
-                      "\n            "
-                  )
-                ]
-              )
+                [_vm._v(_vm._s(_vm.post.channel.name) + " ")]
+              ),
+              _vm._v(" "),
+              _c("div", { staticClass: "post--date" }, [
+                _c(
+                  "time",
+                  {
+                    staticClass: "published",
+                    attrs: { datetime: "2018-05-1T15:18" }
+                  },
+                  [
+                    _c("a", { attrs: { href: "#" } }, [_vm._v("@teleblog")]),
+                    _vm._v(
+                      " " +
+                        _vm._s(
+                          _vm._f("moment")(_vm.post.data, "MMMM Do YYYY, kk:mm")
+                        ) +
+                        "\n            "
+                    )
+                  ]
+                )
+              ])
             ])
+          ]),
+          _vm._v(" "),
+          _c("div", { staticClass: "more" }, [
+            _c("svg", { staticClass: "icon icon-more-button" }, [
+              _c("use", { attrs: { "xlink:href": "#icon-more-button" } })
+            ]),
+            _vm._v(" "),
+            _vm._m(0)
           ])
         ]),
         _vm._v(" "),
-        _c("div", { staticClass: "more" }, [
-          _c("svg", { staticClass: "icon icon-more-button" }, [
-            _c("use", { attrs: { "xlink:href": "#icon-more-button" } })
-          ]),
-          _vm._v(" "),
-          _vm._m(0)
-        ])
-      ]),
-      _vm._v(" "),
-      _c("p", { domProps: { innerHTML: _vm._s(_vm.postMessage) } })
-    ])
+        _vm._l(_vm.post.media.links_media, function(img) {
+          return _vm.post.media.links_media.length
+            ? _c("img", {
+                staticClass: "post__img",
+                attrs: { src: img, alt: "" }
+              })
+            : _vm._e()
+        }),
+        _vm._v(" "),
+        _c("p", { domProps: { innerHTML: _vm._s(_vm.postMessage) } })
+      ],
+      2
+    )
   ])
 }
 var staticRenderFns = [
@@ -34054,11 +34073,19 @@ var render = function() {
                       : _vm._e()
                   }),
                   _vm._v(" "),
-                  _vm._l(_vm.listPosts, function(post) {
+                  _vm._l(_vm.listPosts, function(index, post) {
                     return !_vm.isLoadPost
-                      ? _c("app-post", { key: post.id, attrs: { post: post } })
+                      ? _c("app-post", { key: post.id, attrs: { post: index } })
                       : _vm._e()
-                  })
+                  }),
+                  _vm._v(" "),
+                  _vm.loadMore
+                    ? _c("div", { staticClass: "loader" }, [
+                        _c("img", {
+                          attrs: { src: "/img/three-dots.svg", alt: "" }
+                        })
+                      ])
+                    : _vm._e()
                 ],
                 2
               )

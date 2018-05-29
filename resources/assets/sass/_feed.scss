@@ -395,6 +395,12 @@
       white-space: pre-wrap;
       word-wrap: break-word;
     }
+    &__img{
+      width: 100%;
+      height: 350px;
+      object-fit: contain;
+      margin-top: 20px;
+    }
     &-additional-info {
       border-top: 1px solid #e6ecf5;
       display: -webkit-box;

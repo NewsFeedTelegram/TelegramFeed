@@ -13,7 +13,8 @@
                 <rect x="10" y="85" rx="4" ry="4" width="calc(100% - 20px)" height="8"/>
               </vue-content-loading>
             </div>
-            <app-post v-for="post in listPosts" :key="post.id" :post="post" v-if="!isLoadPost"></app-post>
+            <app-post v-for="(index, post) in listPosts" :key="post.id" :post="index" v-if="!isLoadPost"></app-post>
+            <div class="loader" v-if="loadMore"><img src="/img/three-dots.svg" alt=""></div>
           </div>
         </main>
         <aside class="col col-xl-3 order-xl-1 col-lg-6 order-lg-2 col-md-12 order-sm-3 col-sm-12 col-12 order-3">
@@ -223,5 +224,14 @@ export default {
 <style scoped lang="scss">
   .list-channel {
     height: 292px;
+  }
+  .loader{
+    display: flex;
+    align-self: center;
+    justify-content: center;
+    margin-bottom: 15px;
+    img{
+      width: 50px;
+    }
   }
 </style>

@@ -35,6 +35,7 @@
           </ul>
         </div>
       </div>
+      <img v-if="post.media.links_media.length" class="post__img" v-for="img in post.media.links_media" :src="img" alt="">
       <p v-html="postMessage"></p>
     </article>
   </div>
