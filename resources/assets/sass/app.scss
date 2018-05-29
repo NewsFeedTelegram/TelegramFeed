@@ -4,8 +4,67 @@
 @import url('https://fonts.googleapis.com/css?family=Roboto:100,100i,300,300i,400,400i,500,500i,700,700i,900,900i&subset=cyrillic');
 @import "preloader";
 
+.vuebar-element {
+  height: 100vh;
+  width: 100%;
+}
+
+.vb > .vb-dragger {
+  z-index: 9999;
+  width: 12px;
+  right: 0;
+}
+
+.vb > .vb-dragger > .vb-dragger-styler {
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  -webkit-transform: rotate3d(0,0,0,0);
+  transform: rotate3d(0,0,0,0);
+  -webkit-transition:
+      background-color 100ms ease-out,
+      margin 100ms ease-out,
+      height 100ms ease-out;
+  transition:
+      background-color 100ms ease-out,
+      margin 100ms ease-out,
+      height 100ms ease-out;
+  background-color: rgba(#404257,0);
+  margin: 5px 5px 5px 0;
+  border-radius: 20px;
+  height: calc(100% - 10px);
+  display: block;
+}
+
+.vb.vb-scrolling-phantom > .vb-dragger > .vb-dragger-styler {
+  background-color: rgba(#404257,.3);
+}
+
+.vb > .vb-dragger:hover > .vb-dragger-styler {
+  background-color: rgba(#404257,.5);
+  margin: 0 5px 0 0 ;
+  height: 100%;
+}
+
+.vb.vb-dragging > .vb-dragger > .vb-dragger-styler {
+  background-color: rgba(#404257,.5);
+  margin: 0 5px 0 0;
+  height: 100%;
+}
+
+.vb.vb-dragging-phantom > .vb-dragger > .vb-dragger-styler {
+  background-color: rgba(#404257,.5);
+}
+
 ::placeholder {
   color: #666;
+}
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .5s;
+}
+
+.fade-enter, .fade-leave-to /* .fade-leave-active до версии 2.1.8 */
+{
+  opacity: 0;
 }
 head{
   font-size: 16px;
@@ -16,6 +75,19 @@ head{
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
+}
+.error{
+  position: relative;
+  padding: .75rem 1.25rem;
+  margin-bottom: 1rem;
+  border: 1px solid transparent;
+  border-radius: .25rem;
+  font-size: 13px;
+}
+.danger{
+  color: #000;
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
 }
 .btn{
   display: inline-block;
@@ -169,7 +241,7 @@ body {
   position: relative;
   line-height: 1.65;
   font-family: $default-font;
-  overflow-x: hidden;
+  //overflow: hidden;
   color: $text;
   background-color: #edf2f6;
   input, textarea {

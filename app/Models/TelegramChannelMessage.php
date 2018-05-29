@@ -36,7 +36,7 @@ class TelegramChannelMessage extends Model
                 ->whereIn('m.tg_channel_id', function ($query) {
                     $query->select('tg_channel_id')
                         ->from('telegram_subscribers')
-                        ->where('user_id', 1)->get();
+                        ->where('user_id', auth()->id())->get();
                 })
                 ->orderBy('m.date', 'DESK')
                 ->limit(10)

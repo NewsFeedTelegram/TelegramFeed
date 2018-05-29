@@ -11,7 +11,7 @@ class CreateTelegramChannelsMessages extends Migration
         Schema::create('telegram_channels_messages', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('tg_channel_id')->unsigned();
-            $table->json('fwd_from');
+            $table->json('fwd_from')->nullable();
             $table->integer('message_id')->unsigned();
             $table->timestamp('date');
             $table->text('message');
