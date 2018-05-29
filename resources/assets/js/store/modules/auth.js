@@ -1,8 +1,9 @@
 import axios from "axios/index";
 
 const state = {
-  token : '',
+  token : false,
   status : '',
+  refreshStatus: false,
   isAuthenticated: localStorage[ 'access-token' ],
   user : {},
   error : '',
@@ -17,13 +18,13 @@ const mutations = {
   AUTH_REQUEST : ( state ) => {
     state.status = 'loading'
   },
-  TOKEN:(state, token)=> {
-    state.token = token
-  },
   AUTH_SUCCESS : ( state, user ) => {
     state.status = 'success';
     state.token = user.token;
     state.user = user
+  },
+  TOKEN: (state, status) => {
+    state.refreshStatus = status
   },
   AUTH_ERROR : ( state, err ) => {
     state.status = 'error';
@@ -200,8 +201,8 @@ const actions = {
         .then ( response => {
           localStorage.setItem ( 'access-token', response.headers.authorization );
           axios.defaults.headers.common[ 'Authorization' ] = response.headers.authorization
-          commit('TOKEN', response.headers.authorization)
           dispatch('USER_PROFILE')
+          commit('TOKEN', true)
           resolve(response)
         } )
         .catch ( error => {
@@ -217,7 +218,8 @@ const getters = {
   user : state => state.user,
   error : state => state.error,
   loginValidate : state => state.login_validate,
-  isPreloader: state => state.isPreloader
+  isPreloader: state => state.isPreloader,
+  refreshStatus: state=>state.refreshStatus
 }
 
 export default {

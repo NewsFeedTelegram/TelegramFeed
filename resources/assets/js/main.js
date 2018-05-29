@@ -13,12 +13,12 @@ const token = localStorage[ 'access-token' ]
 
 if ( token ) {
   axios.defaults.headers.common[ 'Authorization' ] = `${token}`;
+  store.dispatch('REFRESH_TOKEN')
 }
 
 axios.interceptors.request.use ( function ( config ) {
   if ( token ) {
     axios.defaults.headers.common[ 'Authorization' ] = `${token}`;
-
   }
   return config;
 }, function ( err ) {

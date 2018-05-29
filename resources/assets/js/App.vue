@@ -24,18 +24,18 @@ export default {
     RightPanelFriends,
     AddChanelTelegram
   },
-  beforeMount () {
-    if ( this.$store.getters.isAuthenticated ) {
-      this.$store.dispatch ( 'REFRESH_TOKEN' )
-        .then ( () => {
-          this.$router.replace ( '' )
-        } )
-        .catch ( () => {
-          this.$store.dispatch ( 'AUTH_LOGOUT' )
-          this.$router.replace ( '/' )
-        } )
-    }
-  },
+  // beforeMount () {
+  //   if ( this.$store.getters.isAuthenticated ) {
+  //     this.$store.dispatch ( 'REFRESH_TOKEN' )
+  //       .then ( () => {
+  //         this.$router.replace ( '' )
+  //       } )
+  //       .catch ( () => {
+  //         this.$store.dispatch ( 'AUTH_LOGOUT' )
+  //         this.$router.replace ( '/' )
+  //       } )
+  //   }
+  // },
   computed : {
     isIndex () {
       return this.$route.name === 'index' ? true : false
