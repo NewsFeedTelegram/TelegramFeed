@@ -6,7 +6,7 @@
     <transition name="fade">
       <router-view/>
     </transition>
-    <right-panel-friends v-if="!isIndex"/>
+    <!--<right-panel-friends v-if="!isIndex"/>-->
     <add-chanel-telegram/>
   </div>
 </template>

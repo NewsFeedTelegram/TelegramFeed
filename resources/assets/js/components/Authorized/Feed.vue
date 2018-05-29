@@ -199,7 +199,7 @@ export default {
           listHeight = list.offsetHeight
         let diffHeight = listHeight - wrapperHeight
         // console.log ( diffHeight , scrollTop+500)
-        if ( diffHeight <= scrollTop + 300 && !this.loadMore && !this.isLoadPost ) {
+        if ( diffHeight <= scrollTop + 1000 && !this.loadMore && !this.isLoadPost ) {
           this.$store.dispatch ( 'LOAD_MORE_POST' )
         }
       }

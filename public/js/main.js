@@ -33736,7 +33736,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             listHeight = list.offsetHeight;
         var diffHeight = listHeight - wrapperHeight;
         // console.log ( diffHeight , scrollTop+500)
-        if (diffHeight <= scrollTop + 300 && !_this.loadMore && !_this.isLoadPost) {
+        if (diffHeight <= scrollTop + 1000 && !_this.loadMore && !_this.isLoadPost) {
           _this.$store.dispatch('LOAD_MORE_POST');
         }
       };
@@ -45018,8 +45018,6 @@ var render = function() {
       ),
       _vm._v(" "),
       _c("transition", { attrs: { name: "fade" } }, [_c("router-view")], 1),
-      _vm._v(" "),
-      !_vm.isIndex ? _c("right-panel-friends") : _vm._e(),
       _vm._v(" "),
       _c("add-chanel-telegram")
     ],
