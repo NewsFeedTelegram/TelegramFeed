@@ -4823,6 +4823,8 @@ strong {
   -webkit-transition: .3s;
   transition: .3s;
   display: block;
+  color: #404257;
+  font-weight: 700;
 }
 
 .more-dropdown a:hover {
@@ -5000,7 +5002,7 @@ strong {
 }
 
 .section .post {
-  padding: 15px 15px 0 15px;
+  padding: 15px 15px 15px 15px;
   border-bottom: 1px solid #e6ecf5;
 }
 
@@ -5045,6 +5047,11 @@ strong {
 .section .post--author a {
   color: #404257;
   font-weight: 700;
+}
+
+.section .post--author-channel {
+  margin-right: 5px;
+  font-size: 12px;
 }
 
 .section .post--date {

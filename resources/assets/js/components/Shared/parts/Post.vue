@@ -5,12 +5,12 @@
         <div class="post--author-user">
           <img :src="post.channel.photo" :alt="post.channel.name">
           <div class="post--author-date">
-            <a class="h6 post--author-name fn" href="#">{{ post.channel.name }} </a>
+            <a class="h6 post--author-name fn" href="#">{{ post.channel.name }} </a> <a href="#" class="post--author-channel">@teleblog</a>
             <!--<span class="share">shared-->
             <!--a <a href="#">link</a></span>-->
             <div class="post--date">
               <time class="published" datetime="2018-05-1T15:18">
-                <a href="#">@teleblog</a> {{ post.data | moment("MMMM Do YYYY, kk:mm")}}
+                 {{ post.data | moment("MMMM Do YYYY, kk:mm")}}
               </time>
             </div>
           </div>
@@ -35,8 +35,8 @@
           </ul>
         </div>
       </div>
-      <img v-if="post.media.links_media.length && post.media.type === 1" class="post__img" v-for="img in post.media.links_media" :src="img" alt="">
       <p v-html="postMessage"></p>
+      <img v-if="post.media.links_media.length && post.media.type === 1" class="post__img" v-for="img in post.media.links_media" :src="img" alt="">
       <video v-if="post.media.links_media.length && post.media.type === 3" class="post__video" v-for="video in post.media.links_media" :src="video" controls></video>
     </article>
   </div>

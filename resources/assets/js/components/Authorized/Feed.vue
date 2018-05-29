@@ -87,7 +87,7 @@
           </div>
           <div class="white-block">
             <div class="white-block-title">
-              <h6 class="title">Channel</h6>
+              <h6 class="title">Channels</h6>
               <a href="#" class="more">
                 <svg class="icon icon-more-button">
                   <use xlink:href="#icon-more-button"></use>
