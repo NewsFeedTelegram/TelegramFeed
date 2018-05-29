@@ -5,6 +5,7 @@ import { store } from './store'
 import VeeValidate from 'vee-validate';
 import Vuebar from 'vuebar';
 Vue.use(Vuebar);
+Vue.use(require('vue-moment'));
 
 import AppIndex from './App'
 
@@ -17,6 +18,7 @@ if ( token ) {
 axios.interceptors.request.use ( function ( config ) {
   if ( token ) {
     axios.defaults.headers.common[ 'Authorization' ] = `${token}`;
+
   }
   return config;
 }, function ( err ) {

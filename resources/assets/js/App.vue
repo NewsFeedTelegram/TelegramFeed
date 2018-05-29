@@ -1,21 +1,13 @@
 <template>
   <div>
-    <div class="vuebar-element" v-bar> <!-- el1 -->
-      <div> <!-- el2 -->
-        <div>
-        <transition name="fade">
-        <app-header v-if="!isIndex"></app-header>
-        </transition>
-        <transition name="fade">
-        <router-view/>
-        </transition>
-        <right-panel-friends v-if="!isIndex"/>
-        <add-chanel-telegram/>
-        </div>
-        <!-- your scrollable content -->
-      </div>
-      <!-- dragger will be automatically added here -->
-    </div>
+    <transition name="fade">
+      <app-header v-if="!isIndex"></app-header>
+    </transition>
+    <transition name="fade">
+      <router-view/>
+    </transition>
+    <right-panel-friends v-if="!isIndex"/>
+    <add-chanel-telegram/>
   </div>
 </template>
 

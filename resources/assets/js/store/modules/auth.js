@@ -1,7 +1,7 @@
 import axios from "axios/index";
 
 const state = {
-  token : false,
+  token : '',
   status : '',
   isAuthenticated: localStorage[ 'access-token' ],
   user : {},
@@ -16,6 +16,9 @@ const state = {
 const mutations = {
   AUTH_REQUEST : ( state ) => {
     state.status = 'loading'
+  },
+  TOKEN:(state, token)=> {
+    state.token = token
   },
   AUTH_SUCCESS : ( state, user ) => {
     state.status = 'success';
@@ -197,6 +200,7 @@ const actions = {
         .then ( response => {
           localStorage.setItem ( 'access-token', response.headers.authorization );
           axios.defaults.headers.common[ 'Authorization' ] = response.headers.authorization
+          commit('TOKEN', response.headers.authorization)
           dispatch('USER_PROFILE')
           resolve(response)
         } )

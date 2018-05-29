@@ -199,6 +199,49 @@
     }
   }
 }
+.more {
+  position: relative;
+  display: flex;
+  .icon {
+
+  }
+  &:hover .more-dropdown {
+    visibility: visible;
+    opacity: 1;
+  }
+  &-dropdown {
+    display: block;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 180px;
+    box-shadow: 0 0 34px 0 rgba(63, 66, 87, .1);
+    background-color: #fff;
+    border-radius: 4px;
+    visibility: hidden;
+    opacity: 0;
+    transition: all .3s;
+    text-align: left;
+    padding: 5px 0;
+    z-index: 5;
+    font-size: .75rem;
+    list-style: none;
+    a {
+      text-decoration: none;
+      transition: .3s;
+      display: block;
+      &:hover {
+        color: #50bfa4;
+      }
+    }
+
+    li {
+      padding: 10px 15px;
+      background-color: transparent;
+    }
+  }
+}
+
 .section {
   position: relative;
   padding: $gutter 90px;

@@ -3,64 +3,8 @@
     <div class="container">
       <div class="row">
         <main class="col col-xl-6 order-xl-2 col-lg-12 order-lg-1 col-md-12 order-sm-2 col-sm-12 col-12 order-2">
-          <div class="white-block new-post">
-            <div class="new-post--header">
-              <h3 class="new-post--header--title">
-                <!--<span>-->
-                <!--<svg class="icon icon-newspaper">-->
-                <!--<use xlink:href="#icon-newspaper"></use>-->
-                <!--</svg>-->
-                <!--</span>-->
-                Add new post
-              </h3>
-              <span class="new-post--header--more">
-                            <svg class="icon icon-more-button">
-                                <use xlink:href="#icon-more-button"></use>
-                            </svg>
-                        </span>
-            </div>
-            <div class="new-post--field">
-              <form>
-                <img src="img/bg.jpg" alt="">
-                <textarea placeholder="Share what you are thinking here ..."></textarea>
-                <div class="new-post--control">
-                  <div class="new-post--select-files">
-                    <div class="new-post--select-files--file">
-                      <label>
-                        <input type="file" multiply accept="image/*">
-                        <svg class="icon icon-photo-camera">
-                          <use xlink:href="#icon-photo-camera"></use>
-                        </svg>
-                      </label>
-                    </div>
-                    <div class="new-post--select-files--file">
-                      <label>
-                        <input type="file" multiply accept="video/*">
-                        <svg class="icon icon-video-player">
-                          <use xlink:href="#icon-video-player"></use>
-                        </svg>
-                      </label>
-                    </div>
-                    <div class="new-post--select-files--file">
-                      <label>
-                        <input type="file" multiply accept="audio/*">
-                        <svg class="icon icon-musical-note">
-                          <use xlink:href="#icon-musical-note"></use>
-                        </svg>
-                      </label>
-                    </div>
-                  </div>
-                  <button class="btn btn-green">
-                    Add post
-                  </button>
-                </div>
-
-              </form>
-            </div>
-          </div>
           <div class="newsfeed-items-grid">
-            <app-post v-for="post in list" :key="post"></app-post>
-            <button @click="add">add</button>
+            <app-post v-for="post in listPost" :key="post.id" :post="post"></app-post>
           </div>
         </main>
         <aside class="col col-xl-3 order-xl-1 col-lg-6 order-lg-2 col-md-12 order-sm-3 col-sm-12 col-12 order-3">
@@ -131,6 +75,51 @@
               </li>
             </ul>
           </div>
+          <div class="white-block">
+            <div class="white-block-title">
+              <h6 class="title">Channel</h6>
+              <a href="#" class="more">
+                <svg class="icon icon-more-button">
+                  <use xlink:href="#icon-more-button"></use>
+                </svg>
+                <ul class="more-dropdown">
+                  <li>
+                    <a href="#">Edit Post</a>
+                  </li>
+                  <li>
+                    <a href="#">Delete Post</a>
+                  </li>
+                  <li>
+                    <a href="#">Turn Off Notifications</a>
+                  </li>
+                  <li>
+                    <a href="#">Select as Featured</a>
+                  </li>
+                </ul>
+
+              </a>
+            </div>
+            <ul class="widget--chanel">
+              <li class="inline-items" v-for="(list, index) in listChannel" :key="index">
+                <div class="sn">
+                  <div class="sn-thumb">
+                    <img :src="list.photo" :alt="list.name">
+                  </div>
+                  <div class="sn-event">
+                    <p>{{ list.name }}</p>
+                  </div>
+                </div>
+                <span class="notification-icon">
+							   <a href="#" class="more">
+                <svg class="icon icon-more-button">
+                  <use xlink:href="#icon-more-button"></use>
+                </svg>
+              </a>
+
+						</span>
+              </li>
+            </ul>
+          </div>
         </aside>
       </div>
     </div>
@@ -150,31 +139,35 @@ export default {
   computed : {
     user () {
       return this.$store.getters.user
+    },
+    listChannel () {
+      return this.$store.getters.listChannel
+    },
+    listPost () {
+      return this.$store.getters.listPost
     }
   },
   methods : {
-    scroll(){
-      window.onscroll = () => {
-        console.log(1)
-      }
-    },
-    add(){
-      this.list+=10
-    },
-    openTelegramModal(){
-      this.$store.commit('TOGGLE_MODAL_TELEGRAM')
+    openTelegramModal () {
+      this.$store.commit ( 'TOGGLE_MODAL_TELEGRAM' )
     }
   },
   components : {
     AppPost
   },
-  mounted () {
-    // this.$store.dispatch ( 'USER_PROFILE' )
-      this.scroll();
+  created () {
+    this.$store.dispatch ( 'LIST_CHANNEL' )
+    this.$store.dispatch('LIST_POST')
   }
 }
 </script>
 
 <style scoped lang="scss">
-
+.sn-thumb{
+  img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
 </style>

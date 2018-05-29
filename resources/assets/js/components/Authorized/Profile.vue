@@ -109,7 +109,7 @@
             </div>
           </div>
           <div class="newsfeed-items-grid">
-            <app-post v-for="post in list" :key="post"></app-post>
+            <app-post v-for="post in listPost" :key="post.id" :post="post"></app-post>
           </div>
         </main>
         <aside class="col col-xl-3 order-xl-1 col-lg-6 order-lg-2 col-md-12 order-sm-3 col-sm-12 col-12 order-3">
@@ -203,35 +203,38 @@ export default {
   computed: {
     userFullName () {
       return `${this.$store.getters.user.first_name} ${this.$store.getters.user.last_name}`
+    },
+    listPost () {
+      return this.$store.getters.listPost
     }
   },
   methods : {
-    scroll () {
-      window.onscroll = ( event ) => {
-        let wrapper = event.target,
-          list = wrapper.firstElementChild;
-        let scrollTop = wrapper.documentElement.scrollTop,
-          wrapperHeight = wrapper.documentElement.clientHeight,
-          listHeight = list.offsetHeight
-        let diffHeight = listHeight - wrapperHeight
-        // console.log ( diffHeight , scrollTop+500)
-        if ( diffHeight <= scrollTop + 300 && !this.load ) {
-          this.load = true
-          this.list += 10
-          console.log ( diffHeight, scrollTop )
-          setTimeout ( () => {
-            this.load = false
-          }, 500 )
-        }
-      }
-    }
+    // scroll () {
+    //   window.onscroll = ( event ) => {
+    //     let wrapper = event.target,
+    //       list = wrapper.firstElementChild;
+    //     let scrollTop = wrapper.documentElement.scrollTop,
+    //       wrapperHeight = wrapper.documentElement.clientHeight,
+    //       listHeight = list.offsetHeight
+    //     let diffHeight = listHeight - wrapperHeight
+    //     // console.log ( diffHeight , scrollTop+500)
+    //     if ( diffHeight <= scrollTop + 300 && !this.load ) {
+    //       this.load = true
+    //       this.list += 10
+    //       console.log ( diffHeight, scrollTop )
+    //       setTimeout ( () => {
+    //         this.load = false
+    //       }, 500 )
+    //     }
+    //   }
+    // }
   },
   mounted () {
     // this.$store.dispatch ( 'USER_PROFILE' )
-    setTimeout ( () => {
-      document: document.documentElement.scrollTop = 0
-      this.scroll ();
-    }, 300 )
+    // setTimeout ( () => {
+    //   document: document.documentElement.scrollTop = 0
+    //   this.scroll ();
+    // }, 300 )
 
   }
 }
