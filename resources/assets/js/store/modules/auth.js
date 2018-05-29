@@ -111,13 +111,14 @@ const actions = {
    * @return {Promise}
    *
    */
-  AUTH_LOGOUT : ( { commit } ) => {
+  AUTH_LOGOUT : ( { commit, state } ) => {
     axios.defaults.headers.common[ 'Authorization' ] = localStorage[ 'access-token' ]
     return new Promise ( ( resolve ) => {
       axios.post ( 'api/auth/logout', {
         authorization: localStorage[ 'access-token' ]
       } )
       commit ( 'AUTH_LOGOUT' )
+      state.loadPost = true
       commit ( 'VALIDATE_STATUS', {
         v_loading : false,
         v_error : false,
