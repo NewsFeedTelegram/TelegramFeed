@@ -5068,6 +5068,11 @@ strong {
   margin-top: 20px;
 }
 
+.section .post__video {
+  width: 100%;
+  height: 350px;
+}
+
 .section .post-additional-info {
   border-top: 1px solid #e6ecf5;
   display: -webkit-box;

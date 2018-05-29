@@ -33848,6 +33848,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "Post",
@@ -33933,7 +33934,7 @@ var render = function() {
         ]),
         _vm._v(" "),
         _vm._l(_vm.post.media.links_media, function(img) {
-          return _vm.post.media.links_media.length
+          return _vm.post.media.links_media.length && _vm.post.media.type === 1
             ? _c("img", {
                 staticClass: "post__img",
                 attrs: { src: img, alt: "" }
@@ -33941,7 +33942,16 @@ var render = function() {
             : _vm._e()
         }),
         _vm._v(" "),
-        _c("p", { domProps: { innerHTML: _vm._s(_vm.postMessage) } })
+        _c("p", { domProps: { innerHTML: _vm._s(_vm.postMessage) } }),
+        _vm._v(" "),
+        _vm._l(_vm.post.media.links_media, function(video) {
+          return _vm.post.media.links_media.length && _vm.post.media.type === 3
+            ? _c("video", {
+                staticClass: "post__video",
+                attrs: { src: video, controls: "" }
+              })
+            : _vm._e()
+        })
       ],
       2
     )

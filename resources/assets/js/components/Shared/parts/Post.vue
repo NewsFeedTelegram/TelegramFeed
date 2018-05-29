@@ -35,8 +35,9 @@
           </ul>
         </div>
       </div>
-      <img v-if="post.media.links_media.length" class="post__img" v-for="img in post.media.links_media" :src="img" alt="">
+      <img v-if="post.media.links_media.length && post.media.type === 1" class="post__img" v-for="img in post.media.links_media" :src="img" alt="">
       <p v-html="postMessage"></p>
+      <video v-if="post.media.links_media.length && post.media.type === 3" class="post__video" v-for="video in post.media.links_media" :src="video" controls></video>
     </article>
   </div>
 </template>
