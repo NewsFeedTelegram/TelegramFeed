@@ -33517,7 +33517,7 @@ exports = module.exports = __webpack_require__(2)(false);
 
 
 // module
-exports.push([module.i, "\n.sn-thumb img[data-v-07144db8] {\n  width: 100%;\n  height: 100%;\n  -o-object-fit: cover;\n     object-fit: cover;\n}\n.list-channel[data-v-07144db8] {\n  height: 292px;\n}\n", ""]);
+exports.push([module.i, "\n.list-channel[data-v-07144db8] {\n  height: 292px;\n}\n", ""]);
 
 // exports
 
@@ -33532,7 +33532,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Shared_parts_Post___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__Shared_parts_Post__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_vue_content_loading__ = __webpack_require__(170);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_vue_content_loading___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_vue_content_loading__);
-//
 //
 //
 //
@@ -33717,6 +33716,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     openTelegramModal: function openTelegramModal() {
       this.$store.commit('TOGGLE_MODAL_TELEGRAM');
     },
+    deletePost: function deletePost(e) {
+      console.log(e);
+      this.$store.dispatch('DELETE_CHANNEL', e);
+    },
     loadPost: function loadPost() {
       this.$store.dispatch('LIST_CHANNEL');
       this.$store.dispatch('LIST_POST');
@@ -33732,7 +33735,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             listHeight = list.offsetHeight;
         var diffHeight = listHeight - wrapperHeight;
         // console.log ( diffHeight , scrollTop+500)
-        if (diffHeight <= scrollTop + 300 && !_this.loadMore) {
+        if (diffHeight <= scrollTop + 300 && !_this.loadMore && !_this.isLoadPost) {
           _this.$store.dispatch('LOAD_MORE_POST');
         }
       };
@@ -34240,7 +34243,27 @@ var render = function() {
                                             ]
                                           ),
                                           _vm._v(" "),
-                                          _vm._m(3, true)
+                                          _c(
+                                            "ul",
+                                            { staticClass: "more-dropdown" },
+                                            [
+                                              _c("li", [
+                                                _c(
+                                                  "a",
+                                                  {
+                                                    attrs: { href: "#" },
+                                                    on: {
+                                                      click: function($event) {
+                                                        $event.stopPropagation()
+                                                        _vm.deletePost(list.id)
+                                                      }
+                                                    }
+                                                  },
+                                                  [_vm._v("Delete Post")]
+                                                )
+                                              ])
+                                            ]
+                                          )
                                         ]
                                       )
                                     ]
@@ -34326,14 +34349,6 @@ var staticRenderFns = [
           )
         ])
       ])
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("ul", { staticClass: "more-dropdown" }, [
-      _c("li", [_c("a", { attrs: { href: "#" } }, [_vm._v("Delete Post")])])
     ])
   }
 ]
@@ -37262,10 +37277,24 @@ var actions = {
     return new Promise(function (resolve, reject) {
       __WEBPACK_IMPORTED_MODULE_0_axios_index___default.a.get('api/telegram/posts/', {
         params: {
-          id: state.listPost[lastPost].id
+          id: state.listPost[lastPost].id || ''
         }
       }).then(function (response) {
         commit('LOAD_MORE', response.data.data);
+        resolve(response);
+      }, function (err) {
+        commit('STATUS_ADD_CHANNEL');
+      });
+    });
+  },
+  DELETE_CHANNEL: function DELETE_CHANNEL(_ref5, id) {
+    var commit = _ref5.commit,
+        dispatch = _ref5.dispatch;
+
+    __WEBPACK_IMPORTED_MODULE_0_axios_index___default.a.defaults.headers.common['Authorization'] = localStorage['access-token'];
+    return new Promise(function (resolve, reject) {
+      __WEBPACK_IMPORTED_MODULE_0_axios_index___default.a.delete('api/telegram/channel/' + id).then(function (response) {
+        dispatch('LIST_CHANNEL');
         resolve(response);
       }, function (err) {
         commit('STATUS_ADD_CHANNEL');

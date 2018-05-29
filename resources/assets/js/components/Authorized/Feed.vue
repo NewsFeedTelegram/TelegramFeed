@@ -6,11 +6,11 @@
           <div class="newsfeed-items-grid">
             <div class="white-block" v-for="i in list" :key="i" v-if="isLoadPost">
               <vue-content-loading :width="300" :height="100">
-                <circle cx="25" cy="30" r="13" />
-                <rect x="45" y="25" rx="4" ry="4" width="100" height="8" />
-                <rect x="10" y="55" rx="4" ry="4" width="calc(100% - 20px)" height="8" />
-                <rect x="10" y="70" rx="4" ry="4" width="calc(100% - 20px)" height="8" />
-                <rect x="10" y="85" rx="4" ry="4" width="calc(100% - 20px)" height="8" />
+                <circle cx="25" cy="30" r="13"/>
+                <rect x="45" y="25" rx="4" ry="4" width="100" height="8"/>
+                <rect x="10" y="55" rx="4" ry="4" width="calc(100% - 20px)" height="8"/>
+                <rect x="10" y="70" rx="4" ry="4" width="calc(100% - 20px)" height="8"/>
+                <rect x="10" y="85" rx="4" ry="4" width="calc(100% - 20px)" height="8"/>
               </vue-content-loading>
             </div>
             <app-post v-for="post in listPosts" :key="post.id" :post="post" v-if="!isLoadPost"></app-post>
@@ -111,12 +111,11 @@
                 <svg class="icon icon-more-button">
                   <use xlink:href="#icon-more-button"></use>
                 </svg>
-                                   <ul class="more-dropdown">
-
-                  <li>
-                    <a href="#">Delete Post</a>
-                  </li>
-                </ul>
+                   <ul class="more-dropdown">
+                      <li>
+                        <a href="#" @click.stop="deletePost(list.id)">Delete Post</a>
+                      </li>
+                    </ul>
 
               </a>
 
@@ -126,8 +125,8 @@
                 <ul class="widget--chanel" v-if="isLoadPost">
                   <li v-for="i in 4" :key="i">
                     <vue-content-loading :width="300" :height="70">
-                      <circle cx="35" cy="35" r="20" />
-                      <rect x="70" y="27" rx="4" ry="4" width="100" height="15" />
+                      <circle cx="35" cy="35" r="20"/>
+                      <rect x="70" y="27" rx="4" ry="4" width="100" height="15"/>
                     </vue-content-loading>
                   </li>
                 </ul>
@@ -155,7 +154,7 @@ export default {
   },
   watch : {
     refreshToken () {
-      this.loadPost()
+      this.loadPost ()
     }
   },
   computed : {
@@ -165,7 +164,7 @@ export default {
     listChannel () {
       return this.$store.getters.listChannel
     },
-    loadMore(){
+    loadMore () {
       return this.$store.getters.loadMore
     },
     listPosts () {
@@ -174,13 +173,17 @@ export default {
     refreshToken () {
       return this.$store.getters.refreshStatus
     },
-    isLoadPost(){
+    isLoadPost () {
       return this.$store.getters.loadPost
     }
   },
   methods : {
     openTelegramModal () {
       this.$store.commit ( 'TOGGLE_MODAL_TELEGRAM' )
+    },
+    deletePost(e){
+      console.log(e)
+      this.$store.dispatch('DELETE_CHANNEL', e)
     },
     loadPost () {
       this.$store.dispatch ( 'LIST_CHANNEL' )
@@ -195,8 +198,8 @@ export default {
           listHeight = list.offsetHeight
         let diffHeight = listHeight - wrapperHeight
         // console.log ( diffHeight , scrollTop+500)
-        if ( diffHeight <= scrollTop + 300 && !this.loadMore ) {
-          this.$store.dispatch('LOAD_MORE_POST')
+        if ( diffHeight <= scrollTop + 300 && !this.loadMore && !this.isLoadPost ) {
+          this.$store.dispatch ( 'LOAD_MORE_POST' )
         }
       }
     }
@@ -218,14 +221,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-  .sn-thumb {
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-  }
-  .list-channel{
+  .list-channel {
     height: 292px;
   }
 </style>
