@@ -4,7 +4,7 @@ import axios from 'axios'
 import { store } from './store'
 import VeeValidate from 'vee-validate';
 import Vuebar from 'vuebar';
-// import VueMoment from 'vue-moment'
+import VueMoment from 'vue-moment'
 
 
 import AppIndex from './App'
@@ -68,7 +68,7 @@ router.beforeEach ( ( to, from, next ) => {
 
 Vue.use ( VeeValidate );
 Vue.use ( Vuebar );
-// Vue.use ( VueMoment );
+Vue.use ( VueMoment );
 
 setInterval ( () => {
   store.dispatch ( 'REFRESH_TOKEN' )

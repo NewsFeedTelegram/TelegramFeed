@@ -10,7 +10,7 @@
             <!--a <a href="#">link</a></span>-->
             <div class="post--date">
               <time class="published" datetime="2018-05-1T15:18">
-                 <!--{{ post.data | moment("MMMM Do YYYY, kk:mm")}}-->
+                 {{ post.data | moment("MMMM Do YYYY, kk:mm")}}
               </time>
             </div>
           </div>
