@@ -43917,7 +43917,7 @@ webpackContext.id = 202;
 var disposed = false
 function injectStyle (ssrContext) {
   if (disposed) return
-  __webpack_require__(204)
+  __webpack_require__(229)
 }
 var normalizeComponent = __webpack_require__(4)
 /* script */
@@ -43962,46 +43962,8 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 204 */
-/***/ (function(module, exports, __webpack_require__) {
-
-// style-loader: Adds some css to the DOM by adding a <style> tag
-
-// load the styles
-var content = __webpack_require__(205);
-if(typeof content === 'string') content = [[module.i, content, '']];
-if(content.locals) module.exports = content.locals;
-// add the styles to the DOM
-var update = __webpack_require__(3)("dd64535e", content, false, {});
-// Hot Module Replacement
-if(false) {
- // When the styles change, update the <style> tags
- if(!content.locals) {
-   module.hot.accept("!!../../../node_modules/css-loader/index.js!../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-6dd1125c\",\"scoped\":true,\"hasInlineConfig\":true}!../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./App.vue", function() {
-     var newContent = require("!!../../../node_modules/css-loader/index.js!../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-6dd1125c\",\"scoped\":true,\"hasInlineConfig\":true}!../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./App.vue");
-     if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-     update(newContent);
-   });
- }
- // When the module is disposed, remove the <style> tags
- module.hot.dispose(function() { update(); });
-}
-
-/***/ }),
-/* 205 */
-/***/ (function(module, exports, __webpack_require__) {
-
-exports = module.exports = __webpack_require__(2)(false);
-// imports
-
-
-// module
-exports.push([module.i, "\n.fade-enter-active[data-v-6dd1125c] {\n  -webkit-transition: all .5s ease-out;\n  transition: all .5s ease-out;\n  right: 0;\n  left: 0;\n  z-index: 0;\n}\n.fade-leave-active[data-v-6dd1125c] {\n  -webkit-transition: all .5s ease-in;\n  transition: all .5s ease-in;\n  position: absolute;\n  left: -100%;\n  z-index: 0;\n}\n.fade-enter[data-v-6dd1125c], .fade-leave-to[data-v-6dd1125c] {\n  opacity: 0;\n}\n.fade-enter[data-v-6dd1125c] {\n  left: -100%;\n  opacity: 1;\n}\n\n", ""]);
-
-// exports
-
-
-/***/ }),
+/* 204 */,
+/* 205 */,
 /* 206 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -44026,11 +43988,21 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
 
 
 
 
 
+window.requestAnimFrame = function () {
+  return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || function (callback) {
+    window.setTimeout(callback, 1000 / 60);
+  };
+}();
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "App",
   components: {
@@ -44039,21 +44011,71 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     AddChanelTelegram: __WEBPACK_IMPORTED_MODULE_2__components_Shared_parts_Modal_AddChanelTelegram___default.a
   },
   methods: {
+    scrollTop: function scrollTop() {
+      document.documentElement.scrollTop = 0;
+    },
+    scrollToY: function scrollToY(scrollTargetY, speed, easing) {
+      var scrollY = window.scrollY || document.documentElement.scrollTop;
+      var scrollTarget = scrollTargetY || 0;
+      var speeds = speed || 2000;
+      var easings = easing || 'easeOutSine';
+      var currentTime = 0;
+      var time = Math.max(.1, Math.min(Math.abs(scrollY - scrollTarget) / speeds, .8));
+      var easingEquations = {
+        easeOutSine: function easeOutSine(pos) {
+          return Math.sin(pos * (Math.PI / 2));
+        },
+        easeInOutSine: function easeInOutSine(pos) {
+          return -0.5 * (Math.cos(Math.PI * pos) - 1);
+        },
+        easeInOutQuint: function easeInOutQuint(pos) {
+          if ((pos /= 0.5) < 1) {
+            return 0.5 * Math.pow(pos, 5);
+          }
+          return 0.5 * (Math.pow(pos - 2, 5) + 2);
+        }
+      };
+
+      function tick() {
+        currentTime += 1 / 60;
+
+        var p = currentTime / time;
+        var t = easingEquations[easings](p);
+
+        if (p < 1) {
+          requestAnimFrame(tick);
+
+          window.scrollTo(0, scrollY + (scrollTargetY - scrollY) * t);
+        } else {
+          window.scrollTo(0, scrollTargetY);
+        }
+      }
+      tick();
+    },
     scroll: function scroll() {
       var header = document.querySelector('header');
+      var btnScrollTop = document.querySelector('#scrolltop');
       document.onscroll = function (event) {
         var wrapper = event.target;
         var scrollTop = wrapper.documentElement.scrollTop,
             wrapperWidth = wrapper.documentElement.clientWidth;
+        if (scrollTop - 70 > header.clientHeight) {
+          btnScrollTop.style.display = 'flex';
+        } else if (scrollTop - 70 <= header.clientHeight) {
+          btnScrollTop.style.display = 'none';
+        }
         if (scrollTop - 70 > header.clientHeight && wrapperWidth > 978) {
           header.style.top = '-100%';
+          header.style.opacity = '0';
         } else if (scrollTop - 70 <= header.clientHeight) {
           header.style.top = '0';
+          header.style.opacity = '1';
         }
       };
       document.onmousemove = function (event) {
         if (event.clientY - 30 <= header.clientHeight) {
           header.style.top = '0';
+          header.style.opacity = '1';
         }
       };
     }
@@ -45041,11 +45063,40 @@ var render = function() {
       _c(
         "transition",
         { attrs: { name: "fade" } },
-        [!_vm.isIndex ? _c("app-header") : _vm._e()],
+        [
+          _c("app-header", {
+            directives: [
+              {
+                name: "show",
+                rawName: "v-show",
+                value: !_vm.isIndex,
+                expression: "!isIndex"
+              }
+            ]
+          })
+        ],
         1
       ),
       _vm._v(" "),
       _c("transition", { attrs: { name: "fade" } }, [_c("router-view")], 1),
+      _vm._v(" "),
+      _c(
+        "button",
+        {
+          attrs: { id: "scrolltop" },
+          on: {
+            click: function($event) {
+              $event.preventDefault()
+              _vm.scrollToY(0, 1500)
+            }
+          }
+        },
+        [
+          _c("svg", { staticClass: "icon icon-arrow-up" }, [
+            _c("use", { attrs: { "xlink:href": "#icon-arrow-up" } })
+          ])
+        ]
+      ),
       _vm._v(" "),
       _c("add-chanel-telegram")
     ],
@@ -45067,6 +45118,51 @@ if (false) {
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin
+
+/***/ }),
+/* 224 */,
+/* 225 */,
+/* 226 */,
+/* 227 */,
+/* 228 */,
+/* 229 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(230);
+if(typeof content === 'string') content = [[module.i, content, '']];
+if(content.locals) module.exports = content.locals;
+// add the styles to the DOM
+var update = __webpack_require__(3)("3adb610b", content, false, {});
+// Hot Module Replacement
+if(false) {
+ // When the styles change, update the <style> tags
+ if(!content.locals) {
+   module.hot.accept("!!../../../node_modules/css-loader/index.js!../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-6dd1125c\",\"scoped\":true,\"hasInlineConfig\":true}!../../../node_modules/sass-loader/lib/loader.js!../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./App.vue", function() {
+     var newContent = require("!!../../../node_modules/css-loader/index.js!../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-6dd1125c\",\"scoped\":true,\"hasInlineConfig\":true}!../../../node_modules/sass-loader/lib/loader.js!../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./App.vue");
+     if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+     update(newContent);
+   });
+ }
+ // When the module is disposed, remove the <style> tags
+ module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 230 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(2)(false);
+// imports
+
+
+// module
+exports.push([module.i, "\n.fade-enter-active[data-v-6dd1125c] {\n  -webkit-transition: all .5s ease-out;\n  transition: all .5s ease-out;\n  right: 0;\n  left: 0;\n  z-index: 0;\n}\n.fade-leave-active[data-v-6dd1125c] {\n  -webkit-transition: all .5s ease-in;\n  transition: all .5s ease-in;\n  position: absolute;\n  left: -100%;\n  z-index: 0;\n}\n.fade-enter[data-v-6dd1125c], .fade-leave-to[data-v-6dd1125c] {\n  opacity: 0;\n}\n.fade-enter[data-v-6dd1125c] {\n  left: -100%;\n  opacity: 1;\n}\n#scrolltop[data-v-6dd1125c] {\n  position: fixed;\n  bottom: 30px;\n  right: 30px;\n  display: none;\n  font-size: 28px;\n  color: #50bfa4;\n  background: transparent;\n  border: none;\n  outline: none;\n  cursor: pointer;\n  -webkit-transition: .3s;\n  transition: .3s;\n}\n#scrolltop[data-v-6dd1125c]:hover {\n    font-size: 32px;\n    color: #3ba188;\n}\n", ""]);
+
+// exports
+
 
 /***/ })
 /******/ ]);
