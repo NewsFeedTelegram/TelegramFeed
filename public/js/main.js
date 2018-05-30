@@ -37518,6 +37518,11 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
   },
 
   computed: {
+    channelLink: function channelLink() {
+      var a = this.post.channel.link;
+      a = a.replace(/https\:\/\/t.me\//g, "@");
+      return a;
+    },
     postMessage: function postMessage() {
       var a = this.post.message;
       a = a.replace(/((http(s)?:\/\/)|(www\.))([^\.]+)\.([^\s]+)/g, "<a href='$&' target=\"_blank\">$&</a>");
@@ -37556,8 +37561,11 @@ var render = function() {
             _vm._v(" "),
             _c(
               "a",
-              { staticClass: "post--author-channel", attrs: { href: "#" } },
-              [_vm._v("@teleblog")]
+              {
+                staticClass: "post--author-channel",
+                attrs: { href: _vm.post.channel.link }
+              },
+              [_vm._v(_vm._s(_vm.channelLink))]
             ),
             _vm._v(" "),
             _c("div", { staticClass: "post--date" }, [
@@ -37597,8 +37605,9 @@ var render = function() {
         { staticClass: "post__media" },
         [
           _vm._l(_vm.post.media.links_media, function(img) {
-            return _vm.post.media.links_media.length &&
-              _vm.post.media.type === 1
+            return (_vm.post.media.links_media.length &&
+              _vm.post.media.type === 1) ||
+              _vm.post.media.type === 2
               ? _c("img", {
                   staticClass: "post__media__img",
                   attrs: { src: img, alt: "" }
@@ -53106,12 +53115,14 @@ window.requestAnimFrame = function () {
           header.style.top = '-100%';
           header.style.opacity = '0';
         } else if (scrollTop - 70 <= header.clientHeight) {
+          header.style.transition = '.2s';
           header.style.top = '0';
           header.style.opacity = '1';
         }
       };
       document.onmousemove = function (event) {
         if (event.clientY - 30 <= header.clientHeight) {
+          header.style.transition = '';
           header.style.top = '0';
           header.style.opacity = '1';
         }
