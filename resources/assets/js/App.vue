@@ -79,13 +79,12 @@ export default {
       }
       tick ();
     },
-
     scroll () {
       let header = document.querySelector ( 'header' )
       let btnScrollTop = document.querySelector('#scrolltop')
       document.onscroll = ( event ) => {
         let wrapper = event.target;
-        let scrollTop = wrapper.documentElement.scrollTop,
+        let scrollTop = window.pageYOffset || wrapper.documentElement.scrollTop,
           wrapperWidth = wrapper.documentElement.clientWidth
         if ( scrollTop - 70 > header.clientHeight) {
           btnScrollTop.style.display = 'flex'
@@ -121,6 +120,7 @@ export default {
 //   }
 // },
   mounted () {
+    document.documentElement.scrollTop = 0
     this.scroll ();
   }
   ,

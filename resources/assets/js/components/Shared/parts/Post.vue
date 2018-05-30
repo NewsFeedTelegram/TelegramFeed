@@ -10,7 +10,7 @@
             <!--a <a href="#">link</a></span>-->
             <div class="post--date">
               <time class="published" datetime="2018-05-1T15:18">
-                 {{ post.data | moment("MMMM Do YYYY, kk:mm")}}
+                 <!--{{ post.data | moment("MMMM Do YYYY, kk:mm")}}-->
               </time>
             </div>
           </div>
@@ -36,8 +36,10 @@
         </div>
       </div>
       <p v-html="postMessage"></p>
-      <img v-if="post.media.links_media.length && post.media.type === 1" class="post__img" v-for="img in post.media.links_media" :src="img" alt="">
-      <video v-if="post.media.links_media.length && post.media.type === 3" class="post__video" v-for="video in post.media.links_media" :src="video" controls></video>
+      <div class="post__media">
+        <img v-if="post.media.links_media.length && post.media.type === 1" class="post__media__img" v-for="img in post.media.links_media" :src="img" alt="">
+        <video v-if="post.media.links_media.length && post.media.type === 3" class="post__media__video" v-for="video in post.media.links_media" :src="video" controls></video>
+      </div>
     </article>
   </div>
 </template>

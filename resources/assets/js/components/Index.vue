@@ -56,6 +56,7 @@
 <script>
 import AppLogin from '../components/Auth/Login'
 import AppRegister from '../components/Auth/Register'
+
 export default {
   data () {
     return {
@@ -84,11 +85,28 @@ export default {
     AppRegister
   },
   mounted () {
-    window.onload = () => {
-      let self = this
-      setTimeout ( () => {
-        self.toggleState ();
-      }, 300 )
+    if ( window.addEventListener ) {
+      window.addEventListener ( "load", () => {
+        let self = this
+        setTimeout ( () => {
+          self.toggleState ();
+        }, 300 )
+      }, false );
+    }
+    else if ( window.attachEvent ) {
+      window.attachEvent ( "onload", function () {
+        setTimeout ( function () {
+          self.toggleState ();
+        }, 300 )
+      })
+
+    } else if ( window.onLoad ) {
+      window.onload = function() {
+        let self = this
+        setTimeout ( () => {
+          self.toggleState ();
+        }, 300 )
+      };
     }
   },
   beforeRouteEnter ( to, from, next ) {

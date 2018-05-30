@@ -17,41 +17,45 @@
             <div class="loader" v-if="loadMore"><img src="/img/three-dots.svg" alt=""></div>
           </div>
         </main>
-        <aside class="col col-xl-3 order-xl-1 col-lg-6 order-lg-2 col-md-12 order-sm-3 col-sm-12 col-12 order-3">
-          <div class="white-block">
-            <div class="white-block-title">
-              <h6 class="title">Add chanel</h6>
-              <a href="#" class="more">
-                <svg class="icon icon-more-button">
-                  <use xlink:href="#icon-more-button"></use>
-                </svg>
-              </a>
+        <aside class="col col-xl-3 order-xl-1 col-lg-6 order-lg-2 col-md-12 order-sm-3 col-sm-12 col-12 order-3" >
+          <div class="white-block" >
+            <div>
+              <div class="white-block-title">
+                <h6 class="title">Add chanel</h6>
+                <a href="#" class="more">
+                  <svg class="icon icon-more-button">
+                    <use xlink:href="#icon-more-button"></use>
+                  </svg>
+                </a>
+              </div>
             </div>
           </div>
         </aside>
         <aside class="col col-xl-3 order-xl-3 col-lg-6 order-lg-3 col-md-12 order-sm-1 col-sm-12 col-12 order-1">
-          <div class="white-block">
-            <div class="white-block-title">
-              <h6 class="title">Add chanel</h6>
-              <a href="#" class="more">
-                <svg class="icon icon-more-button">
-                  <use xlink:href="#icon-more-button"></use>
-                </svg>
-              </a>
-            </div>
-            <ul class="widget--chanel">
-              <li class="inline-items">
-                <div class="sn">
-                  <div class="sn-thumb">
-                    <svg class="icon icon-telegram">
-                      <use xlink:href="#icon-telegram"></use>
+          <div >
+            <div>
+              <div class="white-block">
+                <div class="white-block-title">
+                  <h6 class="title">Add chanel</h6>
+                  <a href="#" class="more">
+                    <svg class="icon icon-more-button">
+                      <use xlink:href="#icon-more-button"></use>
                     </svg>
-                  </div>
-                  <div class="sn-event">
-                    <p>Telegram</p>
-                  </div>
+                  </a>
                 </div>
-                <span class="notification-icon">
+                <ul class="widget--chanel">
+                  <li class="inline-items">
+                    <div class="sn">
+                      <div class="sn-thumb">
+                        <svg class="icon icon-telegram">
+                          <use xlink:href="#icon-telegram"></use>
+                        </svg>
+                      </div>
+                      <div class="sn-event">
+                        <p>Telegram</p>
+                      </div>
+                    </div>
+                    <span class="notification-icon">
 							<a href="#" class="btn btn-accept" @click.stop.prevent="openTelegramModal">
 								<span class="icon-add without-text">
                                      <svg class="icon icon-add">
@@ -60,19 +64,19 @@
 								</span>
 							</a>
 						</span>
-              </li>
-              <li class="inline-items">
-                <div class="sn">
-                  <div class="sn-thumb">
-                    <svg class="icon icon-twitter-bird-logo">
-                      <use xlink:href="#icon-twitter-bird-logo"></use>
-                    </svg>
-                  </div>
-                  <div class="sn-event">
-                    <p>Twitter</p>
-                  </div>
-                </div>
-                <span class="notification-icon">
+                  </li>
+                  <li class="inline-items">
+                    <div class="sn">
+                      <div class="sn-thumb">
+                        <svg class="icon icon-twitter-bird-logo">
+                          <use xlink:href="#icon-twitter-bird-logo"></use>
+                        </svg>
+                      </div>
+                      <div class="sn-event">
+                        <p>Twitter</p>
+                      </div>
+                    </div>
+                    <span class="notification-icon">
 							<a href="#" class="btn btn-login">
 								<span class="icon-add without-text">
                                      <!--<svg class="icon icon-login">-->
@@ -82,32 +86,32 @@
 								</span>
 							</a>
 						</span>
-              </li>
-            </ul>
-          </div>
-          <div class="white-block">
-            <div class="white-block-title">
-              <h6 class="title">Channels</h6>
-              <a href="#" class="more">
-                <svg class="icon icon-more-button">
-                  <use xlink:href="#icon-more-button"></use>
-                </svg>
+                  </li>
+                </ul>
+              </div>
+              <div class="white-block">
+                <div class="white-block-title">
+                  <h6 class="title">Channels</h6>
+                  <a href="#" class="more">
+                    <svg class="icon icon-more-button">
+                      <use xlink:href="#icon-more-button"></use>
+                    </svg>
 
-              </a>
-            </div>
-            <div v-bar class="list-channel"> <!-- el1 -->
-              <div> <!-- el2 -->
-                <ul class="widget--chanel" v-if="!isLoadPost">
-                  <li class="inline-items" v-for="(list, index) in listChannel" :key="index">
-                    <div class="sn">
-                      <div class="sn-thumb">
-                        <img :src="list.photo" :alt="list.name">
-                      </div>
-                      <div class="sn-event">
-                        <p>{{ list.name }}</p>
-                      </div>
-                    </div>
-                    <span class="notification-icon">
+                  </a>
+                </div>
+                <div v-bar class="list-channel"> <!-- el1 -->
+                  <div> <!-- el2 -->
+                    <ul class="widget--chanel" v-if="!isLoadPost">
+                      <li class="inline-items" v-for="(list, index) in listChannel" :key="index">
+                        <div class="sn">
+                          <div class="sn-thumb">
+                            <img :src="list.photo" :alt="list.name">
+                          </div>
+                          <div class="sn-event">
+                            <p>{{ list.name }}</p>
+                          </div>
+                        </div>
+                        <span class="notification-icon">
 							   <a href="#" class="more">
                 <svg class="icon icon-more-button">
                   <use xlink:href="#icon-more-button"></use>
@@ -121,18 +125,20 @@
               </a>
 
 						</span>
-                  </li>
-                </ul>
-                <ul class="widget--chanel" v-if="isLoadPost">
-                  <li v-for="i in 4" :key="i">
-                    <vue-content-loading :width="300" :height="70">
-                      <circle cx="35" cy="35" r="20"/>
-                      <rect x="70" y="27" rx="4" ry="4" width="100" height="15"/>
-                    </vue-content-loading>
-                  </li>
-                </ul>
+                      </li>
+                    </ul>
+                    <ul class="widget--chanel" v-if="isLoadPost">
+                      <li v-for="i in 4" :key="i">
+                        <vue-content-loading :width="300" :height="70">
+                          <circle cx="35" cy="35" r="20"/>
+                          <rect x="70" y="27" rx="4" ry="4" width="100" height="15"/>
+                        </vue-content-loading>
+                      </li>
+                    </ul>
+                  </div>
+                  <!-- dragger will be automatically added here -->
+                </div>
               </div>
-              <!-- dragger will be automatically added here -->
             </div>
           </div>
         </aside>
@@ -144,6 +150,7 @@
 <script>
 import AppPost from '../Shared/parts/Post'
 import VueContentLoading from 'vue-content-loading';
+import VueSticky from 'vue-sticky' // Es6 module
 
 export default {
   name : "Test",
@@ -153,9 +160,15 @@ export default {
       load : false,
     }
   },
+  directives: {
+    'sticky': VueSticky,
+  },
   watch : {
-    refreshToken () {
-      this.loadPost ()
+    refreshToken ( v, old ) {
+      if ( v ) {
+        this.loadPost ()
+      }
+
     }
   },
   computed : {
@@ -182,9 +195,9 @@ export default {
     openTelegramModal () {
       this.$store.commit ( 'TOGGLE_MODAL_TELEGRAM' )
     },
-    deletePost(e){
-      console.log(e)
-      this.$store.dispatch('DELETE_CHANNEL', e)
+    deletePost ( e ) {
+      console.log ( e )
+      this.$store.dispatch ( 'DELETE_CHANNEL', e )
     },
     loadPost () {
       this.$store.dispatch ( 'LIST_CHANNEL' )
@@ -193,12 +206,11 @@ export default {
     scroll () {
       window.onscroll = ( event ) => {
         let wrapper = event.target,
-          list = wrapper.firstElementChild;
-        let scrollTop = wrapper.documentElement.scrollTop,
+          list = wrapper.firstElementChild || wrapper.firstChild;
+        let scrollTop = window.pageYOffset || wrapper.documentElement.scrollTop,
           wrapperHeight = wrapper.documentElement.clientHeight,
-          listHeight = list.offsetHeight
+          listHeight = list.offsetHeight || list.parentNode.documentElement.offsetHeight
         let diffHeight = listHeight - wrapperHeight
-        // console.log ( diffHeight , scrollTop+500)
         if ( diffHeight <= scrollTop + 1000 && !this.loadMore && !this.isLoadPost ) {
           this.$store.dispatch ( 'LOAD_MORE_POST' )
         }
@@ -225,12 +237,13 @@ export default {
   .list-channel {
     height: 292px;
   }
-  .loader{
+
+  .loader {
     display: flex;
     align-self: center;
     justify-content: center;
     margin-bottom: 15px;
-    img{
+    img {
       width: 50px;
     }
   }

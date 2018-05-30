@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+import "babel-polyfill";
 
 import auth from './modules/auth'
 import utils from './modules/utils'
