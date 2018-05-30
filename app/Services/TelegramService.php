@@ -52,7 +52,7 @@ class TelegramService
         $tg_channel = new TelegramChannel();
         $tg_message = new TelegramChannelMessage();
 
-        $MadelineProto = new API('/var/www/html/telegram-rss/public/session.madeline');
+        $MadelineProto = new API(base_path() . '/public/session.madeline');
         $dom = new Dom();
 
         $channels = $tg_channel->all();
