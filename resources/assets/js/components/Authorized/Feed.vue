@@ -2,7 +2,7 @@
   <section id="main-section" class="section">
     <div class="container">
       <div class="row">
-        <main class="col col-xl-6 order-xl-2 col-lg-12 order-lg-1 col-md-12 order-sm-2 col-sm-12 col-12 order-2">
+        <main class="col col-xl-6 order-xl-2 col-lg-12 order-lg-3 col-md-12 order-sm-2 col-sm-12 col-12 order-2">
           <div class="newsfeed-items-grid">
             <div class="white-block" v-for="i in list" :key="i" v-if="isLoadPost">
               <vue-content-loading :width="300" :height="100">
@@ -17,9 +17,9 @@
             <div class="loader" v-if="loadMore"><img src="/img/three-dots.svg" alt=""></div>
           </div>
         </main>
-        <aside class="col col-xl-3 order-xl-1 col-lg-6 order-lg-2 col-md-12 order-sm-3 col-sm-12 col-12 order-3" >
-          <div class="white-block" >
-            <div>
+        <aside class="col col-xl-3 order-xl-1 col-lg-6 order-lg-1 col-md-12 order-sm-3 col-sm-12 col-12 order-3" >
+          <div class="white-block" v-sticky="{ zIndex: 5, stickyTop: 15, disabled: false}">
+            <div >
               <div class="white-block-title">
                 <h6 class="title">Add chanel</h6>
                 <a href="#" class="more">
@@ -31,8 +31,8 @@
             </div>
           </div>
         </aside>
-        <aside class="col col-xl-3 order-xl-3 col-lg-6 order-lg-3 col-md-12 order-sm-1 col-sm-12 col-12 order-1">
-          <div >
+        <aside class="col col-xl-3 order-xl-3 col-lg-6 order-lg-2 col-md-12 order-sm-1 col-sm-12 col-12 order-1">
+          <div v-sticky="{ zIndex: 5, stickyTop: 15, disabled: false}">
             <div>
               <div class="white-block">
                 <div class="white-block-title">

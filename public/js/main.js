@@ -1951,7 +1951,7 @@ module.exports = $export;
             try {
                 oldLocale = globalLocale._abbr;
                 var aliasedRequire = require;
-                __webpack_require__(529)("./" + name);
+                __webpack_require__(528)("./" + name);
                 getSetGlobalLocale(oldLocale);
             } catch (e) {}
         }
@@ -4623,7 +4623,7 @@ module.exports = $export;
 
 })));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(528)(module)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(527)(module)))
 
 /***/ }),
 /* 2 */
@@ -32411,7 +32411,7 @@ module.exports = Cancel;
 /***/ (function(module, exports, __webpack_require__) {
 
 __webpack_require__(265);
-module.exports = __webpack_require__(550);
+module.exports = __webpack_require__(549);
 
 
 /***/ }),
@@ -32431,7 +32431,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_vuebar___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_5_vuebar__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_moment__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_moment___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_6_moment__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__App__ = __webpack_require__(530);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__App__ = __webpack_require__(529);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__App___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_7__App__);
 
 
@@ -37711,7 +37711,7 @@ var render = function() {
             "main",
             {
               staticClass:
-                "col col-xl-6 order-xl-2 col-lg-12 order-lg-1 col-md-12 order-sm-2 col-sm-12 col-12 order-2"
+                "col col-xl-6 order-xl-2 col-lg-12 order-lg-3 col-md-12 order-sm-2 col-sm-12 col-12 order-2"
             },
             [
               _c(
@@ -37806,37 +37806,24 @@ var render = function() {
             "aside",
             {
               staticClass:
-                "col col-xl-3 order-xl-1 col-lg-6 order-lg-2 col-md-12 order-sm-3 col-sm-12 col-12 order-3"
+                "col col-xl-3 order-xl-1 col-lg-6 order-lg-1 col-md-12 order-sm-3 col-sm-12 col-12 order-3"
             },
             [
-              _c("div", { staticClass: "white-block" }, [
-                _c("div", [
-                  _c("div", { staticClass: "white-block-title" }, [
-                    _c("h6", { staticClass: "title" }, [_vm._v("Add chanel")]),
-                    _vm._v(" "),
-                    _c("a", { staticClass: "more", attrs: { href: "#" } }, [
-                      _c("svg", { staticClass: "icon icon-more-button" }, [
-                        _c("use", {
-                          attrs: { "xlink:href": "#icon-more-button" }
-                        })
-                      ])
-                    ])
-                  ])
-                ])
-              ])
-            ]
-          ),
-          _vm._v(" "),
-          _c(
-            "aside",
-            {
-              staticClass:
-                "col col-xl-3 order-xl-3 col-lg-6 order-lg-3 col-md-12 order-sm-1 col-sm-12 col-12 order-1"
-            },
-            [
-              _c("div", [
-                _c("div", [
-                  _c("div", { staticClass: "white-block" }, [
+              _c(
+                "div",
+                {
+                  directives: [
+                    {
+                      name: "sticky",
+                      rawName: "v-sticky",
+                      value: { zIndex: 5, stickyTop: 15, disabled: false },
+                      expression: "{ zIndex: 5, stickyTop: 15, disabled: false}"
+                    }
+                  ],
+                  staticClass: "white-block"
+                },
+                [
+                  _c("div", [
                     _c("div", { staticClass: "white-block-title" }, [
                       _c("h6", { staticClass: "title" }, [
                         _vm._v("Add chanel")
@@ -37849,231 +37836,295 @@ var render = function() {
                           })
                         ])
                       ])
-                    ]),
-                    _vm._v(" "),
-                    _c("ul", { staticClass: "widget--chanel" }, [
-                      _c("li", { staticClass: "inline-items" }, [
-                        _c("div", { staticClass: "sn" }, [
-                          _c("div", { staticClass: "sn-thumb" }, [
-                            _c("svg", { staticClass: "icon icon-telegram" }, [
-                              _c("use", {
-                                attrs: { "xlink:href": "#icon-telegram" }
-                              })
-                            ])
-                          ]),
-                          _vm._v(" "),
-                          _vm._m(0)
+                    ])
+                  ])
+                ]
+              )
+            ]
+          ),
+          _vm._v(" "),
+          _c(
+            "aside",
+            {
+              staticClass:
+                "col col-xl-3 order-xl-3 col-lg-6 order-lg-2 col-md-12 order-sm-1 col-sm-12 col-12 order-1"
+            },
+            [
+              _c(
+                "div",
+                {
+                  directives: [
+                    {
+                      name: "sticky",
+                      rawName: "v-sticky",
+                      value: { zIndex: 5, stickyTop: 15, disabled: false },
+                      expression: "{ zIndex: 5, stickyTop: 15, disabled: false}"
+                    }
+                  ]
+                },
+                [
+                  _c("div", [
+                    _c("div", { staticClass: "white-block" }, [
+                      _c("div", { staticClass: "white-block-title" }, [
+                        _c("h6", { staticClass: "title" }, [
+                          _vm._v("Add chanel")
                         ]),
                         _vm._v(" "),
-                        _c("span", { staticClass: "notification-icon" }, [
-                          _c(
-                            "a",
-                            {
-                              staticClass: "btn btn-accept",
-                              attrs: { href: "#" },
-                              on: {
-                                click: function($event) {
-                                  $event.stopPropagation()
-                                  $event.preventDefault()
-                                  return _vm.openTelegramModal($event)
-                                }
-                              }
-                            },
-                            [
-                              _c(
-                                "span",
-                                { staticClass: "icon-add without-text" },
-                                [
-                                  _c("svg", { staticClass: "icon icon-add" }, [
-                                    _c("use", {
-                                      attrs: { "xlink:href": "#icon-add" }
-                                    })
-                                  ])
-                                ]
-                              )
-                            ]
-                          )
+                        _c("a", { staticClass: "more", attrs: { href: "#" } }, [
+                          _c("svg", { staticClass: "icon icon-more-button" }, [
+                            _c("use", {
+                              attrs: { "xlink:href": "#icon-more-button" }
+                            })
+                          ])
                         ])
                       ]),
                       _vm._v(" "),
-                      _c("li", { staticClass: "inline-items" }, [
-                        _c("div", { staticClass: "sn" }, [
-                          _c("div", { staticClass: "sn-thumb" }, [
-                            _c(
-                              "svg",
-                              { staticClass: "icon icon-twitter-bird-logo" },
-                              [
+                      _c("ul", { staticClass: "widget--chanel" }, [
+                        _c("li", { staticClass: "inline-items" }, [
+                          _c("div", { staticClass: "sn" }, [
+                            _c("div", { staticClass: "sn-thumb" }, [
+                              _c("svg", { staticClass: "icon icon-telegram" }, [
                                 _c("use", {
-                                  attrs: {
-                                    "xlink:href": "#icon-twitter-bird-logo"
-                                  }
+                                  attrs: { "xlink:href": "#icon-telegram" }
                                 })
-                              ]
-                            )
+                              ])
+                            ]),
+                            _vm._v(" "),
+                            _vm._m(0)
                           ]),
                           _vm._v(" "),
-                          _vm._m(1)
+                          _c("span", { staticClass: "notification-icon" }, [
+                            _c(
+                              "a",
+                              {
+                                staticClass: "btn btn-accept",
+                                attrs: { href: "#" },
+                                on: {
+                                  click: function($event) {
+                                    $event.stopPropagation()
+                                    $event.preventDefault()
+                                    return _vm.openTelegramModal($event)
+                                  }
+                                }
+                              },
+                              [
+                                _c(
+                                  "span",
+                                  { staticClass: "icon-add without-text" },
+                                  [
+                                    _c(
+                                      "svg",
+                                      { staticClass: "icon icon-add" },
+                                      [
+                                        _c("use", {
+                                          attrs: { "xlink:href": "#icon-add" }
+                                        })
+                                      ]
+                                    )
+                                  ]
+                                )
+                              ]
+                            )
+                          ])
                         ]),
                         _vm._v(" "),
-                        _vm._m(2)
-                      ])
-                    ])
-                  ]),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "white-block" }, [
-                    _c("div", { staticClass: "white-block-title" }, [
-                      _c("h6", { staticClass: "title" }, [_vm._v("Channels")]),
-                      _vm._v(" "),
-                      _c("a", { staticClass: "more", attrs: { href: "#" } }, [
-                        _c("svg", { staticClass: "icon icon-more-button" }, [
-                          _c("use", {
-                            attrs: { "xlink:href": "#icon-more-button" }
-                          })
+                        _c("li", { staticClass: "inline-items" }, [
+                          _c("div", { staticClass: "sn" }, [
+                            _c("div", { staticClass: "sn-thumb" }, [
+                              _c(
+                                "svg",
+                                { staticClass: "icon icon-twitter-bird-logo" },
+                                [
+                                  _c("use", {
+                                    attrs: {
+                                      "xlink:href": "#icon-twitter-bird-logo"
+                                    }
+                                  })
+                                ]
+                              )
+                            ]),
+                            _vm._v(" "),
+                            _vm._m(1)
+                          ]),
+                          _vm._v(" "),
+                          _vm._m(2)
                         ])
                       ])
                     ]),
                     _vm._v(" "),
-                    _c(
-                      "div",
-                      {
-                        directives: [{ name: "bar", rawName: "v-bar" }],
-                        staticClass: "list-channel"
-                      },
-                      [
-                        _c("div", [
-                          !_vm.isLoadPost
-                            ? _c(
-                                "ul",
-                                { staticClass: "widget--chanel" },
-                                _vm._l(_vm.listChannel, function(list, index) {
-                                  return _c(
-                                    "li",
-                                    { key: index, staticClass: "inline-items" },
-                                    [
-                                      _c("div", { staticClass: "sn" }, [
-                                        _c("div", { staticClass: "sn-thumb" }, [
-                                          _c("img", {
-                                            attrs: {
-                                              src: list.photo,
-                                              alt: list.name
-                                            }
-                                          })
-                                        ]),
-                                        _vm._v(" "),
-                                        _c("div", { staticClass: "sn-event" }, [
-                                          _c("p", [_vm._v(_vm._s(list.name))])
-                                        ])
-                                      ]),
-                                      _vm._v(" "),
-                                      _c(
-                                        "span",
-                                        { staticClass: "notification-icon" },
-                                        [
+                    _c("div", { staticClass: "white-block" }, [
+                      _c("div", { staticClass: "white-block-title" }, [
+                        _c("h6", { staticClass: "title" }, [
+                          _vm._v("Channels")
+                        ]),
+                        _vm._v(" "),
+                        _c("a", { staticClass: "more", attrs: { href: "#" } }, [
+                          _c("svg", { staticClass: "icon icon-more-button" }, [
+                            _c("use", {
+                              attrs: { "xlink:href": "#icon-more-button" }
+                            })
+                          ])
+                        ])
+                      ]),
+                      _vm._v(" "),
+                      _c(
+                        "div",
+                        {
+                          directives: [{ name: "bar", rawName: "v-bar" }],
+                          staticClass: "list-channel"
+                        },
+                        [
+                          _c("div", [
+                            !_vm.isLoadPost
+                              ? _c(
+                                  "ul",
+                                  { staticClass: "widget--chanel" },
+                                  _vm._l(_vm.listChannel, function(
+                                    list,
+                                    index
+                                  ) {
+                                    return _c(
+                                      "li",
+                                      {
+                                        key: index,
+                                        staticClass: "inline-items"
+                                      },
+                                      [
+                                        _c("div", { staticClass: "sn" }, [
                                           _c(
-                                            "a",
-                                            {
-                                              staticClass: "more",
-                                              attrs: { href: "#" }
-                                            },
+                                            "div",
+                                            { staticClass: "sn-thumb" },
                                             [
-                                              _c(
-                                                "svg",
-                                                {
-                                                  staticClass:
-                                                    "icon icon-more-button"
-                                                },
-                                                [
-                                                  _c("use", {
-                                                    attrs: {
-                                                      "xlink:href":
-                                                        "#icon-more-button"
-                                                    }
-                                                  })
-                                                ]
-                                              ),
-                                              _vm._v(" "),
-                                              _c(
-                                                "ul",
-                                                {
-                                                  staticClass: "more-dropdown"
-                                                },
-                                                [
-                                                  _c("li", [
-                                                    _c(
-                                                      "a",
-                                                      {
-                                                        attrs: { href: "#" },
-                                                        on: {
-                                                          click: function(
-                                                            $event
-                                                          ) {
-                                                            $event.stopPropagation()
-                                                            _vm.deletePost(
-                                                              list.id
-                                                            )
-                                                          }
-                                                        }
-                                                      },
-                                                      [_vm._v("Delete Post")]
-                                                    )
-                                                  ])
-                                                ]
-                                              )
+                                              _c("img", {
+                                                attrs: {
+                                                  src: list.photo,
+                                                  alt: list.name
+                                                }
+                                              })
+                                            ]
+                                          ),
+                                          _vm._v(" "),
+                                          _c(
+                                            "div",
+                                            { staticClass: "sn-event" },
+                                            [
+                                              _c("p", [
+                                                _vm._v(_vm._s(list.name))
+                                              ])
                                             ]
                                           )
-                                        ]
-                                      )
-                                    ]
-                                  )
-                                })
-                              )
-                            : _vm._e(),
-                          _vm._v(" "),
-                          _vm.isLoadPost
-                            ? _c(
-                                "ul",
-                                { staticClass: "widget--chanel" },
-                                _vm._l(4, function(i) {
-                                  return _c(
-                                    "li",
-                                    { key: i },
-                                    [
-                                      _c(
-                                        "vue-content-loading",
-                                        { attrs: { width: 300, height: 70 } },
-                                        [
-                                          _c("circle", {
-                                            attrs: {
-                                              cx: "35",
-                                              cy: "35",
-                                              r: "20"
-                                            }
-                                          }),
-                                          _vm._v(" "),
-                                          _c("rect", {
-                                            attrs: {
-                                              x: "70",
-                                              y: "27",
-                                              rx: "4",
-                                              ry: "4",
-                                              width: "100",
-                                              height: "15"
-                                            }
-                                          })
-                                        ]
-                                      )
-                                    ],
-                                    1
-                                  )
-                                })
-                              )
-                            : _vm._e()
-                        ])
-                      ]
-                    )
+                                        ]),
+                                        _vm._v(" "),
+                                        _c(
+                                          "span",
+                                          { staticClass: "notification-icon" },
+                                          [
+                                            _c(
+                                              "a",
+                                              {
+                                                staticClass: "more",
+                                                attrs: { href: "#" }
+                                              },
+                                              [
+                                                _c(
+                                                  "svg",
+                                                  {
+                                                    staticClass:
+                                                      "icon icon-more-button"
+                                                  },
+                                                  [
+                                                    _c("use", {
+                                                      attrs: {
+                                                        "xlink:href":
+                                                          "#icon-more-button"
+                                                      }
+                                                    })
+                                                  ]
+                                                ),
+                                                _vm._v(" "),
+                                                _c(
+                                                  "ul",
+                                                  {
+                                                    staticClass: "more-dropdown"
+                                                  },
+                                                  [
+                                                    _c("li", [
+                                                      _c(
+                                                        "a",
+                                                        {
+                                                          attrs: { href: "#" },
+                                                          on: {
+                                                            click: function(
+                                                              $event
+                                                            ) {
+                                                              $event.stopPropagation()
+                                                              _vm.deletePost(
+                                                                list.id
+                                                              )
+                                                            }
+                                                          }
+                                                        },
+                                                        [_vm._v("Delete Post")]
+                                                      )
+                                                    ])
+                                                  ]
+                                                )
+                                              ]
+                                            )
+                                          ]
+                                        )
+                                      ]
+                                    )
+                                  })
+                                )
+                              : _vm._e(),
+                            _vm._v(" "),
+                            _vm.isLoadPost
+                              ? _c(
+                                  "ul",
+                                  { staticClass: "widget--chanel" },
+                                  _vm._l(4, function(i) {
+                                    return _c(
+                                      "li",
+                                      { key: i },
+                                      [
+                                        _c(
+                                          "vue-content-loading",
+                                          { attrs: { width: 300, height: 70 } },
+                                          [
+                                            _c("circle", {
+                                              attrs: {
+                                                cx: "35",
+                                                cy: "35",
+                                                r: "20"
+                                              }
+                                            }),
+                                            _vm._v(" "),
+                                            _c("rect", {
+                                              attrs: {
+                                                x: "70",
+                                                y: "27",
+                                                rx: "4",
+                                                ry: "4",
+                                                width: "100",
+                                                height: "15"
+                                              }
+                                            })
+                                          ]
+                                        )
+                                      ],
+                                      1
+                                    )
+                                  })
+                                )
+                              : _vm._e()
+                          ])
+                        ]
+                      )
+                    ])
                   ])
-                ])
-              ])
+                ]
+              )
             ]
           )
         ])
@@ -52404,8 +52455,7 @@ var index_esm = {
 
 
 /***/ }),
-/* 527 */,
-/* 528 */
+/* 527 */
 /***/ (function(module, exports) {
 
 module.exports = function(module) {
@@ -52433,7 +52483,7 @@ module.exports = function(module) {
 
 
 /***/ }),
-/* 529 */
+/* 528 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var map = {
@@ -52698,22 +52748,22 @@ webpackContext.keys = function webpackContextKeys() {
 };
 webpackContext.resolve = webpackContextResolve;
 module.exports = webpackContext;
-webpackContext.id = 529;
+webpackContext.id = 528;
 
 /***/ }),
-/* 530 */
+/* 529 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var disposed = false
 function injectStyle (ssrContext) {
   if (disposed) return
-  __webpack_require__(531)
+  __webpack_require__(530)
 }
 var normalizeComponent = __webpack_require__(25)
 /* script */
-var __vue_script__ = __webpack_require__(533)
+var __vue_script__ = __webpack_require__(532)
 /* template */
-var __vue_template__ = __webpack_require__(549)
+var __vue_template__ = __webpack_require__(548)
 /* template functional */
 var __vue_template_functional__ = false
 /* styles */
@@ -52752,13 +52802,13 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 531 */
+/* 530 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(532);
+var content = __webpack_require__(531);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
@@ -52778,7 +52828,7 @@ if(false) {
 }
 
 /***/ }),
-/* 532 */
+/* 531 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(23)(false);
@@ -52792,16 +52842,16 @@ exports.push([module.i, "\n.fade-enter-active[data-v-6dd1125c] {\n  -webkit-tran
 
 
 /***/ }),
-/* 533 */
+/* 532 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__components_Authorized_Header__ = __webpack_require__(534);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__components_Authorized_Header__ = __webpack_require__(533);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__components_Authorized_Header___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__components_Authorized_Header__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__components_Shared_parts_RightPanelFriends__ = __webpack_require__(539);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__components_Shared_parts_RightPanelFriends__ = __webpack_require__(538);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__components_Shared_parts_RightPanelFriends___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__components_Shared_parts_RightPanelFriends__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__components_Shared_parts_Modal_AddChanelTelegram__ = __webpack_require__(544);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__components_Shared_parts_Modal_AddChanelTelegram__ = __webpack_require__(543);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__components_Shared_parts_Modal_AddChanelTelegram___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__components_Shared_parts_Modal_AddChanelTelegram__);
 //
 //
@@ -52935,19 +52985,19 @@ window.requestAnimFrame = function () {
 });
 
 /***/ }),
-/* 534 */
+/* 533 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var disposed = false
 function injectStyle (ssrContext) {
   if (disposed) return
-  __webpack_require__(535)
+  __webpack_require__(534)
 }
 var normalizeComponent = __webpack_require__(25)
 /* script */
-var __vue_script__ = __webpack_require__(537)
+var __vue_script__ = __webpack_require__(536)
 /* template */
-var __vue_template__ = __webpack_require__(538)
+var __vue_template__ = __webpack_require__(537)
 /* template functional */
 var __vue_template_functional__ = false
 /* styles */
@@ -52986,13 +53036,13 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 535 */
+/* 534 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(536);
+var content = __webpack_require__(535);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
@@ -53012,7 +53062,7 @@ if(false) {
 }
 
 /***/ }),
-/* 536 */
+/* 535 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(23)(false);
@@ -53026,7 +53076,7 @@ exports.push([module.i, "\n.fade-enter-active[data-v-39c822a7] {\n  -webkit-tran
 
 
 /***/ }),
-/* 537 */
+/* 536 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -53154,7 +53204,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 });
 
 /***/ }),
-/* 538 */
+/* 537 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var render = function() {
@@ -53349,19 +53399,19 @@ if (false) {
 }
 
 /***/ }),
-/* 539 */
+/* 538 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var disposed = false
 function injectStyle (ssrContext) {
   if (disposed) return
-  __webpack_require__(540)
+  __webpack_require__(539)
 }
 var normalizeComponent = __webpack_require__(25)
 /* script */
-var __vue_script__ = __webpack_require__(542)
+var __vue_script__ = __webpack_require__(541)
 /* template */
-var __vue_template__ = __webpack_require__(543)
+var __vue_template__ = __webpack_require__(542)
 /* template functional */
 var __vue_template_functional__ = false
 /* styles */
@@ -53400,13 +53450,13 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 540 */
+/* 539 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(541);
+var content = __webpack_require__(540);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
@@ -53426,7 +53476,7 @@ if(false) {
 }
 
 /***/ }),
-/* 541 */
+/* 540 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(23)(false);
@@ -53440,7 +53490,7 @@ exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""
 
 
 /***/ }),
-/* 542 */
+/* 541 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -53467,7 +53517,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony default export */ __webpack_exports__["default"] = ({});
 
 /***/ }),
-/* 543 */
+/* 542 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var render = function() {
@@ -53516,19 +53566,19 @@ if (false) {
 }
 
 /***/ }),
-/* 544 */
+/* 543 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var disposed = false
 function injectStyle (ssrContext) {
   if (disposed) return
-  __webpack_require__(545)
+  __webpack_require__(544)
 }
 var normalizeComponent = __webpack_require__(25)
 /* script */
-var __vue_script__ = __webpack_require__(547)
+var __vue_script__ = __webpack_require__(546)
 /* template */
-var __vue_template__ = __webpack_require__(548)
+var __vue_template__ = __webpack_require__(547)
 /* template functional */
 var __vue_template_functional__ = false
 /* styles */
@@ -53567,13 +53617,13 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 545 */
+/* 544 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(546);
+var content = __webpack_require__(545);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
@@ -53593,7 +53643,7 @@ if(false) {
 }
 
 /***/ }),
-/* 546 */
+/* 545 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(23)(false);
@@ -53607,7 +53657,7 @@ exports.push([module.i, "\n.check_mark[data-v-765dae30] {\n  width: 80px;\n  hei
 
 
 /***/ }),
-/* 547 */
+/* 546 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -53708,7 +53758,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 });
 
 /***/ }),
-/* 548 */
+/* 547 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var render = function() {
@@ -53881,7 +53931,7 @@ if (false) {
 }
 
 /***/ }),
-/* 549 */
+/* 548 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var render = function() {
@@ -53945,7 +53995,7 @@ if (false) {
 }
 
 /***/ }),
-/* 550 */
+/* 549 */
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin
