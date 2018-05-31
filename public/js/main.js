@@ -32478,6 +32478,7 @@ window.axios = __WEBPACK_IMPORTED_MODULE_2_axios___default.a;
 document.documentElement.scrollTop = 0;
 
 __WEBPACK_IMPORTED_MODULE_1__router__["a" /* default */].beforeEach(function (to, from, next) {
+  document.documentElement.scrollTop = 0;
   var nearestWithTitle = to.matched.slice().reverse().find(function (r) {
     return r.meta && r.meta.title;
   });
@@ -37507,6 +37508,12 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "Post",
@@ -37570,18 +37577,34 @@ var render = function() {
             _vm._v(" "),
             _c("div", { staticClass: "post--date" }, [
               _c(
-                "time",
+                "a",
                 {
                   staticClass: "published",
-                  attrs: { datetime: "2018-05-1T15:18" }
+                  attrs: {
+                    href:
+                      _vm.post.channel.link + "/" + _vm.post.id + "/?embed=1",
+                    target: "_blank"
+                  }
                 },
                 [
-                  _vm._v(
-                    "\n               " +
-                      _vm._s(
-                        _vm._f("moment")(_vm.post.data, "MMMM Do YYYY, kk:mm")
-                      ) +
-                      "\n            "
+                  _c(
+                    "time",
+                    {
+                      staticClass: "published",
+                      attrs: { datetime: "2018-05-1T15:18" }
+                    },
+                    [
+                      _vm._v(
+                        "\n                " +
+                          _vm._s(
+                            _vm._f("moment")(
+                              _vm.post.data,
+                              "MMMM Do YYYY, kk:mm"
+                            )
+                          ) +
+                          "\n              "
+                      )
+                    ]
                   )
                 ]
               )

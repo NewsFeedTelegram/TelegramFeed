@@ -5057,8 +5057,10 @@ strong {
   font-size: 12px;
 }
 
-.section .post--date {
+.section .post--date a {
   font-size: 0.75rem;
+  color: #939393;
+  font-weight: 400;
 }
 
 .section .post p {
