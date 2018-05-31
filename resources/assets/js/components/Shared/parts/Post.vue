@@ -13,7 +13,7 @@
             <div class="post--date">
               <a :href="`${post.channel.link}/${post.id}/?embed=1`" class="published" target="_blank">
                 <time class="published" datetime="2018-05-1T15:18">
-                  {{ post.data | moment("MMMM Do YYYY, kk:mm")}}
+                  {{ datePost }}
                 </time>
               </a>
             </div>
@@ -65,6 +65,9 @@ export default {
       var a = this.post.channel.link
       a = a.replace ( /https\:\/\/t.me\//g, "@" )
       return a
+    },
+    datePost(){
+      return moment(this.post.data).format('MMMM DD YYYY, kk:mm')
     },
     postMessage () {
       var a = this.post.message

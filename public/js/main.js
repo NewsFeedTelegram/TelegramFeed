@@ -32429,8 +32429,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_vee_validate__ = __webpack_require__(525);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_vuebar__ = __webpack_require__(526);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_vuebar___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_5_vuebar__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_vue_moment__ = __webpack_require__(527);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_vue_moment___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_6_vue_moment__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_moment__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_moment___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_6_moment__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__App__ = __webpack_require__(530);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__App___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_7__App__);
 
@@ -32474,6 +32474,7 @@ __WEBPACK_IMPORTED_MODULE_2_axios___default.a.interceptors.request.use(function 
 });
 
 window.axios = __WEBPACK_IMPORTED_MODULE_2_axios___default.a;
+window.moment = __WEBPACK_IMPORTED_MODULE_6_moment___default.a;
 
 document.documentElement.scrollTop = 0;
 
@@ -32510,7 +32511,6 @@ __WEBPACK_IMPORTED_MODULE_1__router__["a" /* default */].beforeEach(function (to
 
 __WEBPACK_IMPORTED_MODULE_0_vue___default.a.use(__WEBPACK_IMPORTED_MODULE_4_vee_validate__["a" /* default */]);
 __WEBPACK_IMPORTED_MODULE_0_vue___default.a.use(__WEBPACK_IMPORTED_MODULE_5_vuebar___default.a);
-__WEBPACK_IMPORTED_MODULE_0_vue___default.a.use(__WEBPACK_IMPORTED_MODULE_6_vue_moment___default.a);
 
 setInterval(function () {
   __WEBPACK_IMPORTED_MODULE_3__store__["a" /* store */].dispatch('REFRESH_TOKEN');
@@ -37530,6 +37530,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
       a = a.replace(/https\:\/\/t.me\//g, "@");
       return a;
     },
+    datePost: function datePost() {
+      return moment(this.post.data).format('MMMM DD YYYY, kk:mm');
+    },
     postMessage: function postMessage() {
       var a = this.post.message;
       a = a.replace(/((http(s)?:\/\/)|(www\.))([^\.]+)\.([^\s]+)/g, "<a href='$&' target=\"_blank\">$&</a>");
@@ -37596,12 +37599,7 @@ var render = function() {
                     [
                       _vm._v(
                         "\n                " +
-                          _vm._s(
-                            _vm._f("moment")(
-                              _vm.post.data,
-                              "MMMM Do YYYY, kk:mm"
-                            )
-                          ) +
+                          _vm._s(_vm.datePost) +
                           "\n              "
                       )
                     ]
@@ -45330,6 +45328,7 @@ var actions = {
         dispatch = _ref6.dispatch;
 
     return new Promise(function (resolve, reject) {
+      __WEBPACK_IMPORTED_MODULE_0_axios_index___default.a.defaults.headers.common['Authorization'] = localStorage['access-token'];
       commit('TOKEN', false);
       __WEBPACK_IMPORTED_MODULE_0_axios_index___default.a.post('api/auth/refresh', {
         authorization: localStorage['access-token']
@@ -52405,248 +52404,7 @@ var index_esm = {
 
 
 /***/ }),
-/* 527 */
-/***/ (function(module, exports, __webpack_require__) {
-
-let moment = __webpack_require__(1);
-
-module.exports = {
-  install(Vue, options) {
-    Object.defineProperties(Vue.prototype, {
-      $moment: {
-        get() {
-          return moment;
-        },
-      },
-    });
-
-    if (options && options.moment) {
-      moment = options.moment;
-    }
-
-    Vue.moment = moment;
-
-    Vue.filter('moment', (...args) => {
-      args = Array.prototype.slice.call(args);
-      const input = args.shift();
-      let date;
-
-      if (Array.isArray(input) && typeof input[0] === 'string') {
-        // If input is array, assume we're being passed a format pattern to parse against.
-        // Format pattern will accept an array of potential formats to parse against.
-        // Date string should be at [0], format pattern(s) should be at [1]
-        date = moment(input[0], input[1], true);
-      } else if (typeof input === 'number') {
-        if (input.toString().length < 12) {
-          // If input is an integer with fewer than 12 digits, assume Unix seconds...
-          date = moment.unix(input);
-        } else {
-          // ..otherwise, assume milliseconds.
-          date = moment(input);
-        }
-      } else {
-        // Otherwise, throw the input at moment and see what happens...
-        date = moment(input);
-      }
-
-      if (!input || !date.isValid()) {
-        // Log a warning if moment couldn't reconcile the input. Better than throwing an error?
-        console.warn('Could not build a valid `moment` object from input.');
-        return input;
-      }
-
-      function parse(...args) {
-        args = Array.prototype.slice.call(args);
-        const method = args.shift();
-
-        switch (method) {
-          case 'add': {
-            /*
-            * Mutates the original moment by adding time.
-            * http://momentjs.com/docs/#/manipulating/add/
-            */
-
-            const addends = args.shift()
-              .split(',')
-              .map(Function.prototype.call, String.prototype.trim);
-            const obj = {};
-
-            for (let n = 0; n < addends.length; n++) {
-              const addend = addends[n].split(' ');
-              obj[addend[1]] = addend[0];
-            }
-            date.add(obj);
-            break;
-          }
-
-          case 'subtract': {
-            /*
-            * Mutates the original moment by subtracting time.
-            * http://momentjs.com/docs/#/manipulating/subtract/
-            */
-
-            const subtrahends = args.shift()
-              .split(',')
-              .map(Function.prototype.call, String.prototype.trim);
-            const obj = {};
-
-            for (let n = 0; n < subtrahends.length; n++) {
-              const subtrahend = subtrahends[n].split(' ');
-              obj[subtrahend[1]] = subtrahend[0];
-            }
-            date.subtract(obj);
-            break;
-          }
-
-          case 'from': {
-            /*
-            * Display a moment in relative time, either from now or from a specified date.
-            * http://momentjs.com/docs/#/displaying/fromnow/
-            */
-
-            let from = 'now';
-            let removeSuffix = false;
-
-            if (args[0] === 'now') args.shift();
-            // If valid, assume it is a date we want the output computed against.
-            if (moment(args[0]).isValid()) from = moment(args.shift());
-
-            if (args[0] === true) {
-              args.shift();
-              removeSuffix = true;
-            }
-
-            if (from !== 'now') {
-              date = date.from(from, removeSuffix);
-            } else {
-              date = date.fromNow(removeSuffix);
-            }
-            break;
-          }
-
-          case 'diff': {
-            /*
-            * Mutates the original moment by doing a difference with another date.
-            * http://momentjs.com/docs/#/displaying/difference/
-            */
-
-            let referenceTime = moment();
-            let units = '';
-            let float = false;
-
-            if (moment(args[0]).isValid()) {
-              // If valid, assume it is a date we want the output computed against.
-              referenceTime = moment(args.shift());
-            } else if (args[0] === null || args[0] === 'now') {
-              // If null or 'now', remove argument and proceed with default referenceTime.
-              args.shift();
-            }
-
-            if (args[0]) units = args.shift();
-
-            if (args[0] === true) float = args.shift();
-
-            date = date.diff(referenceTime, units, float);
-            break;
-          }
-
-          case 'calendar': {
-            /*
-            * Formats a date with different strings depending on how close
-            * to a certain date (today by default) the date is.
-            * http://momentjs.com/docs/#/displaying/calendar-time/
-            */
-
-            let referenceTime = moment();
-            let formats = {};
-
-            if (moment(args[0]).isValid()) {
-              // If valid, assume it is a date we want the output computed against.
-              referenceTime = moment(args.shift());
-            } else if (args[0] === null || args[0] === 'now') {
-              // If null or 'now', remove argument and proceed with default referenceTime.
-              args.shift();
-            }
-
-            if (typeof args[0] === 'object') formats = args.shift();
-
-            date = date.calendar(referenceTime, formats);
-            break;
-          }
-
-          case 'utc': {
-            /*
-            * Mutates the original moment by converting to UTC
-            * https://momentjs.com/docs/#/manipulating/utc/
-            */
-            date.utc();
-            break;
-          }
-
-          case 'timezone': {
-            /*
-            * Mutates the original moment by converting to a new timezone.
-            * https://momentjs.com/timezone/docs/#/using-timezones/converting-to-zone/
-            */
-            date.tz(args.shift());
-            break;
-          }
-
-          default: {
-            /*
-            * Formats a date by taking a string of tokens and replacing
-            * them with their corresponding values.
-            * http://momentjs.com/docs/#/displaying/format/
-            */
-
-            const format = method;
-            date = date.format(format);
-          }
-        }
-
-        if (args.length) parse.apply(parse, args);
-      }
-
-      parse.apply(parse, args);
-
-      return date;
-    });
-
-    Vue.filter('duration', (...args) => {
-      /*
-      * Basic pass-through filter for leveraging moment.js's ability
-      * to manipulate and display durations.
-      * https://momentjs.com/docs/#/durations/
-      */
-      args = Array.prototype.slice.call(args);
-      const input = args.shift();
-      const method = args.shift();
-
-      function createDuration(time) {
-        if (!Array.isArray(time)) time = [time];
-        const result = moment.duration(...time);
-        if (!result.isValid()) console.warn('Could not build a valid `duration` object from input.');
-        return result;
-      }
-      let duration = createDuration(input);
-
-      if (method === 'add' || method === 'subtract') {
-        // Generates a duration object and either adds or subtracts it
-        // from our original duration.
-        const durationChange = createDuration(args);
-        duration[method](durationChange);
-      } else if (duration && duration[method]) {
-        // This gives a full proxy to moment.duration functions.
-        duration = duration[method](...args);
-      }
-
-      return duration;
-    });
-  },
-};
-
-
-/***/ }),
+/* 527 */,
 /* 528 */
 /***/ (function(module, exports) {
 
@@ -53843,7 +53601,7 @@ exports = module.exports = __webpack_require__(23)(false);
 
 
 // module
-exports.push([module.i, "\n.check_mark[data-v-765dae30] {\n  width: 80px;\n  height: 107px;\n  margin: 0 auto;\n}\nbutton[data-v-765dae30] {\n  cursor: pointer;\n  margin-left: 15px;\n}\n.hide[data-v-765dae30] {\n  display: none;\n}\n.sa-icon[data-v-765dae30] {\n  width: 80px;\n  height: 80px;\n  border: 4px solid gray;\n  border-radius: 40px;\n  border-radius: 50%;\n  margin: 20px auto;\n  padding: 0;\n  position: relative;\n  -webkit-box-sizing: content-box;\n          box-sizing: content-box;\n}\n.sa-icon.sa-success[data-v-765dae30] {\n  border-color: #4CAF50;\n}\n.sa-icon.sa-success[data-v-765dae30]::before, .sa-icon.sa-success[data-v-765dae30]::after {\n  content: '';\n  border-radius: 40px;\n  border-radius: 50%;\n  position: absolute;\n  width: 60px;\n  height: 120px;\n  background: white;\n  -webkit-transform: rotate(45deg);\n  transform: rotate(45deg);\n}\n.sa-icon.sa-success[data-v-765dae30]::before {\n  border-radius: 120px 0 0 120px;\n  top: -7px;\n  left: -33px;\n  -webkit-transform: rotate(-45deg);\n  transform: rotate(-45deg);\n  -webkit-transform-origin: 60px 60px;\n  transform-origin: 60px 60px;\n}\n.sa-icon.sa-success[data-v-765dae30]::after {\n  border-radius: 0 120px 120px 0;\n  top: -11px;\n  left: 30px;\n  -webkit-transform: rotate(-45deg);\n  transform: rotate(-45deg);\n  -webkit-transform-origin: 0px 60px;\n  transform-origin: 0px 60px;\n}\n.sa-icon.sa-success .sa-placeholder[data-v-765dae30] {\n  width: 80px;\n  height: 80px;\n  border: 4px solid rgba(76, 175, 80, 0.5);\n  border-radius: 40px;\n  border-radius: 50%;\n  -webkit-box-sizing: content-box;\n          box-sizing: content-box;\n  position: absolute;\n  left: -4px;\n  top: -4px;\n  z-index: 2;\n}\n.sa-icon.sa-success .sa-fix[data-v-765dae30] {\n  width: 5px;\n  height: 90px;\n  background-color: white;\n  position: absolute;\n  left: 28px;\n  top: 8px;\n  z-index: 1;\n  -webkit-transform: rotate(-45deg);\n  transform: rotate(-45deg);\n}\n.sa-icon.sa-success.animate[data-v-765dae30]::after {\n  -webkit-animation: rotatePlaceholder-data-v-765dae30 4.25s ease-in;\n  animation: rotatePlaceholder-data-v-765dae30 4.25s ease-in;\n}\n.sa-icon.sa-success[data-v-765dae30] {\n  border-color: transparent \\9;\n}\n.sa-icon.sa-success .sa-line.sa-tip[data-v-765dae30] {\n  -ms-transform: rotate(45deg) \\9 ;\n}\n.sa-icon.sa-success .sa-line.sa-long[data-v-765dae30] {\n  -ms-transform: rotate(-45deg) \\9 ;\n}\n.animateSuccessTip[data-v-765dae30] {\n  -webkit-animation: animateSuccessTip-data-v-765dae30 0.75s;\n  animation: animateSuccessTip-data-v-765dae30 0.75s;\n}\n.animateSuccessLong[data-v-765dae30] {\n  -webkit-animation: animateSuccessLong-data-v-765dae30 0.75s;\n  animation: animateSuccessLong-data-v-765dae30 0.75s;\n}\n@-webkit-keyframes animateSuccessLong-data-v-765dae30 {\n0% {\n    width: 0;\n    right: 46px;\n    top: 54px;\n}\n65% {\n    width: 0;\n    right: 46px;\n    top: 54px;\n}\n84% {\n    width: 55px;\n    right: 0px;\n    top: 35px;\n}\n100% {\n    width: 47px;\n    right: 8px;\n    top: 38px;\n}\n}\n@-webkit-keyframes animateSuccessTip-data-v-765dae30 {\n0% {\n    width: 0;\n    left: 1px;\n    top: 19px;\n}\n54% {\n    width: 0;\n    left: 1px;\n    top: 19px;\n}\n70% {\n    width: 50px;\n    left: -8px;\n    top: 37px;\n}\n84% {\n    width: 17px;\n    left: 21px;\n    top: 48px;\n}\n100% {\n    width: 25px;\n    left: 14px;\n    top: 45px;\n}\n}\n@keyframes animateSuccessTip-data-v-765dae30 {\n0% {\n    width: 0;\n    left: 1px;\n    top: 19px;\n}\n54% {\n    width: 0;\n    left: 1px;\n    top: 19px;\n}\n70% {\n    width: 50px;\n    left: -8px;\n    top: 37px;\n}\n84% {\n    width: 17px;\n    left: 21px;\n    top: 48px;\n}\n100% {\n    width: 25px;\n    left: 14px;\n    top: 45px;\n}\n}\n@keyframes animateSuccessLong-data-v-765dae30 {\n0% {\n    width: 0;\n    right: 46px;\n    top: 54px;\n}\n65% {\n    width: 0;\n    right: 46px;\n    top: 54px;\n}\n84% {\n    width: 55px;\n    right: 0px;\n    top: 35px;\n}\n100% {\n    width: 47px;\n    right: 8px;\n    top: 38px;\n}\n}\n.sa-icon.sa-success .sa-line[data-v-765dae30] {\n  height: 5px;\n  background-color: #4CAF50;\n  display: block;\n  border-radius: 2px;\n  position: absolute;\n  z-index: 2;\n}\n.sa-icon.sa-success .sa-line.sa-tip[data-v-765dae30] {\n  width: 25px;\n  left: 14px;\n  top: 46px;\n  -webkit-transform: rotate(45deg);\n  transform: rotate(45deg);\n}\n.sa-icon.sa-success .sa-line.sa-long[data-v-765dae30] {\n  width: 47px;\n  right: 8px;\n  top: 38px;\n  -webkit-transform: rotate(-45deg);\n  transform: rotate(-45deg);\n}\n@-webkit-keyframes rotatePlaceholder-data-v-765dae30 {\n0% {\n    transform: rotate(-45deg);\n    -webkit-transform: rotate(-45deg);\n}\n5% {\n    transform: rotate(-45deg);\n    -webkit-transform: rotate(-45deg);\n}\n12% {\n    transform: rotate(-405deg);\n    -webkit-transform: rotate(-405deg);\n}\n100% {\n    transform: rotate(-405deg);\n    -webkit-transform: rotate(-405deg);\n}\n}\n@keyframes rotatePlaceholder-data-v-765dae30 {\n0% {\n    transform: rotate(-45deg);\n    -webkit-transform: rotate(-45deg);\n}\n5% {\n    transform: rotate(-45deg);\n    -webkit-transform: rotate(-45deg);\n}\n12% {\n    transform: rotate(-405deg);\n    -webkit-transform: rotate(-405deg);\n}\n100% {\n    transform: rotate(-405deg);\n    -webkit-transform: rotate(-405deg);\n}\n}\n.wait[data-v-765dae30] {\n  background-image: repeating-linear-gradient(-45deg, #3ba188, #3ba188 11px, #50bfa4 10px, #50bfa4 20px);\n  cursor: default;\n  background-size: 85px 85px;\n  -webkit-animation: move-data-v-765dae30 2s linear infinite;\n          animation: move-data-v-765dae30 2s linear infinite;\n}\n@-webkit-keyframes move-data-v-765dae30 {\n0% {\n    background-position: 0 0;\n}\n100% {\n    background-position: 85px 0;\n}\n}\n@keyframes move-data-v-765dae30 {\n0% {\n    background-position: 0 0;\n}\n100% {\n    background-position: 85px 0;\n}\n}\n.modal_wrapper[data-v-765dae30] {\n  position: fixed;\n  top: 0;\n  left: 0;\n  bottom: 0;\n  right: 0;\n  background-color: rgba(0, 0, 0, 0.5);\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-align: center;\n      -ms-flex-align: center;\n          align-items: center;\n  -webkit-box-pack: center;\n      -ms-flex-pack: center;\n          justify-content: center;\n  z-index: 9999;\n  cursor: pointer;\n  overflow: auto;\n  padding: 30px 0;\n}\n.modal_container[data-v-765dae30] {\n  position: relative;\n  margin-bottom: 0;\n  cursor: default;\n}\n.modal_header[data-v-765dae30] {\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  width: 100%;\n  padding: 15px 15px;\n  -webkit-box-pack: justify;\n      -ms-flex-pack: justify;\n          justify-content: space-between;\n  border-bottom: 1px solid #e8eef5;\n}\n.modal_header h2[data-v-765dae30] {\n    padding: 0;\n    margin: 0;\n    font-size: 18px;\n}\n.modal_header .btn[data-v-765dae30] {\n    display: -webkit-box;\n    display: -ms-flexbox;\n    display: flex;\n    -webkit-box-align: center;\n        -ms-flex-align: center;\n            align-items: center;\n}\n.modal_header .btn-cancel[data-v-765dae30] {\n      background: none;\n      padding: 0;\n      margin: 0;\n      color: #cccccc;\n      outline: none;\n}\n.modal_header .btn-cancel[data-v-765dae30]:hover {\n        color: #333333;\n}\n.modal_body[data-v-765dae30] {\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  width: 100%;\n  -webkit-box-orient: vertical;\n  -webkit-box-direction: normal;\n      -ms-flex-direction: column;\n          flex-direction: column;\n  -webkit-box-align: center;\n      -ms-flex-align: center;\n          align-items: center;\n  -webkit-box-pack: center;\n      -ms-flex-pack: center;\n          justify-content: center;\n  padding-top: 20px;\n  padding-bottom: 30px;\n}\n.modal_body_wrapper[data-v-765dae30] {\n    width: 100%;\n    display: -webkit-box;\n    display: -ms-flexbox;\n    display: flex;\n    -webkit-box-pack: center;\n        -ms-flex-pack: center;\n            justify-content: center;\n    -webkit-box-orient: vertical;\n    -webkit-box-direction: normal;\n        -ms-flex-direction: column;\n            flex-direction: column;\n    -webkit-box-align: center;\n        -ms-flex-align: center;\n            align-items: center;\n}\n.modal_body .form-group[data-v-765dae30] {\n    width: 65%;\n    margin-bottom: 20px;\n}\n.modal_body .field[data-v-765dae30] {\n    width: 100%;\n    border-radius: 3px;\n    border: 1px solid #e8eef5;\n    padding: 15px;\n    background-color: transparent;\n    color: #4a4c63;\n    font-size: 16px;\n    font-weight: 400;\n    line-height: 20px;\n    letter-spacing: 0.4px;\n    -webkit-transition: .3s;\n    transition: .3s;\n    position: relative;\n}\n.modal_body .field[data-v-765dae30]::-webkit-input-placeholder {\n      color: #6c757d;\n}\n.modal_body .field[data-v-765dae30]:-ms-input-placeholder {\n      color: #6c757d;\n}\n.modal_body .field[data-v-765dae30]::-ms-input-placeholder {\n      color: #6c757d;\n}\n.modal_body .field[data-v-765dae30]::placeholder {\n      color: #6c757d;\n}\n.modal_body .field[data-v-765dae30]:focus {\n      border: 1px solid #4a4c63;\n}\n.fade-enter-active[data-v-765dae30], .fade-leave-active[data-v-765dae30] {\n  -webkit-transition: opacity .3s;\n  transition: opacity .3s;\n}\n.fade-enter[data-v-765dae30], .fade-leave-to[data-v-765dae30] {\n  opacity: 0;\n}\n", ""]);
+exports.push([module.i, "\n.check_mark[data-v-765dae30] {\n  width: 80px;\n  height: 107px;\n  margin: 0 auto;\n}\nbutton[data-v-765dae30] {\n  cursor: pointer;\n  margin-left: 15px;\n}\n.hide[data-v-765dae30] {\n  display: none;\n}\n.sa-icon[data-v-765dae30] {\n  width: 80px;\n  height: 80px;\n  border: 4px solid gray;\n  border-radius: 40px;\n  border-radius: 50%;\n  margin: 20px auto;\n  padding: 0;\n  position: relative;\n  -webkit-box-sizing: content-box;\n          box-sizing: content-box;\n}\n.sa-icon.sa-success[data-v-765dae30] {\n  border-color: #4CAF50;\n}\n.sa-icon.sa-success[data-v-765dae30]::before, .sa-icon.sa-success[data-v-765dae30]::after {\n  content: '';\n  border-radius: 40px;\n  border-radius: 50%;\n  position: absolute;\n  width: 60px;\n  height: 120px;\n  background: white;\n  -webkit-transform: rotate(45deg);\n  transform: rotate(45deg);\n}\n.sa-icon.sa-success[data-v-765dae30]::before {\n  border-radius: 120px 0 0 120px;\n  top: -7px;\n  left: -33px;\n  -webkit-transform: rotate(-45deg);\n  transform: rotate(-45deg);\n  -webkit-transform-origin: 60px 60px;\n  transform-origin: 60px 60px;\n}\n.sa-icon.sa-success[data-v-765dae30]::after {\n  border-radius: 0 120px 120px 0;\n  top: -11px;\n  left: 30px;\n  -webkit-transform: rotate(-45deg);\n  transform: rotate(-45deg);\n  -webkit-transform-origin: 0px 60px;\n  transform-origin: 0px 60px;\n}\n.sa-icon.sa-success .sa-placeholder[data-v-765dae30] {\n  width: 80px;\n  height: 80px;\n  border: 4px solid rgba(76, 175, 80, 0.5);\n  border-radius: 40px;\n  border-radius: 50%;\n  -webkit-box-sizing: content-box;\n          box-sizing: content-box;\n  position: absolute;\n  left: -4px;\n  top: -4px;\n  z-index: 2;\n}\n.sa-icon.sa-success .sa-fix[data-v-765dae30] {\n  width: 5px;\n  height: 90px;\n  background-color: white;\n  position: absolute;\n  left: 28px;\n  top: 8px;\n  z-index: 1;\n  -webkit-transform: rotate(-45deg);\n  transform: rotate(-45deg);\n}\n.sa-icon.sa-success.animate[data-v-765dae30]::after {\n  -webkit-animation: rotatePlaceholder-data-v-765dae30 4.25s ease-in;\n  animation: rotatePlaceholder-data-v-765dae30 4.25s ease-in;\n}\n.sa-icon.sa-success[data-v-765dae30] {\n  border-color: transparent \\9;\n}\n.sa-icon.sa-success .sa-line.sa-tip[data-v-765dae30] {\n  -ms-transform: rotate(45deg) \\9 ;\n}\n.sa-icon.sa-success .sa-line.sa-long[data-v-765dae30] {\n  -ms-transform: rotate(-45deg) \\9 ;\n}\n.animateSuccessTip[data-v-765dae30] {\n  -webkit-animation: animateSuccessTip-data-v-765dae30 0.75s;\n  animation: animateSuccessTip-data-v-765dae30 0.75s;\n}\n.animateSuccessLong[data-v-765dae30] {\n  -webkit-animation: animateSuccessLong-data-v-765dae30 0.75s;\n  animation: animateSuccessLong-data-v-765dae30 0.75s;\n}\n@-webkit-keyframes animateSuccessLong-data-v-765dae30 {\n0% {\n    width: 0;\n    right: 46px;\n    top: 54px;\n}\n65% {\n    width: 0;\n    right: 46px;\n    top: 54px;\n}\n84% {\n    width: 55px;\n    right: 0px;\n    top: 35px;\n}\n100% {\n    width: 47px;\n    right: 8px;\n    top: 38px;\n}\n}\n@-webkit-keyframes animateSuccessTip-data-v-765dae30 {\n0% {\n    width: 0;\n    left: 1px;\n    top: 19px;\n}\n54% {\n    width: 0;\n    left: 1px;\n    top: 19px;\n}\n70% {\n    width: 50px;\n    left: -8px;\n    top: 37px;\n}\n84% {\n    width: 17px;\n    left: 21px;\n    top: 48px;\n}\n100% {\n    width: 25px;\n    left: 14px;\n    top: 45px;\n}\n}\n@keyframes animateSuccessTip-data-v-765dae30 {\n0% {\n    width: 0;\n    left: 1px;\n    top: 19px;\n}\n54% {\n    width: 0;\n    left: 1px;\n    top: 19px;\n}\n70% {\n    width: 50px;\n    left: -8px;\n    top: 37px;\n}\n84% {\n    width: 17px;\n    left: 21px;\n    top: 48px;\n}\n100% {\n    width: 25px;\n    left: 14px;\n    top: 45px;\n}\n}\n@keyframes animateSuccessLong-data-v-765dae30 {\n0% {\n    width: 0;\n    right: 46px;\n    top: 54px;\n}\n65% {\n    width: 0;\n    right: 46px;\n    top: 54px;\n}\n84% {\n    width: 55px;\n    right: 0px;\n    top: 35px;\n}\n100% {\n    width: 47px;\n    right: 8px;\n    top: 38px;\n}\n}\n.sa-icon.sa-success .sa-line[data-v-765dae30] {\n  height: 5px;\n  background-color: #4CAF50;\n  display: block;\n  border-radius: 2px;\n  position: absolute;\n  z-index: 2;\n}\n.sa-icon.sa-success .sa-line.sa-tip[data-v-765dae30] {\n  width: 25px;\n  left: 14px;\n  top: 46px;\n  -webkit-transform: rotate(45deg);\n  transform: rotate(45deg);\n}\n.sa-icon.sa-success .sa-line.sa-long[data-v-765dae30] {\n  width: 47px;\n  right: 8px;\n  top: 38px;\n  -webkit-transform: rotate(-45deg);\n  transform: rotate(-45deg);\n}\n@-webkit-keyframes rotatePlaceholder-data-v-765dae30 {\n0% {\n    transform: rotate(-45deg);\n    -webkit-transform: rotate(-45deg);\n}\n5% {\n    transform: rotate(-45deg);\n    -webkit-transform: rotate(-45deg);\n}\n12% {\n    transform: rotate(-405deg);\n    -webkit-transform: rotate(-405deg);\n}\n100% {\n    transform: rotate(-405deg);\n    -webkit-transform: rotate(-405deg);\n}\n}\n@keyframes rotatePlaceholder-data-v-765dae30 {\n0% {\n    transform: rotate(-45deg);\n    -webkit-transform: rotate(-45deg);\n}\n5% {\n    transform: rotate(-45deg);\n    -webkit-transform: rotate(-45deg);\n}\n12% {\n    transform: rotate(-405deg);\n    -webkit-transform: rotate(-405deg);\n}\n100% {\n    transform: rotate(-405deg);\n    -webkit-transform: rotate(-405deg);\n}\n}\n.wait[data-v-765dae30] {\n  background-image: repeating-linear-gradient(-45deg, #3ba188, #3ba188 11px, #50bfa4 10px, #50bfa4 20px);\n  cursor: default;\n  background-size: 85px 85px;\n  -webkit-animation: move-data-v-765dae30 2s linear infinite;\n          animation: move-data-v-765dae30 2s linear infinite;\n}\n@-webkit-keyframes move-data-v-765dae30 {\n0% {\n    background-position: 0 0;\n}\n100% {\n    background-position: 85px 0;\n}\n}\n@keyframes move-data-v-765dae30 {\n0% {\n    background-position: 0 0;\n}\n100% {\n    background-position: 85px 0;\n}\n}\n.modal_wrapper[data-v-765dae30] {\n  position: fixed;\n  top: 0;\n  left: 0;\n  bottom: 0;\n  right: 0;\n  background-color: rgba(0, 0, 0, 0.5);\n  overflow: hidden;\n  z-index: 9999;\n  cursor: pointer;\n  padding: 240px 0;\n}\n.modal_container[data-v-765dae30] {\n  position: relative;\n  margin-bottom: 0;\n  cursor: default;\n}\n.modal_header[data-v-765dae30] {\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  width: 100%;\n  padding: 15px 15px;\n  -webkit-box-pack: justify;\n      -ms-flex-pack: justify;\n          justify-content: space-between;\n  border-bottom: 1px solid #e8eef5;\n}\n.modal_header h2[data-v-765dae30] {\n    padding: 0;\n    margin: 0;\n    font-size: 18px;\n}\n.modal_header .btn[data-v-765dae30] {\n    display: -webkit-box;\n    display: -ms-flexbox;\n    display: flex;\n    -webkit-box-align: center;\n        -ms-flex-align: center;\n            align-items: center;\n}\n.modal_header .btn-cancel[data-v-765dae30] {\n      background: none;\n      padding: 0;\n      margin: 0;\n      color: #cccccc;\n      outline: none;\n}\n.modal_header .btn-cancel[data-v-765dae30]:hover {\n        color: #333333;\n}\n.modal_body[data-v-765dae30] {\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  width: 100%;\n  -webkit-box-orient: vertical;\n  -webkit-box-direction: normal;\n      -ms-flex-direction: column;\n          flex-direction: column;\n  -webkit-box-align: center;\n      -ms-flex-align: center;\n          align-items: center;\n  -webkit-box-pack: center;\n      -ms-flex-pack: center;\n          justify-content: center;\n  padding-top: 20px;\n  padding-bottom: 30px;\n}\n.modal_body_wrapper[data-v-765dae30] {\n    width: 100%;\n    display: -webkit-box;\n    display: -ms-flexbox;\n    display: flex;\n    -webkit-box-pack: center;\n        -ms-flex-pack: center;\n            justify-content: center;\n    -webkit-box-orient: vertical;\n    -webkit-box-direction: normal;\n        -ms-flex-direction: column;\n            flex-direction: column;\n    -webkit-box-align: center;\n        -ms-flex-align: center;\n            align-items: center;\n}\n.modal_body .form-group[data-v-765dae30] {\n    width: 65%;\n    margin-bottom: 20px;\n}\n.modal_body .field[data-v-765dae30] {\n    width: 100%;\n    border-radius: 3px;\n    border: 1px solid #e8eef5;\n    padding: 15px;\n    background-color: transparent;\n    color: #4a4c63;\n    font-size: 16px;\n    font-weight: 400;\n    line-height: 20px;\n    letter-spacing: 0.4px;\n    -webkit-transition: .3s;\n    transition: .3s;\n    position: relative;\n}\n.modal_body .field[data-v-765dae30]::-webkit-input-placeholder {\n      color: #6c757d;\n}\n.modal_body .field[data-v-765dae30]:-ms-input-placeholder {\n      color: #6c757d;\n}\n.modal_body .field[data-v-765dae30]::-ms-input-placeholder {\n      color: #6c757d;\n}\n.modal_body .field[data-v-765dae30]::placeholder {\n      color: #6c757d;\n}\n.modal_body .field[data-v-765dae30]:focus {\n      border: 1px solid #4a4c63;\n}\n.fade-enter-active[data-v-765dae30], .fade-leave-active[data-v-765dae30] {\n  -webkit-transition: opacity .3s;\n  transition: opacity .3s;\n}\n.fade-enter[data-v-765dae30], .fade-leave-to[data-v-765dae30] {\n  opacity: 0;\n}\n", ""]);
 
 // exports
 

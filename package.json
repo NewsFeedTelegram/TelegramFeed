@@ -23,9 +23,9 @@
         "vue": "^2.5.7"
     },
     "dependencies": {
+        "moment": "^2.22.1",
         "vee-validate": "^2.0.9",
         "vue-content-loading": "^1.4.0",
-        "vue-moment": "^4.0.0-0",
         "vue-router": "^3.0.1",
         "vue-sticky": "^3.3.4",
         "vuebar": "0.0.18",
