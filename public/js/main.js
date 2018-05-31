@@ -37161,7 +37161,7 @@ exports = module.exports = __webpack_require__(23)(false);
 
 
 // module
-exports.push([module.i, "\n.list-channel[data-v-07144db8] {\n  height: 292px;\n}\n.loader[data-v-07144db8] {\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  -ms-flex-item-align: center;\n      align-self: center;\n  -webkit-box-pack: center;\n      -ms-flex-pack: center;\n          justify-content: center;\n  margin-bottom: 15px;\n}\n.loader img[data-v-07144db8] {\n    width: 50px;\n}\n", ""]);
+exports.push([module.i, "\n.ball-loader[data-v-07144db8] {\n  width: 100px;\n  height: 23.33333px;\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  -webkit-transform: translateX(-50%) translateY(-50%);\n          transform: translateX(-50%) translateY(-50%);\n}\n.ball-loader-ball[data-v-07144db8] {\n  will-change: transform;\n  height: 15px;\n  width: 15px;\n  border-radius: 50%;\n  background-color: #a3a8ad;\n  position: absolute;\n  -webkit-animation: grow-data-v-07144db8 .5s ease-in-out infinite alternate;\n          animation: grow-data-v-07144db8 .5s ease-in-out infinite alternate;\n}\n.ball-loader-ball.ball1[data-v-07144db8] {\n    left: 15%;\n    -webkit-transform-origin: 100% 50%;\n            transform-origin: 100% 50%;\n}\n.ball-loader-ball.ball2[data-v-07144db8] {\n    left: 50%;\n    -webkit-transform: translateX(-50%) scale(1);\n            transform: translateX(-50%) scale(1);\n    -webkit-animation-delay: 0.33s;\n            animation-delay: 0.33s;\n}\n.ball-loader-ball.ball3[data-v-07144db8] {\n    right: 15%;\n    -webkit-animation-delay: 0.66s;\n            animation-delay: 0.66s;\n}\n@-webkit-keyframes grow-data-v-07144db8 {\nto {\n    -webkit-transform: translateX(-50%) scale(0);\n            transform: translateX(-50%) scale(0);\n}\n}\n@keyframes grow-data-v-07144db8 {\nto {\n    -webkit-transform: translateX(-50%) scale(0);\n            transform: translateX(-50%) scale(0);\n}\n}\n.list-channel[data-v-07144db8] {\n  height: 292px;\n}\n.loader[data-v-07144db8] {\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  -ms-flex-item-align: center;\n      align-self: center;\n  -webkit-box-pack: center;\n      -ms-flex-pack: center;\n          justify-content: center;\n  position: relative;\n  padding: 15px 0;\n}\n.loader img[data-v-07144db8] {\n    width: 50px;\n}\n", ""]);
 
 // exports
 
@@ -37178,6 +37178,13 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_vue_content_loading___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_vue_content_loading__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_vue_sticky__ = __webpack_require__(295);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_vue_sticky___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_vue_sticky__);
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -37790,11 +37797,7 @@ var render = function() {
                   }),
                   _vm._v(" "),
                   _vm.loadMore
-                    ? _c("div", { staticClass: "loader" }, [
-                        _c("img", {
-                          attrs: { src: "/img/three-dots.svg", alt: "" }
-                        })
-                      ])
+                    ? _c("div", { staticClass: "loader" }, [_vm._m(0)])
                     : _vm._e()
                 ],
                 2
@@ -37890,7 +37893,7 @@ var render = function() {
                               ])
                             ]),
                             _vm._v(" "),
-                            _vm._m(0)
+                            _vm._m(1)
                           ]),
                           _vm._v(" "),
                           _c("span", { staticClass: "notification-icon" }, [
@@ -37944,10 +37947,10 @@ var render = function() {
                               )
                             ]),
                             _vm._v(" "),
-                            _vm._m(1)
+                            _vm._m(2)
                           ]),
                           _vm._v(" "),
-                          _vm._m(2)
+                          _vm._m(3)
                         ])
                       ])
                     ]),
@@ -38133,6 +38136,18 @@ var render = function() {
   )
 }
 var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "ball-loader" }, [
+      _c("div", { staticClass: "ball-loader-ball ball1" }),
+      _vm._v(" "),
+      _c("div", { staticClass: "ball-loader-ball ball2" }),
+      _vm._v(" "),
+      _c("div", { staticClass: "ball-loader-ball ball3" })
+    ])
+  },
   function() {
     var _vm = this
     var _h = _vm.$createElement

@@ -14,7 +14,14 @@
               </vue-content-loading>
             </div>
             <app-post v-for="(index, post) in listPosts" :key="post.id" :post="index" v-if="!isLoadPost"></app-post>
-            <div class="loader" v-if="loadMore"><img src="/img/three-dots.svg" alt=""></div>
+
+            <div class="loader" v-if="loadMore">
+              <div class="ball-loader">
+                <div class="ball-loader-ball ball1"></div>
+                <div class="ball-loader-ball ball2"></div>
+                <div class="ball-loader-ball ball3"></div>
+              </div>
+            </div>
           </div>
         </main>
         <aside class="col col-xl-3 order-xl-1 col-lg-6 order-lg-1 col-md-12 order-sm-3 col-sm-12 col-12 order-3" >
@@ -234,6 +241,48 @@ export default {
 </script>
 
 <style scoped lang="scss">
+  $width: 100;
+  $color: #a3a8ad;
+
+  .ball-loader{
+    width: $width + 0px;
+    height: ($width / 3) - 10px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+  }
+  .ball-loader-ball{
+    will-change: transform;
+    height:($width / 4) - 10px;
+    width: ($width / 4) - 10px;
+    border-radius: 50%;
+    background-color: $color;
+    position: absolute;
+    animation: grow .5s ease-in-out infinite alternate;
+
+
+    &.ball1{
+      left:15%;
+      transform-origin: 100% 50%;
+    }
+    &.ball2{
+      left:50%;
+      transform: translateX(-50%) scale(1);
+      animation-delay: 0.33s;
+    }
+    &.ball3{
+      right:15%;
+      animation-delay: 0.66s;
+    }
+  }
+
+  @keyframes grow{
+    to{
+      transform: translateX(-50%) scale(0);
+    }
+  }
+
   .list-channel {
     height: 292px;
   }
@@ -242,7 +291,8 @@ export default {
     display: flex;
     align-self: center;
     justify-content: center;
-    margin-bottom: 15px;
+    position: relative;
+    padding: 15px 0;
     img {
       width: 50px;
     }
