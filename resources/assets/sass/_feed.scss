@@ -145,7 +145,7 @@
     .icon {
       transition: .2s;
     }
-    &:hover {
+    &:hover, &:active{
       background-color: #333445;
     }
     &:hover .icon {
@@ -204,9 +204,8 @@
   position: relative;
   display: flex;
   .icon {
-
   }
-  &:hover .more-dropdown {
+  &:hover .more-dropdown, &:active .more-dropdown {
     visibility: visible;
     opacity: 1;
   }

@@ -37161,7 +37161,7 @@ exports = module.exports = __webpack_require__(23)(false);
 
 
 // module
-exports.push([module.i, "\n.ball-loader[data-v-07144db8] {\n  width: 100px;\n  height: 23.33333px;\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  -webkit-transform: translateX(-50%) translateY(-50%);\n          transform: translateX(-50%) translateY(-50%);\n}\n.ball-loader-ball[data-v-07144db8] {\n  will-change: transform;\n  height: 15px;\n  width: 15px;\n  border-radius: 50%;\n  background-color: #a3a8ad;\n  position: absolute;\n  -webkit-animation: grow-data-v-07144db8 .5s ease-in-out infinite alternate;\n          animation: grow-data-v-07144db8 .5s ease-in-out infinite alternate;\n}\n.ball-loader-ball.ball1[data-v-07144db8] {\n    left: 15%;\n    -webkit-transform-origin: 100% 50%;\n            transform-origin: 100% 50%;\n}\n.ball-loader-ball.ball2[data-v-07144db8] {\n    left: 50%;\n    -webkit-transform: translateX(-50%) scale(1);\n            transform: translateX(-50%) scale(1);\n    -webkit-animation-delay: 0.33s;\n            animation-delay: 0.33s;\n}\n.ball-loader-ball.ball3[data-v-07144db8] {\n    right: 15%;\n    -webkit-animation-delay: 0.66s;\n            animation-delay: 0.66s;\n}\n@-webkit-keyframes grow-data-v-07144db8 {\nto {\n    -webkit-transform: translateX(-50%) scale(0);\n            transform: translateX(-50%) scale(0);\n}\n}\n@keyframes grow-data-v-07144db8 {\nto {\n    -webkit-transform: translateX(-50%) scale(0);\n            transform: translateX(-50%) scale(0);\n}\n}\n.list-channel[data-v-07144db8] {\n  height: 292px;\n}\n.loader[data-v-07144db8] {\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  -ms-flex-item-align: center;\n      align-self: center;\n  -webkit-box-pack: center;\n      -ms-flex-pack: center;\n          justify-content: center;\n  position: relative;\n  padding: 15px 0;\n}\n.loader img[data-v-07144db8] {\n    width: 50px;\n}\n", ""]);
+exports.push([module.i, "\n.ball-loader[data-v-07144db8] {\n  width: 100px;\n  height: 23.33333px;\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  -webkit-transform: translateX(-50%) translateY(-50%);\n          transform: translateX(-50%) translateY(-50%);\n}\n.ball-loader-ball[data-v-07144db8] {\n  will-change: transform;\n  height: 15px;\n  width: 15px;\n  border-radius: 50%;\n  background-color: #a3a8ad;\n  position: absolute;\n  -webkit-animation: grow-data-v-07144db8 .5s ease-in-out infinite alternate;\n          animation: grow-data-v-07144db8 .5s ease-in-out infinite alternate;\n}\n.ball-loader-ball.ball1[data-v-07144db8] {\n    left: 15%;\n    -webkit-transform-origin: 100% 50%;\n            transform-origin: 100% 50%;\n}\n.ball-loader-ball.ball2[data-v-07144db8] {\n    left: 50%;\n    -webkit-transform: translateX(-50%) scale(1);\n            transform: translateX(-50%) scale(1);\n    -webkit-animation-delay: 0.33s;\n            animation-delay: 0.33s;\n}\n.ball-loader-ball.ball3[data-v-07144db8] {\n    right: 15%;\n    -webkit-animation-delay: 0.66s;\n            animation-delay: 0.66s;\n}\n@-webkit-keyframes grow-data-v-07144db8 {\nto {\n    -webkit-transform: translateX(-50%) scale(0);\n            transform: translateX(-50%) scale(0);\n}\n}\n@keyframes grow-data-v-07144db8 {\nto {\n    -webkit-transform: translateX(-50%) scale(0);\n            transform: translateX(-50%) scale(0);\n}\n}\n.list-channel[data-v-07144db8] {\n  height: 292px;\n}\n.list-channel li[data-v-07144db8] {\n    -webkit-transition: .3s;\n    transition: .3s;\n}\n.list-channel li .delete[data-v-07144db8] {\n      display: none;\n      color: rgba(243, 60, 60, 0.8);\n      font-size: 13px;\n      -webkit-transition: .3s;\n      transition: .3s;\n}\n.list-channel li .delete[data-v-07144db8]:hover {\n        color: rgba(237, 15, 15, 0.8);\n}\n.list-channel li:hover .delete[data-v-07144db8] {\n      display: -webkit-box;\n      display: -ms-flexbox;\n      display: flex;\n}\n.loader[data-v-07144db8] {\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  -ms-flex-item-align: center;\n      align-self: center;\n  -webkit-box-pack: center;\n      -ms-flex-pack: center;\n          justify-content: center;\n  position: relative;\n  padding: 15px 0;\n}\n.loader img[data-v-07144db8] {\n    width: 50px;\n}\n", ""]);
 
 // exports
 
@@ -37178,12 +37178,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_vue_content_loading___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_vue_content_loading__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_vue_sticky__ = __webpack_require__(295);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_vue_sticky___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_vue_sticky__);
-//
-//
-//
-//
-//
-//
 //
 //
 //
@@ -37538,7 +37532,13 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
       return a;
     },
     datePost: function datePost() {
-      return moment(this.post.data).format('MMMM DD YYYY, kk:mm');
+      // moment(this.post.data).format('MMMM DD YYYY, HH:mm')
+      // a.startOf ( 'hour' ).fromNow ()
+
+      var a = moment(this.post.data).locale('ru');
+      console.log('time: ' + a.hours());
+      console.log('date: ' + a.date());
+      return moment(this.post.data).format('MMMM DD YYYY, HH:mm');
     },
     postMessage: function postMessage() {
       var a = this.post.message;
@@ -37664,16 +37664,28 @@ var staticRenderFns = [
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
     return _c("ul", { staticClass: "more-dropdown" }, [
-      _c("li", [_c("a", { attrs: { href: "#" } }, [_vm._v("Edit Post")])]),
-      _vm._v(" "),
-      _c("li", [_c("a", { attrs: { href: "#" } }, [_vm._v("Delete Post")])]),
-      _vm._v(" "),
       _c("li", [
-        _c("a", { attrs: { href: "#" } }, [_vm._v("Turn Off Notifications")])
+        _c("a", { attrs: { href: "javascript:void(0)" } }, [
+          _vm._v("Edit Post")
+        ])
       ]),
       _vm._v(" "),
       _c("li", [
-        _c("a", { attrs: { href: "#" } }, [_vm._v("Select as Featured")])
+        _c("a", { attrs: { href: "javascript:void(0)" } }, [
+          _vm._v("Delete Post")
+        ])
+      ]),
+      _vm._v(" "),
+      _c("li", [
+        _c("a", { attrs: { href: "javascript:void(0)" } }, [
+          _vm._v("Turn Off Notifications")
+        ])
+      ]),
+      _vm._v(" "),
+      _c("li", [
+        _c("a", { attrs: { href: "javascript:void(0)" } }, [
+          _vm._v("Select as Featured")
+        ])
       ])
     ])
   }
@@ -38025,51 +38037,30 @@ var render = function() {
                                             _c(
                                               "a",
                                               {
-                                                staticClass: "more",
-                                                attrs: { href: "#" }
+                                                staticClass: "delete",
+                                                attrs: { href: "#" },
+                                                on: {
+                                                  click: function($event) {
+                                                    $event.stopPropagation()
+                                                    $event.preventDefault()
+                                                    _vm.deletePost(list.id)
+                                                  }
+                                                }
                                               },
                                               [
                                                 _c(
                                                   "svg",
                                                   {
                                                     staticClass:
-                                                      "icon icon-more-button"
+                                                      "icon icon-cancel"
                                                   },
                                                   [
                                                     _c("use", {
                                                       attrs: {
                                                         "xlink:href":
-                                                          "#icon-more-button"
+                                                          "#icon-cancel"
                                                       }
                                                     })
-                                                  ]
-                                                ),
-                                                _vm._v(" "),
-                                                _c(
-                                                  "ul",
-                                                  {
-                                                    staticClass: "more-dropdown"
-                                                  },
-                                                  [
-                                                    _c("li", [
-                                                      _c(
-                                                        "a",
-                                                        {
-                                                          attrs: { href: "#" },
-                                                          on: {
-                                                            click: function(
-                                                              $event
-                                                            ) {
-                                                              $event.stopPropagation()
-                                                              _vm.deletePost(
-                                                                list.id
-                                                              )
-                                                            }
-                                                          }
-                                                        },
-                                                        [_vm._v("Delete Post")]
-                                                      )
-                                                    ])
                                                   ]
                                                 )
                                               ]
@@ -46423,7 +46414,7 @@ var actions = {
         commit('LOAD_MORE', response.data.data);
         resolve(response);
       }, function (err) {
-        commit('STATUS_ADD_CHANNEL');
+        state.loadMore = false;
       });
     });
   },

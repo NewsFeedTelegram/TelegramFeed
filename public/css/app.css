@@ -4718,7 +4718,8 @@ strong {
   transition: .2s;
 }
 
-.header-page--dropdown:hover {
+.header-page--dropdown:hover,
+.header-page--dropdown:active {
   background-color: #333445;
 }
 
@@ -4791,7 +4792,8 @@ strong {
   display: flex;
 }
 
-.more:hover .more-dropdown {
+.more:hover .more-dropdown,
+.more:active .more-dropdown {
   visibility: visible;
   opacity: 1;
 }

@@ -25,16 +25,16 @@
           </svg>
           <ul class="more-dropdown">
             <li>
-              <a href="#">Edit Post</a>
+              <a href="javascript:void(0)">Edit Post</a>
             </li>
             <li>
-              <a href="#">Delete Post</a>
+              <a href="javascript:void(0)">Delete Post</a>
             </li>
             <li>
-              <a href="#">Turn Off Notifications</a>
+              <a href="javascript:void(0)">Turn Off Notifications</a>
             </li>
             <li>
-              <a href="#">Select as Featured</a>
+              <a href="javascript:void(0)">Select as Featured</a>
             </li>
           </ul>
         </div>
@@ -66,8 +66,15 @@ export default {
       a = a.replace ( /https\:\/\/t.me\//g, "@" )
       return a
     },
-    datePost(){
-      return moment(this.post.data).format('MMMM DD YYYY, kk:mm')
+    datePost () {
+      // moment(this.post.data).format('MMMM DD YYYY, HH:mm')
+      // a.startOf ( 'hour' ).fromNow ()
+
+      let a = moment ( this.post.data ).locale('ru')
+      console.log('time: ' + a.hours())
+      console.log('date: ' + a.date())
+      return moment(this.post.data).format('MMMM DD YYYY, HH:mm')
+
     },
     postMessage () {
       var a = this.post.message

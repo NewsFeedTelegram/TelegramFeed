@@ -119,16 +119,10 @@
                           </div>
                         </div>
                         <span class="notification-icon">
-							   <a href="#" class="more">
-                <svg class="icon icon-more-button">
-                  <use xlink:href="#icon-more-button"></use>
+							   <a href="#" class="delete" @click.stop.prevent="deletePost(list.id)">
+                <svg class="icon icon-cancel">
+                  <use xlink:href="#icon-cancel"></use>
                 </svg>
-                   <ul class="more-dropdown">
-                      <li>
-                        <a href="#" @click.stop="deletePost(list.id)">Delete Post</a>
-                      </li>
-                    </ul>
-
               </a>
 
 						</span>
@@ -285,6 +279,21 @@ export default {
 
   .list-channel {
     height: 292px;
+    li{
+      transition: .3s;
+      .delete{
+        display: none;
+        color: rgba(243, 60, 60, 0.8);;
+        font-size: 13px;
+        transition: .3s;
+        &:hover{
+          color: darken(rgba(243, 60, 60, 0.8), 10%);
+        }
+      }
+      &:hover .delete{
+        display: flex;
+      }
+    }
   }
 
   .loader {

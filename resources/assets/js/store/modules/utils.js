@@ -86,7 +86,7 @@ const actions = {
           commit('LOAD_MORE', response.data.data)
           resolve ( response )
         }, ( err ) => {
-          commit ( 'STATUS_ADD_CHANNEL' )
+          state.loadMore = false
         } )
 
     } )
