@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class TelegramPostsResource extends JsonResource
@@ -16,10 +17,11 @@ class TelegramPostsResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'message_id' => $this->message_id,
             'fwd_from' => json_decode($this->fwd_from),
             'message' => $this->message,
             'media' => json_decode($this->media),
-            'data' => $this->date,
+            'data' => Carbon::createFromTimeString($this->date)->timestamp,
             'channel' => [
                 'name' => $this->name,
                 'link' => $this->link,
