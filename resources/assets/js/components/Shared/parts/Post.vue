@@ -40,11 +40,33 @@
         </div>
       </div>
       <p v-html="postMessage"></p>
-      <div class="post__media">
-        <img v-if="post.media.links_media.length && post.media.type === 1 || post.media.type === 2"
+      <div class="post__media" v-if="post.media.links_media">
+        <img v-if="post.media.type === 1 || post.media.type === 2"
              class="post__media__img" v-for="img in post.media.links_media" :src="img" alt="">
-        <video v-if="post.media.links_media.length && post.media.type === 3" class="post__media__video"
+        <video v-if="post.media.type === 3" class="post__media__video"
                v-for="video in post.media.links_media" :src="video" controls></video>
+      </div>
+      <div class="post__webpage" v-if="post.media.webPage">
+        <a :href="post.media.webPage.url" target="_blank">
+          <div>
+            <div class="post__webpage__photo" v-if="post.media.webPage.type === 'photo'">
+              <img :src="post.media.webPage.url" alt="">
+            </div>
+            <div class="post__webpage__sitename" v-if="post.media.webPage.site_name">{{ post.media.webPage.site_name }}</div>
+            <div class="post__webpage__video" v-if="post.media.webPage.type === 'video'">
+              <iframe width="854" height="480" :src="youTubeVideoUrl" frameborder="0"
+                      allow="autoplay; encrypted-media" allowfullscreen></iframe>
+            </div>
+            <div class="post__webpage__title" v-if="post.media.webPage.title">{{ post.media.webPage.title }}</div>
+            <div class="post__webpage__description" v-if="post.media.webPage.description">{{
+              post.media.webPage.description }}
+            </div>
+          </div>
+          <div class="post__webpage__image" v-if="post.media.webPage.photo"><img :src="post.media.webPage.photo" alt="">
+          </div>
+        </a>
+
+
       </div>
     </article>
   </div>
@@ -66,14 +88,21 @@ export default {
       a = a.replace ( /https\:\/\/t.me\//g, "@" )
       return a
     },
+    youTubeVideoUrl () {
+      if ( this.post.media.webPage.type === 'video' ) {
+        let url = this.post.media.webPage.display_url
+        url = url.replace ( /youtube.com\/watch\?v=/g, "https://www.youtube.com/embed/" )
+        return url
+      }
+    },
     datePost () {
       // moment(this.post.data).format('MMMM DD YYYY, HH:mm')
       // a.startOf ( 'hour' ).fromNow ()
 
-      let a = moment ( this.post.data *1000 )
+      let a = moment ( this.post.data * 1000 )
       // console.log('time: ' + a.hours())
       // console.log('date: ' + a.date())
-      return a.format('MMMM DD YYYY, HH:mm')
+      return a.format ( 'MMMM DD YYYY, HH:mm' )
 
     },
     postMessage () {

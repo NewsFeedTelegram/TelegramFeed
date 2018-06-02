@@ -37515,6 +37515,28 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "Post",
@@ -37530,6 +37552,13 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
       var a = this.post.channel.link;
       a = a.replace(/https\:\/\/t.me\//g, "@");
       return a;
+    },
+    youTubeVideoUrl: function youTubeVideoUrl() {
+      if (this.post.media.webPage.type === 'video') {
+        var url = this.post.media.webPage.display_url;
+        url = url.replace(/youtube.com\/watch\?v=/g, "https://www.youtube.com/embed/");
+        return url;
+      }
     },
     datePost: function datePost() {
       // moment(this.post.data).format('MMMM DD YYYY, HH:mm')
@@ -37631,33 +37660,96 @@ var render = function() {
       _vm._v(" "),
       _c("p", { domProps: { innerHTML: _vm._s(_vm.postMessage) } }),
       _vm._v(" "),
-      _c(
-        "div",
-        { staticClass: "post__media" },
-        [
-          _vm._l(_vm.post.media.links_media, function(img) {
-            return (_vm.post.media.links_media.length &&
-              _vm.post.media.type === 1) ||
-              _vm.post.media.type === 2
-              ? _c("img", {
-                  staticClass: "post__media__img",
-                  attrs: { src: img, alt: "" }
-                })
-              : _vm._e()
-          }),
-          _vm._v(" "),
-          _vm._l(_vm.post.media.links_media, function(video) {
-            return _vm.post.media.links_media.length &&
-              _vm.post.media.type === 3
-              ? _c("video", {
-                  staticClass: "post__media__video",
-                  attrs: { src: video, controls: "" }
-                })
-              : _vm._e()
-          })
-        ],
-        2
-      )
+      _vm.post.media.links_media
+        ? _c(
+            "div",
+            { staticClass: "post__media" },
+            [
+              _vm._l(_vm.post.media.links_media, function(img) {
+                return _vm.post.media.type === 1 || _vm.post.media.type === 2
+                  ? _c("img", {
+                      staticClass: "post__media__img",
+                      attrs: { src: img, alt: "" }
+                    })
+                  : _vm._e()
+              }),
+              _vm._v(" "),
+              _vm._l(_vm.post.media.links_media, function(video) {
+                return _vm.post.media.type === 3
+                  ? _c("video", {
+                      staticClass: "post__media__video",
+                      attrs: { src: video, controls: "" }
+                    })
+                  : _vm._e()
+              })
+            ],
+            2
+          )
+        : _vm._e(),
+      _vm._v(" "),
+      _vm.post.media.webPage
+        ? _c("div", { staticClass: "post__webpage" }, [
+            _c(
+              "a",
+              { attrs: { href: _vm.post.media.webPage.url, target: "_blank" } },
+              [
+                _c("div", [
+                  _vm.post.media.webPage.type === "photo"
+                    ? _c("div", { staticClass: "post__webpage__photo" }, [
+                        _c("img", {
+                          attrs: { src: _vm.post.media.webPage.url, alt: "" }
+                        })
+                      ])
+                    : _vm._e(),
+                  _vm._v(" "),
+                  _vm.post.media.webPage.site_name
+                    ? _c("div", { staticClass: "post__webpage__sitename" }, [
+                        _vm._v(_vm._s(_vm.post.media.webPage.site_name))
+                      ])
+                    : _vm._e(),
+                  _vm._v(" "),
+                  _vm.post.media.webPage.type === "video"
+                    ? _c("div", { staticClass: "post__webpage__video" }, [
+                        _c("iframe", {
+                          attrs: {
+                            width: "854",
+                            height: "480",
+                            src: _vm.youTubeVideoUrl,
+                            frameborder: "0",
+                            allow: "autoplay; encrypted-media",
+                            allowfullscreen: ""
+                          }
+                        })
+                      ])
+                    : _vm._e(),
+                  _vm._v(" "),
+                  _vm.post.media.webPage.title
+                    ? _c("div", { staticClass: "post__webpage__title" }, [
+                        _vm._v(_vm._s(_vm.post.media.webPage.title))
+                      ])
+                    : _vm._e(),
+                  _vm._v(" "),
+                  _vm.post.media.webPage.description
+                    ? _c("div", { staticClass: "post__webpage__description" }, [
+                        _vm._v(
+                          _vm._s(_vm.post.media.webPage.description) +
+                            "\n          "
+                        )
+                      ])
+                    : _vm._e()
+                ]),
+                _vm._v(" "),
+                _vm.post.media.webPage.photo
+                  ? _c("div", { staticClass: "post__webpage__image" }, [
+                      _c("img", {
+                        attrs: { src: _vm.post.media.webPage.photo, alt: "" }
+                      })
+                    ])
+                  : _vm._e()
+              ]
+            )
+          ])
+        : _vm._e()
     ])
   ])
 }
