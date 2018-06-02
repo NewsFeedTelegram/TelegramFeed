@@ -11,7 +11,7 @@
             <!--<span class="share">shared-->
             <!--a <a href="#">link</a></span>-->
             <div class="post--date">
-              <a :href="`${post.channel.link}/${post.id}/?embed=1`" class="published" target="_blank">
+              <a :href="`${post.channel.link}/${post.message_id}/?embed=1`" class="published" target="_blank">
                 <time class="published" datetime="2018-05-1T15:18">
                   {{ datePost }}
                 </time>
@@ -70,10 +70,10 @@ export default {
       // moment(this.post.data).format('MMMM DD YYYY, HH:mm')
       // a.startOf ( 'hour' ).fromNow ()
 
-      let a = moment ( this.post.data ).locale('ru')
-      console.log('time: ' + a.hours())
-      console.log('date: ' + a.date())
-      return moment(this.post.data).format('MMMM DD YYYY, HH:mm')
+      let a = moment ( this.post.data *1000 )
+      // console.log('time: ' + a.hours())
+      // console.log('date: ' + a.date())
+      return a.format('MMMM DD YYYY, HH:mm')
 
     },
     postMessage () {

@@ -37535,10 +37535,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
       // moment(this.post.data).format('MMMM DD YYYY, HH:mm')
       // a.startOf ( 'hour' ).fromNow ()
 
-      var a = moment(this.post.data).locale('ru');
-      console.log('time: ' + a.hours());
-      console.log('date: ' + a.date());
-      return moment(this.post.data).format('MMMM DD YYYY, HH:mm');
+      var a = moment(this.post.data * 1000);
+      // console.log('time: ' + a.hours())
+      // console.log('date: ' + a.date())
+      return a.format('MMMM DD YYYY, HH:mm');
     },
     postMessage: function postMessage() {
       var a = this.post.message;
@@ -37592,7 +37592,10 @@ var render = function() {
                   staticClass: "published",
                   attrs: {
                     href:
-                      _vm.post.channel.link + "/" + _vm.post.id + "/?embed=1",
+                      _vm.post.channel.link +
+                      "/" +
+                      _vm.post.message_id +
+                      "/?embed=1",
                     target: "_blank"
                   }
                 },
