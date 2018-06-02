@@ -37556,7 +37556,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     youTubeVideoUrl: function youTubeVideoUrl() {
       if (this.post.media.webPage.type === 'video') {
         var url = this.post.media.webPage.display_url;
-        url = url.match(/youtube.com\/watch\?v=/g) ? url.replace(/youtube.com\/watch\?v=/g, "https://www.youtube.com/embed/") : this.post.media.webPage.url;
+        url = url.match(/youtube.com\/watch\?v=/g) ? url.replace(/youtube.com\/watch\?v=/g, "https://www.youtube.com/embed/") : this.post.media.webPage.url + '?embedded=true';
         return url;
       }
     },
@@ -37712,11 +37712,13 @@ var render = function() {
                     ? _c("div", { staticClass: "post__webpage__video" }, [
                         _c("iframe", {
                           attrs: {
-                            width: "854",
-                            height: "480",
                             src: _vm.youTubeVideoUrl,
-                            frameborder: "0",
                             allow: "autoplay; encrypted-media",
+                            width: "100%",
+                            height: "100%",
+                            frameborder: "0",
+                            webkitallowfullscreen: "",
+                            mozallowfullscreen: "",
                             allowfullscreen: ""
                           }
                         })
