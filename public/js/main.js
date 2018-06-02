@@ -37556,9 +37556,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     youTubeVideoUrl: function youTubeVideoUrl() {
       if (this.post.media.webPage.type === 'video') {
         var url = this.post.media.webPage.display_url;
-
         url = url.match(/youtube.com\/watch\?v=/g) ? url.replace(/youtube.com\/watch\?v=/g, "https://www.youtube.com/embed/") : this.post.media.webPage.url;
-        // https://meduza.io/episodes/2018/06/02/da-kto-ty-takaya-chtoby-davat-sovety-posledniy-vypusk-pervogo-sezona?embedded=true
         return url;
       }
     },
