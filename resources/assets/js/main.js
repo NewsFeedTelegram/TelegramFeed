@@ -4,7 +4,7 @@ import axios from 'axios'
 import { store } from './store'
 import VeeValidate from 'vee-validate';
 import Vuebar from 'vuebar';
-import VueMoment from 'vue-moment'
+import moment from 'moment'
 
 
 import AppIndex from './App'
@@ -42,10 +42,12 @@ axios.interceptors.request.use ( function ( config ) {
 } );
 
 window.axios = axios
+window.moment = moment
 
 document.documentElement.scrollTop = 0
 
 router.beforeEach ( ( to, from, next ) => {
+  document.documentElement.scrollTop = 0
   const nearestWithTitle = to.matched.slice ().reverse ().find ( r => r.meta && r.meta.title );
   const nearestWithMeta = to.matched.slice ().reverse ().find ( r => r.meta && r.meta.metaTags );
   const previousNearestWithMeta = from.matched.slice ().reverse ().find ( r => r.meta && r.meta.metaTags );
@@ -68,7 +70,6 @@ router.beforeEach ( ( to, from, next ) => {
 
 Vue.use ( VeeValidate );
 Vue.use ( Vuebar );
-Vue.use ( VueMoment );
 
 setInterval ( () => {
   store.dispatch ( 'REFRESH_TOKEN' )

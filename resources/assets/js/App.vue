@@ -95,12 +95,14 @@ export default {
           header.style.top = '-100%'
           header.style.opacity = '0'
         } else if ( scrollTop - 70 <= header.clientHeight ) {
+          header.style.transition = '.2s'
           header.style.top = '0'
           header.style.opacity = '1'
         }
       }
       document.onmousemove = ( event ) => {
         if ( event.clientY - 30 <= header.clientHeight ) {
+          header.style.transition = ''
           header.style.top = '0'
           header.style.opacity = '1'
         }

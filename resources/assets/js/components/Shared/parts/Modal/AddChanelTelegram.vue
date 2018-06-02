@@ -406,13 +406,10 @@ export default {
     bottom: 0;
     right: 0;
     background-color: rgba(#000, .5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    overflow: hidden;
     z-index: 9999;
     cursor: pointer;
-    overflow: auto;
-    padding: 30px 0;
+    padding: 240px 0;
   }
 
   .modal_container {
