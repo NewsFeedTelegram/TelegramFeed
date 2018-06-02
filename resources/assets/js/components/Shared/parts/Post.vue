@@ -91,7 +91,9 @@ export default {
     youTubeVideoUrl () {
       if ( this.post.media.webPage.type === 'video' ) {
         let url = this.post.media.webPage.display_url
-        url = url.replace ( /youtube.com\/watch\?v=/g, "https://www.youtube.com/embed/" )
+
+        url = url.match(/youtube.com\/watch\?v=/g) ? url.replace ( /youtube.com\/watch\?v=/g, "https://www.youtube.com/embed/" ) : this.post.media.webPage.url
+        // https://meduza.io/episodes/2018/06/02/da-kto-ty-takaya-chtoby-davat-sovety-posledniy-vypusk-pervogo-sezona?embedded=true
         return url
       }
     },
