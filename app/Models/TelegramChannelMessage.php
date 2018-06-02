@@ -18,7 +18,7 @@ class TelegramChannelMessage extends Model
         $query = DB::table('telegram_channels_messages as m')
             ->select([
                 'm.id', 'm.fwd_from', 'm.date', 'm.message', 'm.media',
-                'c.name', 'c.link', 'c.description', 'c.photo'
+                'c.name', 'c.link', 'c.description', 'c.photo', 'm.message_id'
             ])
             ->join('telegram_channels as c', 'c.id', 'tg_channel_id');
 
