@@ -15,6 +15,29 @@
 
 // ≥992px
 @include media-breakpoint-down(md) {
+  .profile_wallpaper{
+    height: 190px !important;
+  }
+  .profile-menu{
+    padding: 20px 0 !important;
+  }
+  .top-header-author{
+    bottom: auto !important;
+    top: 30px;
+    .author-thumb{
+      width: 90px !important;
+      height: 90px !important;
+      border-width: 4px !important;
+    }
+    .author-name{
+      font-size: 18px !important;
+      color: #ffffff !important;
+      margin-top: 10px;
+    }
+    .country{
+      color: #d9d9de !important;
+    }
+  }
   .header-page--search{
     display: none;
   }

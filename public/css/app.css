@@ -5749,6 +5749,35 @@ strong {
 }
 
 @media (max-width: 991.98px) {
+  .profile_wallpaper {
+    height: 190px !important;
+  }
+
+  .profile-menu {
+    padding: 20px 0 !important;
+  }
+
+  .top-header-author {
+    bottom: auto !important;
+    top: 30px;
+  }
+
+  .top-header-author .author-thumb {
+    width: 90px !important;
+    height: 90px !important;
+    border-width: 4px !important;
+  }
+
+  .top-header-author .author-name {
+    font-size: 18px !important;
+    color: #ffffff !important;
+    margin-top: 10px;
+  }
+
+  .top-header-author .country {
+    color: #d9d9de !important;
+  }
+
   .header-page--search {
     display: none;
   }

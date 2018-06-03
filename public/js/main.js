@@ -38626,7 +38626,7 @@ exports = module.exports = __webpack_require__(20)(false);
 
 
 // module
-exports.push([module.i, "\n.top-header-author[data-v-7441b802] {\n  position: absolute;\n  left: 50%;\n  -webkit-transform: translate(-50%, 0);\n  transform: translate(-50%, 0);\n  bottom: 30px;\n  text-align: center;\n  max-width: 200px;\n  z-index: 4;\n}\n.country[data-v-7441b802] {\n  font-size: 12px;\n  color: #888da8;\n}\n.profile-menu li a[data-v-7441b802], .profile-menu li > div[data-v-7441b802] {\n  font-size: 14px;\n  font-weight: 700;\n  color: #9a9fbf;\n  display: block;\n  text-decoration: none;\n}\n.top-header-author .author-name[data-v-7441b802] {\n  font-weight: 700;\n  color: #515365;\n  font-size: 22px;\n  text-decoration: none;\n}\n.top-header-author .author-thumb[data-v-7441b802] {\n  border-radius: 100%;\n  border: 6px solid #fff;\n  margin: 0 auto;\n  overflow: hidden;\n  width: 132px;\n  height: 132px;\n  background-color: #FDFBEE;\n  display: block;\n}\n.top-header-author .author-thumb img[data-v-7441b802] {\n  border-radius: 0;\n  -o-object-fit: cover;\n     object-fit: cover;\n  width: 100%;\n  height: 100%;\n}\n.profile_wallpaper[data-v-7441b802] {\n  width: 100%;\n  height: 425px;\n  overflow: hidden;\n}\n.profile_wallpaper img[data-v-7441b802] {\n    width: 100%;\n    height: 100%;\n    -o-object-fit: cover;\n       object-fit: cover;\n}\n.profile-menu[data-v-7441b802] {\n  margin-bottom: 0;\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-align: center;\n  -ms-flex-align: center;\n  align-items: center;\n  -ms-flex-pack: distribute;\n  justify-content: space-around;\n  list-style: none;\n  margin: 0;\n  padding: 40px 0;\n}\n.ml-auto[data-v-7441b802], .mx-auto[data-v-7441b802] {\n  margin-left: auto !important;\n}\n.profile-menu li a.active[data-v-7441b802], .profile-menu li a[data-v-7441b802]:hover, .profile-menu li > div.active[data-v-7441b802], .profile-menu li > div[data-v-7441b802]:hover {\n  color: #515365;\n}\n", ""]);
+exports.push([module.i, "\n.top-header-author[data-v-7441b802] {\n  position: absolute;\n  left: 50%;\n  -webkit-transform: translate(-50%, 0);\n  transform: translate(-50%, 0);\n  bottom: 30px;\n  text-align: center;\n  max-width: 200px;\n  z-index: 4;\n}\n.country[data-v-7441b802] {\n  font-size: 12px;\n  color: #888da8;\n}\n.profile-menu li a[data-v-7441b802], .profile-menu li > div[data-v-7441b802] {\n  font-size: 14px;\n  font-weight: 700;\n  color: #9a9fbf;\n  display: block;\n  text-decoration: none;\n}\n.top-header-author .author-name[data-v-7441b802] {\n  font-weight: 700;\n  color: #515365;\n  font-size: 22px;\n  text-decoration: none;\n}\n.top-header-author .author-thumb[data-v-7441b802] {\n  border-radius: 100%;\n  border: 6px solid #fff;\n  margin: 0 auto;\n  overflow: hidden;\n  width: 132px;\n  height: 132px;\n  background-color: #FDFBEE;\n  display: block;\n}\n.top-header-author .author-thumb img[data-v-7441b802] {\n  border-radius: 0;\n  -o-object-fit: cover;\n     object-fit: cover;\n  width: 100%;\n  height: 100%;\n}\n.profile_wallpaper[data-v-7441b802] {\n  width: 100%;\n  height: 425px;\n  overflow: hidden;\n  border-radius: 5px 5px 0 0;\n  position: relative;\n}\n.profile_wallpaper[data-v-7441b802]:after {\n    content: '';\n    display: block;\n    position: absolute;\n    top: 0;\n    left: 0;\n    width: 100%;\n    height: 100%;\n    -webkit-box-shadow: inset 0 -120px 55px -30px rgba(0, 0, 0, 0.5);\n            box-shadow: inset 0 -120px 55px -30px rgba(0, 0, 0, 0.5);\n}\n.profile_wallpaper img[data-v-7441b802] {\n    width: 100%;\n    height: 100%;\n    -o-object-fit: cover;\n       object-fit: cover;\n}\n.profile-menu[data-v-7441b802] {\n  margin-bottom: 0;\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-align: center;\n  -ms-flex-align: center;\n  align-items: center;\n  -ms-flex-pack: distribute;\n  justify-content: space-around;\n  list-style: none;\n  margin: 0;\n  padding: 40px 0;\n}\n.ml-auto[data-v-7441b802], .mx-auto[data-v-7441b802] {\n  margin-left: auto !important;\n}\n.profile-menu li a.active[data-v-7441b802], .profile-menu li a[data-v-7441b802]:hover, .profile-menu li > div.active[data-v-7441b802], .profile-menu li > div[data-v-7441b802]:hover {\n  color: #515365;\n}\n", ""]);
 
 // exports
 
@@ -39195,7 +39195,7 @@ var staticRenderFns = [
     var _c = _vm._self._c || _h
     return _c("div", { staticClass: "profile-section" }, [
       _c("div", { staticClass: "row" }, [
-        _c("div", { staticClass: "col col-lg-5 col-md-5 col-sm-12 col-12" }, [
+        _c("div", { staticClass: "col col-lg-5 col-md-12 col-sm-12 col-12" }, [
           _c("ul", { staticClass: "profile-menu" }, [
             _c("li", [
               _c("a", { staticClass: "active", attrs: { href: "#" } }, [
@@ -39211,7 +39211,7 @@ var staticRenderFns = [
         _vm._v(" "),
         _c(
           "div",
-          { staticClass: "col col-lg-5 ml-auto col-md-5 col-sm-12 col-12" },
+          { staticClass: "col col-lg-5 ml-auto col-md-12 col-sm-12 col-12" },
           [
             _c("ul", { staticClass: "profile-menu" }, [
               _c("li", [_c("a", { attrs: { href: "#" } }, [_vm._v("Photos")])]),

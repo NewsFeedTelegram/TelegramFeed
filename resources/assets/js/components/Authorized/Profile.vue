@@ -9,7 +9,7 @@
             </div>
             <div class="profile-section">
               <div class="row">
-                <div class="col col-lg-5 col-md-5 col-sm-12 col-12">
+                <div class="col col-lg-5 col-md-12 col-sm-12 col-12">
                   <ul class="profile-menu">
                     <li>
                       <a href="#" class="active">Timeline</a>
@@ -22,7 +22,7 @@
                     </li>
                   </ul>
                 </div>
-                <div class="col col-lg-5 ml-auto col-md-5 col-sm-12 col-12">
+                <div class="col col-lg-5 ml-auto col-md-12 col-sm-12 col-12">
                   <ul class="profile-menu">
                     <li>
                       <a href="#">Photos</a>
@@ -288,6 +288,20 @@ export default {
     width: 100%;
     height: 425px;
     overflow: hidden;
+    -webkit-border-radius: 5px 5px 0 0 ;
+    -moz-border-radius: 5px 5px 0 0 ;
+    border-radius: 5px 5px 0 0 ;
+    position: relative;
+    &:after{
+      content: '';
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      box-shadow: inset 0 -120px 55px -30px rgba(0,0,0,.5);
+    }
     img {
       width: 100%;
       height: 100%;
