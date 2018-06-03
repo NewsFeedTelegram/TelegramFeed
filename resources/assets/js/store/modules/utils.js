@@ -4,6 +4,10 @@ const state = {
   modalAddChanelTelegram : {
     open : false
   },
+  galleryPhoto: {
+    url: '',
+    open:false
+  },
   listChannel : [],
   listPost : [],
   loadPost : true,
@@ -27,7 +31,11 @@ const mutations = {
   LOAD_MORE : (state, post) => {
     state.listPost = state.listPost.concat(post)
     state.loadMore = false
-  }
+  },
+  OPEN_GALLERY: (state, status) => {
+    state.galleryPhoto.url = status.url
+    state.galleryPhoto.open = status.open
+  },
 }
 const actions = {
   ADD_CHANNEL : ( { commit, dispatch }, link ) => {
@@ -111,7 +119,8 @@ const getters = {
   listChannel : state => state.listChannel.reverse (),
   listPost : state => state.listPost,
   loadPost : state => state.loadPost,
-  loadMore: state => state.loadMore
+  loadMore: state => state.loadMore,
+  galleryPhoto: state=> state.galleryPhoto
 }
 
 export default {

@@ -41,21 +41,23 @@
       </div>
       <p v-html="postMessage"></p>
       <div class="post__media" v-if="post.media.links_media">
-        <img v-if="post.media.type === 1 || post.media.type === 2"
-             class="post__media__img" v-for="img in post.media.links_media" :src="img" alt="">
+        <div class="post__media__album" v-if="post.media.type === 2">
+          <img class="post__media__img" v-for="img in post.media.links_media" :src="img" alt="" @click="openPhoto(img)">
+        </div>
+        <img v-if="post.media.type === 1"
+             class="post__media__img" v-for="img in post.media.links_media" :src="img" alt="" @click="openPhoto(img)">
         <video v-if="post.media.type === 3" class="post__media__video"
                v-for="video in post.media.links_media" :src="video" controls></video>
       </div>
       <div class="post__webpage" v-if="post.media.webPage">
         <a :href="post.media.webPage.url" target="_blank">
-          <div>
+          <div style="width: 100%">
             <div class="post__webpage__photo" v-if="post.media.webPage.type === 'photo'">
               <img :src="post.media.webPage.url" alt="">
             </div>
             <div class="post__webpage__sitename" v-if="post.media.webPage.site_name">{{ post.media.webPage.site_name }}</div>
             <div class="post__webpage__video" v-if="post.media.webPage.type === 'video'">
-              <iframe :src="youTubeVideoUrl"
-                      allow="autoplay; encrypted-media" width="100%" height="100%" frameborder="0"  webkitallowfullscreen="" mozallowfullscreen="" allowfullscreen=""></iframe>
+              <iframe :src="youTubeVideoUrl" width="100%" height="100%" frameborder="0" scrolling="no" webkitallowfullscreen="" mozallowfullscreen="" allowfullscreen=""></iframe>
             </div>
             <div class="post__webpage__title" v-if="post.media.webPage.title">{{ post.media.webPage.title }}</div>
             <div class="post__webpage__description" v-if="post.media.webPage.description">{{
@@ -114,6 +116,9 @@ export default {
   methods : {
     show ( e ) {
       console.log ( e )
+    },
+    openPhoto(url){
+      this.$store.commit('OPEN_GALLERY', {url: url, open: true})
     }
   }
 }

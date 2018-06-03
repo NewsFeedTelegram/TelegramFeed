@@ -101,7 +101,7 @@ export default {
         }
       }
       document.onmousemove = ( event ) => {
-        if ( event.clientY - 30 <= header.clientHeight ) {
+        if ( event.clientY - 30 <= header.clientHeight && ! this.$store.getters.galleryPhoto.open ) {
           header.style.transition = ''
           header.style.top = '0'
           header.style.opacity = '1'
