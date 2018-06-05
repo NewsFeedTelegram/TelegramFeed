@@ -67,8 +67,7 @@ class TelegramService
                 'add_offset' => 0,
                 'limit' => 100,
                 'max_id' => 0,
-                'min_id' => /*$channel->last_post_id ?:*/
-                    0,
+                'min_id' => $channel->last_post_id ?: 0,
                 'hash' => 0
             );
 
