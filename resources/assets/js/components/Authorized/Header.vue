@@ -1,7 +1,8 @@
 <template>
   <header id="header" class="header-page">
     <div class="header-page--logo">
-      <router-link :to="'/feed'"><img src="img/logo-mini.png" alt="" class="header-page--logo-img"></router-link>
+      <a href="#" @click.stop.prevent="reload"><img src="img/logo-mini.png" alt="" class="header-page--logo-img"></a>
+      <!--<router-link :to="'/feed'" ></router-link>-->
     </div>
     <div class="header-page--pagename">
       <p class="header-page--pagename-text">{{titlePage}}</p>
@@ -91,6 +92,9 @@ export default {
   methods : {
     toggleDropdown () {
       this.active = !this.active
+    },
+    reload(){
+      this.$store.dispatch('RELOAD')
     },
     logout () {
       this.$store.dispatch ( 'AUTH_LOGOUT' )

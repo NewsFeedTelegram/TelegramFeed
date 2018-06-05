@@ -15,12 +15,45 @@
 
 // ≥992px
 @include media-breakpoint-down(md) {
-  .profile_wallpaper{
-    height: 190px !important;
+  .header-page{
+    height: 50px;
+    &--logo{
+      height: 50px;
+      width: 50px;
+      &-img{
+        width: 30px;
+      }
+    }
   }
-  .profile-menu{
-    padding: 20px 0 !important;
+  .profile{
+    &-menu{
+      padding: 20px 0 !important;
+    }
+    &_wallpaper{
+      height: 190px !important;
+    }
   }
+
+  .section{
+    margin-top: 60px;
+    .post{
+      &__webpage{
+        a{
+          flex-direction: column;
+        }
+        &__image{
+          width: 100%;
+          height: 200px;
+          -webkit-border-radius: 5px;
+          -moz-border-radius: 5px;
+          border-radius: 5px;
+          overflow: hidden;
+          margin: 10px 0 0;
+        }
+      }
+    }
+  }
+
   .top-header-author{
     bottom: auto !important;
     top: 30px;
@@ -62,6 +95,9 @@
       letter-spacing: 1.8px;
       margin-bottom: 50px;
     }
+  }
+  .header-page--navmenu{
+    display: none;
   }
 }
 

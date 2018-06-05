@@ -1,37 +1,31 @@
 <template>
   <transition name="fade">
     <div class="modal_wrapper" v-if="open" @click.self.prevent="closeModal">
-      <div class="container">
-        <div class="row" @click.self.prevent="closeModal">
-          <div class="col-xl-6 offset-xl-3">
-            <div class="modal_container white-block">
-              <div class="modal_header">
-                <h2>Add Telegram Chanel</h2>
-                <button class="btn btn-cancel" @click.prevent="closeModal">
-                  <svg class="icon icon-cancel">
-                    <use xlink:href="#icon-cancel"></use>
-                  </svg>
-                </button>
-              </div>
-              <div class="modal_body">
-                <div v-if="!checked" class="modal_body_wrapper">
-                  <div class="form-group">
-                    <input type="text" class="field" v-model="link" placeholder="Chanel link" @keyup.enter="addChannel">
-                  </div>
-                  <button class="btn btn-green" :class="{'wait': load}" :disabled="load" @click="addChannel" >Add
-                    Chanel
-                  </button>
-                </div>
-                <div v-else class="modal_body_wrapper">
-                  <div class="check_mark">
-                    <div class="sa-icon sa-success animate">
-                      <span class="sa-line sa-tip animateSuccessTip"></span>
-                      <span class="sa-line sa-long animateSuccessLong"></span>
-                      <div class="sa-placeholder"></div>
-                      <div class="sa-fix"></div>
-                    </div>
-                  </div>
-                </div>
+      <div class="modal_container white-block">
+        <div class="modal_header">
+          <h2>Add Telegram Chanel</h2>
+          <button class="btn btn-cancel" @click.prevent="closeModal">
+            <svg class="icon icon-cancel">
+              <use xlink:href="#icon-cancel"></use>
+            </svg>
+          </button>
+        </div>
+        <div class="modal_body">
+          <div v-if="!checked" class="modal_body_wrapper">
+            <div class="form-group">
+              <input type="text" class="field" v-model="link" placeholder="Chanel link" @keyup.enter="addChannel">
+            </div>
+            <button class="btn btn-green" :class="{'wait': load}" :disabled="load" @click="addChannel">Add
+              Chanel
+            </button>
+          </div>
+          <div v-else class="modal_body_wrapper">
+            <div class="check_mark">
+              <div class="sa-icon sa-success animate">
+                <span class="sa-line sa-tip animateSuccessTip"></span>
+                <span class="sa-line sa-long animateSuccessLong"></span>
+                <div class="sa-placeholder"></div>
+                <div class="sa-fix"></div>
               </div>
             </div>
           </div>
@@ -409,13 +403,18 @@ export default {
     overflow: hidden;
     z-index: 9999;
     cursor: pointer;
-    padding: 240px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .modal_container {
     position: relative;
-    margin-bottom: 0;
     cursor: default;
+    max-width: 620px;
+    min-width: 290px;
+    margin: 0 10px;
+    width: 100%;
   }
 
   .modal_header {

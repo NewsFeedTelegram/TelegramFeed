@@ -40,11 +40,13 @@
         </div>
       </div>
       <p v-html="postMessage"></p>
+      <p v-if="post.media.type === 5"> Здесь должн быть аудиофайл, но её пока нет!:(</p>
       <div class="post__media" v-if="post.media.links_media">
+
         <div class="post__media__album" v-if="post.media.type === 2">
           <img class="post__media__img" v-for="img in post.media.links_media" :src="img" alt="" @click="openPhoto(img)">
         </div>
-        <img v-if="post.media.type === 1"
+        <img v-if="post.media.type === 1 || post.media.type === 8"
              class="post__media__img" v-for="img in post.media.links_media" :src="img" alt="" @click="openPhoto(img)">
         <video v-if="post.media.type === 3" class="post__media__video"
                v-for="video in post.media.links_media" :src="video" controls></video>
@@ -57,7 +59,7 @@
             </div>
             <div class="post__webpage__sitename" v-if="post.media.webPage.site_name">{{ post.media.webPage.site_name }}</div>
             <div class="post__webpage__video" v-if="post.media.webPage.type === 'video'">
-              <iframe :src="youTubeVideoUrl" width="100%" height="100%" frameborder="0" scrolling="no" webkitallowfullscreen="" mozallowfullscreen="" allowfullscreen=""></iframe>
+              <iframe :src="youTubeVideoUrl" width="100%" height="100%" frameborder="0" webkitallowfullscreen="" mozallowfullscreen="" allowfullscreen=""></iframe>
             </div>
             <div class="post__webpage__title" v-if="post.media.webPage.title">{{ post.media.webPage.title }}</div>
             <div class="post__webpage__description" v-if="post.media.webPage.description">{{
@@ -118,7 +120,23 @@ export default {
       console.log ( e )
     },
     openPhoto(url){
+// создадим элемент с прокруткой
+      var div = document.createElement('div');
+
+      div.style.overflowY = 'scroll';
+      div.style.width = '50px';
+      div.style.height = '50px';
+      div.style.visibility = 'hidden';
+
+      document.body.appendChild(div);
+      var scrollWidth = div.offsetWidth - div.clientWidth;
+      document.body.removeChild(div);
+
+      // body.style.visibility = 'hidden';
       this.$store.commit('OPEN_GALLERY', {url: url, open: true})
+      document.body.style.overflow = 'hidden'
+      document.body.style.paddingRight = `${scrollWidth}px`
+
     }
   }
 }

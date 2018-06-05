@@ -48,6 +48,12 @@ document.documentElement.scrollTop = 0
 
 router.beforeEach ( ( to, from, next ) => {
   document.documentElement.scrollTop = 0
+  store.commit('SWIPE_MENU', {
+    leftSwipe : false,
+    rightSwipe : false,
+    home : true
+  } )
+  document.body.style.overflow = ''
   const nearestWithTitle = to.matched.slice ().reverse ().find ( r => r.meta && r.meta.title );
   const nearestWithMeta = to.matched.slice ().reverse ().find ( r => r.meta && r.meta.metaTags );
   const previousNearestWithMeta = from.matched.slice ().reverse ().find ( r => r.meta && r.meta.metaTags );

@@ -15,6 +15,11 @@
   right: 0;
 }
 
+#app{
+  overflow-y: hidden;
+  position: relative;
+}
+
 .vb > .vb-dragger > .vb-dragger-styler {
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;

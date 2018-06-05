@@ -52,7 +52,7 @@
     </div>
     <div class="container">
       <div class="row">
-        <main class="col col-xl-6 order-xl-2 col-lg-12 order-lg-1 col-md-12 order-sm-2 col-sm-12 col-12 order-2">
+        <main class="col col-xl-6 order-xl-2 col-lg-8 order-lg-3 col-md-12 order-sm-2 col-sm-12 col-12 order-2">
           <div class="white-block new-post">
             <div class="new-post--header">
               <h3 class="new-post--header--title">
@@ -109,78 +109,32 @@
             </div>
           </div>
           <div class="newsfeed-items-grid">
-            <app-post v-for="post in listPosts" :key="post.id" :post="post"></app-post>
+            <div class="white-block" v-for="i in list" :key="i" v-if="isLoadPost">
+              <vue-content-loading :width="300" :height="100">
+                <circle cx="25" cy="30" r="13"/>
+                <rect x="45" y="25" rx="4" ry="4" width="100" height="8"/>
+                <rect x="10" y="55" rx="4" ry="4" width="calc(100% - 20px)" height="8"/>
+                <rect x="10" y="70" rx="4" ry="4" width="calc(100% - 20px)" height="8"/>
+                <rect x="10" y="85" rx="4" ry="4" width="calc(100% - 20px)" height="8"/>
+              </vue-content-loading>
+            </div>
+            <app-post v-for="(index, post) in listPosts" :key="post.id" :post="index" v-if="!isLoadPost"></app-post>
+
+            <div class="loader" v-if="loadMore">
+              <div class="ball-loader">
+                <div class="ball-loader-ball ball1"></div>
+                <div class="ball-loader-ball ball2"></div>
+                <div class="ball-loader-ball ball3"></div>
+              </div>
+            </div>
           </div>
         </main>
-        <aside class="col col-xl-3 order-xl-1 col-lg-6 order-lg-2 col-md-12 order-sm-3 col-sm-12 col-12 order-3">
-          <div class="white-block">
-            <div class="white-block-title">
-              <h6 class="title">Add chanel</h6>
-              <a href="#" class="more">
-                <svg class="icon icon-more-button">
-                  <use xlink:href="#icon-more-button"></use>
-                </svg>
-              </a>
-            </div>
-          </div>
-        </aside>
-        <aside class="col col-xl-3 order-xl-3 col-lg-6 order-lg-3 col-md-12 order-sm-1 col-sm-12 col-12 order-1">
-          <div class="white-block">
-            <div class="white-block-title">
-              <h6 class="title">Add chanel</h6>
-              <a href="#" class="more">
-                <svg class="icon icon-more-button">
-                  <use xlink:href="#icon-more-button"></use>
-                </svg>
-              </a>
-            </div>
-            <ul class="widget--chanel">
-              <li class="inline-items">
-                <div class="sn">
-                  <div class="sn-thumb">
-                    <svg class="icon icon-telegram">
-                      <use xlink:href="#icon-telegram"></use>
-                    </svg>
-                  </div>
-                  <div class="sn-event">
-                    <p>Telegram</p>
-                  </div>
-                </div>
-                <span class="notification-icon">
-							<a href="#" class="btn btn-accept" @click.stop.prevent="openTelegramModal">
-								<span class="icon-add without-text">
-                                     <svg class="icon icon-add">
-                                        <use xlink:href="#icon-add"></use>
-                                    </svg>
-								</span>
-							</a>
-						</span>
-              </li>
-              <li class="inline-items">
-                <div class="sn">
-                  <div class="sn-thumb">
-                    <svg class="icon icon-twitter-bird-logo">
-                      <use xlink:href="#icon-twitter-bird-logo"></use>
-                    </svg>
-                  </div>
-                  <div class="sn-event">
-                    <p>Twitter</p>
-                  </div>
-                </div>
-                <span class="notification-icon">
-							<a href="#" class="btn btn-login">
-								<span class="icon-add without-text">
-                                     <!--<svg class="icon icon-login">-->
-                  <!--<use xlink:href="#icon-login"></use>-->
-                  <!--</svg>-->
-                                    login
-								</span>
-							</a>
-						</span>
-              </li>
-            </ul>
-          </div>
-        </aside>
+        <aside-left :asideClass="'col col-xl-3 order-xl-1 col-lg-2 order-lg-1 d-xl-block col-md-12 d-none'"/>
+        <aside-right :asideClass="'col col-xl-3 order-xl-3 col-lg-2 order-lg-2 d-xl-block col-md-12 d-none'"/>
+        <div class="col d-lg-block col-lg-4 col-md-12  d-xl-none d-none">
+          <aside-left/>
+          <aside-right/>
+        </div>
       </div>
     </div>
   </section>
@@ -188,6 +142,10 @@
 
 <script>
 import AppPost from '../Shared/parts/Post'
+import AsideLeft from '../Shared/parts/Desktop/AsideLeft'
+import AsideRight from '../Shared/parts/Desktop/AsideRight'
+import VueSticky from 'vue-sticky' // Es6 module
+import VueContentLoading from 'vue-content-loading';
 
 export default {
   name : "Profile",
@@ -198,7 +156,21 @@ export default {
     }
   },
   components : {
-    AppPost
+    AppPost,
+    AsideLeft,
+    AsideRight,
+    VueContentLoading,
+
+  },
+  directives : {
+    'sticky' : VueSticky,
+  },
+  watch : {
+    refreshToken ( v, old ) {
+      if ( v ) {
+        this.loadPost ()
+      }
+    }
   },
   computed: {
     userFullName () {
@@ -206,9 +178,22 @@ export default {
     },
     listPosts () {
       return this.$store.getters.listPost
-    }
+    },
+    loadMore () {
+      return this.$store.getters.loadMore
+    },
+    isLoadPost () {
+      return this.$store.getters.loadPost
+    },
+    refreshToken () {
+      return this.$store.getters.refreshStatus
+    },
   },
   methods : {
+    loadPost () {
+      this.$store.dispatch ( 'LIST_CHANNEL' )
+      this.$store.dispatch ( 'LIST_POST' )
+    },
     // scroll () {
     //   window.onscroll = ( event ) => {
     //     let wrapper = event.target,
@@ -228,6 +213,14 @@ export default {
     //     }
     //   }
     // }
+  },
+  created () {
+    if ( this.refreshToken ) {
+      this.loadPost ()
+    }
+    setTimeout ( () => {
+      document.documentElement.scrollTop = 0
+    }, 300 )
   },
   mounted () {
     // this.$store.dispatch ( 'USER_PROFILE' )
