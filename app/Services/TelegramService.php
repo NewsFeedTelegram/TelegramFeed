@@ -116,11 +116,17 @@ class TelegramService
                         $video = $item->find('video');
 
                         if (count($video)) {
-                            $links_media[] = $video->offsetGet(0)->getAttribute('src');
+                            $links_media[] = [
+                                'url' => $video->offsetGet(0)->getAttribute('src'),
+                                'format' => 'video'
+                            ];
                         }
 
                         if (strpos($photo, 'http') !== false) {
-                            $links_media[] = $photo;
+                            $links_media[] = [
+                                'url' => $photo,
+                                'format' => 'photo'
+                            ];
                         }
                         $type = 2;
                         $view_status = true;
@@ -211,7 +217,10 @@ class TelegramService
         $links_media = $preview_doc = $preview = null;
 
         if (count($docGifOrVideo)) {
-            $links_media[] = $docGifOrVideo->getAttribute('src');
+            $links_media[] = [
+                'url' => $docGifOrVideo->getAttribute('src'),
+                'format' => 'video'
+            ];
             $view_status = true;
             $type = 3;
         } elseif (count($docBigVideoFile)) {
@@ -219,10 +228,13 @@ class TelegramService
                 '$1', $docBigVideoFile->getAttribute('style'));
             $type = 4;
         } elseif (count($docSticker)) {
-            $links_media[] = preg_replace('/[\s\S]*background-image:[ ]*url\(["\']*([\s\S]*[^"\'])["\']*\)[\s\S]*/u',
-                '$1', $docSticker->getAttribute('style'));
+            $links_media[] = [
+                'url' => preg_replace('/[\s\S]*background-image:[ ]*url\(["\']*([\s\S]*[^"\'])["\']*\)[\s\S]*/u',
+                    '$1', $docSticker->getAttribute('style')),
+                'format' => 'sticker'
+            ];
             $view_status = true;
-            $type = 8;
+            $type = 7;
         } elseif (count($docAudio)) {
             $type = 8;
             $preview_doc = [
@@ -243,8 +255,11 @@ class TelegramService
         $this->dom->load($post_link);
         $photo = $this->dom->getElementsByClass('tgme_widget_message_photo_wrap');
 
-        $links_media[] = preg_replace('/[\s\S]*background-image:[ ]*url\(["\']*([\s\S]*[^"\'])["\']*\)[\s\S]*/u',
-            '$1', $photo->getAttribute('style'));
+        $links_media[] = [
+            'url' => preg_replace('/[\s\S]*background-image:[ ]*url\(["\']*([\s\S]*[^"\'])["\']*\)[\s\S]*/u',
+                '$1', $photo->getAttribute('style')),
+            'format' => 'photo'
+        ];
 
         return [$links_media, 1, true];
     }
