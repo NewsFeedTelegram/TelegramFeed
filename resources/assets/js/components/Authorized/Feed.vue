@@ -110,40 +110,42 @@ export default {
         main.style.paddingTop = 0 + 'px'
         main.style.transition = '.2s'
         var selected_text = window.getSelection () || document.selection.createRange ().text;
-
-        document.onmousemove = function ( ev ) {
-          if ( selected_text.type !== 'Range' ) {
-            // window.getSelection().removeAllRanges();
-            if ( currentY < ev.clientY && document.documentElement.scrollTop === 0 ) {
-              window.getSelection ().removeAllRanges ();
-              top += 10
-              if ( top <= 60 ) {
-                main.style.paddingTop = top + 'px'
+        if ( !this.isLoadPost ) {
+          window.onmousemove = function ( ev ) {
+            if ( selected_text.type !== 'Range' ) {
+              // window.getSelection().removeAllRanges();
+              if ( currentY < ev.clientY && document.documentElement.scrollTop === 0 ) {
+                window.getSelection ().removeAllRanges ();
+                top += 10
+                if ( top <= 60 ) {
+                  main.style.paddingTop = top + 'px'
+                }
+                if ( top > 60 ) {
+                  top = 60
+                }
+                currentY = ev.clientY
+              } else if ( currentY > ev.clientY && document.documentElement.scrollTop === 0 ) {
+                top -= 10
+                if ( top >= 0 ) {
+                  main.style.paddingTop = top + 'px'
+                }
+                currentY = ev.clientY
               }
-              if ( top > 60 ) {
-                top = 60
-              }
-              currentY = ev.clientY
-            } else if ( currentY > ev.clientY && document.documentElement.scrollTop === 0 ) {
-              top -= 10
-              if ( top >= 0 ) {
-                main.style.paddingTop = top + 'px'
-              }
-              currentY = ev.clientY
             }
           }
+
         }
 
         main.ondragstart = function () {
           return false;
         };
-        document.onmouseup = () => {
+        window.onmouseup = () => {
           if ( top >= 60 ) {
             this.loadPost ()
           }
           main.onselectstart = null
           document.onselectstart = null
-          document.onmousemove = null;
+          window.onmousemove = null;
           main.style.paddingTop = '0'
           main.style.cursor = ''
         }

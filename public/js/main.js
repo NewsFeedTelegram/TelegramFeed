@@ -37420,40 +37420,41 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         main.style.paddingTop = 0 + 'px';
         main.style.transition = '.2s';
         var selected_text = window.getSelection() || document.selection.createRange().text;
-
-        document.onmousemove = function (ev) {
-          if (selected_text.type !== 'Range') {
-            // window.getSelection().removeAllRanges();
-            if (currentY < ev.clientY && document.documentElement.scrollTop === 0) {
-              window.getSelection().removeAllRanges();
-              top += 10;
-              if (top <= 60) {
-                main.style.paddingTop = top + 'px';
+        if (!_this.isLoadPost) {
+          window.onmousemove = function (ev) {
+            if (selected_text.type !== 'Range') {
+              // window.getSelection().removeAllRanges();
+              if (currentY < ev.clientY && document.documentElement.scrollTop === 0) {
+                window.getSelection().removeAllRanges();
+                top += 10;
+                if (top <= 60) {
+                  main.style.paddingTop = top + 'px';
+                }
+                if (top > 60) {
+                  top = 60;
+                }
+                currentY = ev.clientY;
+              } else if (currentY > ev.clientY && document.documentElement.scrollTop === 0) {
+                top -= 10;
+                if (top >= 0) {
+                  main.style.paddingTop = top + 'px';
+                }
+                currentY = ev.clientY;
               }
-              if (top > 60) {
-                top = 60;
-              }
-              currentY = ev.clientY;
-            } else if (currentY > ev.clientY && document.documentElement.scrollTop === 0) {
-              top -= 10;
-              if (top >= 0) {
-                main.style.paddingTop = top + 'px';
-              }
-              currentY = ev.clientY;
             }
-          }
-        };
+          };
+        }
 
         main.ondragstart = function () {
           return false;
         };
-        document.onmouseup = function () {
+        window.onmouseup = function () {
           if (top >= 60) {
             _this.loadPost();
           }
           main.onselectstart = null;
           document.onselectstart = null;
-          document.onmousemove = null;
+          window.onmousemove = null;
           main.style.paddingTop = '0';
           main.style.cursor = '';
         };
@@ -37796,7 +37797,12 @@ var render = function() {
       _c("p", { domProps: { innerHTML: _vm._s(_vm.postMessage) } }),
       _vm._v(" "),
       _vm.post.media.type === 8
-        ? _c("p", [_vm._v(" Здесь должн быть аудиофайл, но её пока нет!:(")])
+        ? _c("p", [
+            _vm._v(
+              " Здесь должн быть аудиофайл, но её пока нет!:( " +
+                _vm._s(_vm.post.media.preview_doc.name)
+            )
+          ])
         : _vm._e(),
       _vm._v(" "),
       _vm.post.media.links_media
@@ -54009,7 +54015,7 @@ exports = module.exports = __webpack_require__(11)(false);
 
 
 // module
-exports.push([module.i, "/*  .fade-enter-active {\n    transition: all .5s ease-out;\n    right: 0;\n    left: 0;\n    z-index: 0;\n  }\n\n  .fade-leave-active {\n    transition: all .5s ease-in;\n    position: absolute;\n    left: -100%;\n    z-index: 0;\n  }\n\n  .fade-enter, .fade-leave-to {\n    opacity: 0;\n  }\n\n  .fade-enter {\n    left: -100%;\n    opacity: 1;\n  }*/\n.fade-enter-active[data-v-6dd1125c], .fade-leave-active[data-v-6dd1125c] {\n  -webkit-transition: opacity .3s;\n  transition: opacity .3s;\n}\n.fade-enter[data-v-6dd1125c], .fade-leave-to[data-v-6dd1125c] {\n  opacity: 0;\n}\n#scrolltop[data-v-6dd1125c] {\n  position: fixed;\n  bottom: 30px;\n  right: 30px;\n  display: none;\n  font-size: 28px;\n  color: #50bfa4;\n  background: transparent;\n  border: none;\n  outline: none;\n  cursor: pointer;\n  -webkit-transition: .3s;\n  transition: .3s;\n  z-index: 8000;\n  /*&:hover{*/\n  /*font-size: 32px;*/\n  /*color: darken(#50bfa4, 10%);*/\n  /*}*/\n}\n", ""]);
+exports.push([module.i, "/*  .fade-enter-active {\n    transition: all .5s ease-out;\n    right: 0;\n    left: 0;\n    z-index: 0;\n  }\n\n  .fade-leave-active {\n    transition: all .5s ease-in;\n    position: absolute;\n    left: -100%;\n    z-index: 0;\n  }\n\n  .fade-enter, .fade-leave-to {\n    opacity: 0;\n  }\n\n  .fade-enter {\n    left: -100%;\n    opacity: 1;\n  }*/\n.fade-enter-active[data-v-6dd1125c], .fade-leave-active[data-v-6dd1125c] {\n  -webkit-transition: opacity .3s;\n  transition: opacity .3s;\n}\n.fade-enter[data-v-6dd1125c], .fade-leave-to[data-v-6dd1125c] {\n  opacity: 0;\n}\n#scrolltop[data-v-6dd1125c] {\n  position: fixed;\n  bottom: 15px;\n  right: 0;\n  display: none;\n  font-size: 28px;\n  color: #50bfa4;\n  background: transparent;\n  border: none;\n  outline: none;\n  cursor: pointer;\n  -webkit-transition: .3s;\n  transition: .3s;\n  z-index: 8000;\n  padding: 15px;\n  /*&:hover{*/\n  /*font-size: 32px;*/\n  /*color: darken(#50bfa4, 10%);*/\n  /*}*/\n}\n", ""]);
 
 // exports
 

@@ -235,8 +235,8 @@ export default {
 
   #scrolltop {
     position: fixed;
-    bottom: 30px;
-    right: 30px;
+    bottom: 15px;
+    right: 0;
     display: none;
     font-size: 28px;
     color: #50bfa4;
@@ -246,6 +246,7 @@ export default {
     cursor: pointer;
     transition: .3s;
     z-index: 8000;
+    padding: 15px;
     /*&:hover{*/
     /*font-size: 32px;*/
     /*color: darken(#50bfa4, 10%);*/

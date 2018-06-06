@@ -5464,6 +5464,7 @@ strong {
   width: auto;
   max-height: 350px;
   margin: 2px;
+  background: #000;
 }
 
 .section .post__media__img {
@@ -5477,6 +5478,7 @@ strong {
 .section .post__media__video {
   width: 100%;
   max-height: 350px;
+  background: #000;
 }
 
 .section .post__webpage {

@@ -40,7 +40,7 @@
         </div>
       </div>
       <p v-html="postMessage"></p>
-      <p v-if="post.media.type === 8"> Здесь должн быть аудиофайл, но её пока нет!:(</p>
+      <p v-if="post.media.type === 8"> Здесь должн быть аудиофайл, но её пока нет!:( {{ post.media.preview_doc.name }}</p>
       <div class="post__media" v-if="post.media.links_media">
         <div class="post__media__album" v-if="linkMediaPhoto || linkMediaVideo">
           <img class="post__media__img" v-for="img in linkMediaPhoto" :src="img.url" alt="" @click="openPhoto(img.url)">
