@@ -40,16 +40,18 @@
         </div>
       </div>
       <p v-html="postMessage"></p>
-      <p v-if="post.media.type === 5"> Здесь должн быть аудиофайл, но её пока нет!:(</p>
+      <p v-if="post.media.type === 8"> Здесь должн быть аудиофайл, но её пока нет!:(</p>
       <div class="post__media" v-if="post.media.links_media">
-
-        <div class="post__media__album" v-if="post.media.type === 2">
-          <img class="post__media__img" v-for="img in post.media.links_media" :src="img" alt="" @click="openPhoto(img)">
+        <div class="post__media__album" v-if="linkMediaPhoto || linkMediaVideo">
+          <img class="post__media__img" v-for="img in linkMediaPhoto" :src="img.url" alt="" @click="openPhoto(img.url)">
+          <video class="post__media__album__video"
+                 v-for="video in linkMediaVideo" :src="video.url" controls></video>
         </div>
         <img v-if="post.media.type === 1 || post.media.type === 8"
-             class="post__media__img" v-for="img in post.media.links_media" :src="img" alt="" @click="openPhoto(img)">
+             class="post__media__img" v-for="img in post.media.links_media" :src="img.url" alt=""
+             @click="openPhoto(img.url)">
         <video v-if="post.media.type === 3" class="post__media__video"
-               v-for="video in post.media.links_media" :src="video" controls></video>
+               v-for="video in post.media.links_media" :src="video.url" controls></video>
       </div>
       <div class="post__webpage" v-if="post.media.webPage">
         <a :href="post.media.webPage.url" target="_blank">
@@ -60,8 +62,8 @@
             <div class="post__webpage__sitename" v-if="post.media.webPage.site_name">
               {{ post.media.webPage.site_name }}
             </div>
-            <div class="post__webpage__video" v-if="post.media.webPage.type === 'video'">
-              <iframe :src="youTubeVideoUrl" width="100%" height="100%" frameborder="0" webkitallowfullscreen=""
+            <div class="post__webpage__video" v-if="post.media.webPage.type === 'video' || post.media.webPage.type === 'gif'">
+              <iframe :src="youTubeVideoUrl ? youTubeVideoUrl : coubVideoUrl" width="100%" height="100%" frameborder="0" webkitallowfullscreen=""
                       mozallowfullscreen="" allowfullscreen=""></iframe>
             </div>
             <div class="post__webpage__title" v-if="post.media.webPage.title">{{ post.media.webPage.title }}</div>
@@ -91,10 +93,23 @@ export default {
 
   },
   computed : {
+    linkMediaPhoto () {
+      if ( this.post.media.type === 2 ) {
+        let linkMedia = this.post.media.links_media
+        return linkMedia.filter(x => x.format === 'photo')
+      }
+    },
+    linkMediaVideo () {
+      if ( this.post.media.type === 2 ) {
+        let linkMedia = this.post.media.links_media
+        return linkMedia.filter(x => x.format === 'video')
+        // https://coub.com/embed/18jxf0
+      }
+    },
     channelLink () {
-      var a = this.post.channel.link
-      a = a.replace ( /https\:\/\/t.me\//g, "@" )
-      return a
+      var link = this.post.channel.link
+      link = link.replace ( /https\:\/\/t.me\//g, "@" )
+      return link
     },
     youTubeVideoUrl () {
       if ( this.post.media.webPage.type === 'video' ) {
@@ -103,20 +118,21 @@ export default {
         return url
       }
     },
+    coubVideoUrl () {
+      if ( this.post.media.webPage.type === 'gif' ) {
+        let url = this.post.media.webPage.display_url
+        url = url.replace ( /coub.com\/view/g , "https://coub.com/embed/" )
+        return url
+      }
+    },
     datePost () {
-      // moment(this.post.data).format('MMMM DD YYYY, HH:mm')
-      // a.startOf ( 'hour' ).fromNow ()
-
-      let a = moment ( this.post.data * 1000 )
-      // console.log('time: ' + a.hours())
-      // console.log('date: ' + a.date())
-      return a.format ( 'MMMM DD YYYY, HH:mm' )
-
+      let date = moment ( this.post.data * 1000 )
+      return date.format ( 'MMMM DD YYYY, HH:mm' )
     },
     postMessage () {
-      var a = this.post.message
-      a = a.replace ( /((http(s)?:\/\/)|(www\.))([^\.]+)\.([^\s]+)/g, "<a href='$&' target=\"_blank\">$&</a>" )
-      return a
+      var message = this.post.message
+      message = message.replace ( /((http(s)?:\/\/)|(www\.))([^\.]+)\.([^\s]+)/g, "<a href='$&' target=\"_blank\">$&</a>" )
+      return message
     }
   },
   methods : {

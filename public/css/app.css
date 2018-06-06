@@ -5446,6 +5446,9 @@ strong {
   width: 100%;
   -ms-flex-wrap: wrap;
       flex-wrap: wrap;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
 }
 
 .section .post__media__album img {
@@ -5455,6 +5458,12 @@ strong {
   -o-object-fit: cover;
      object-fit: cover;
   cursor: pointer;
+}
+
+.section .post__media__album__video {
+  width: auto;
+  max-height: 350px;
+  margin: 2px;
 }
 
 .section .post__media__img {
