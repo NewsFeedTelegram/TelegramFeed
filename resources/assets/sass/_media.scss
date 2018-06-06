@@ -15,6 +15,10 @@
 
 // ≥992px
 @include media-breakpoint-down(md) {
+  #app{
+    overflow-y: hidden;
+    position: relative;
+  }
   .header-page{
     height: 50px;
     &--logo{

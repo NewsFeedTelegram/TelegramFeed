@@ -56,163 +56,159 @@ const actions = {
     window.location.reload ( "true" )
   },
   SWIPE_MENU : ( { commit, state } ) => {
-    if ( state.mobile ) {
-      let initialPoint;
-      let finalPoint;
-
-      document.addEventListener ( 'touchstart', ( event ) => {
-        // event.preventDefault();
-        // event.stopPropagation();
-        initialPoint = event.changedTouches[ 0 ];
-      }, false );
-      document.addEventListener ( 'touchend', ( event ) => {
-        // event.preventDefault();
-        // event.stopPropagation();
-        finalPoint = event.changedTouches[ 0 ];
-        let xAbs = Math.abs ( initialPoint.pageX - finalPoint.pageX );
-        let yAbs = Math.abs ( initialPoint.pageY - finalPoint.pageY );
-        if ( xAbs > 50 ) {
-          if ( xAbs > yAbs ) {
-            if ( finalPoint.pageX < initialPoint.pageX ) {
-              if ( !state.galleryPhoto.open || state.swipeMenu.home ) {
-                if ( !state.swipeMenu.leftSwipe && !state.swipeMenu.rightSwipe && state.swipeMenu.home ) {
+    if ( !state.galleryPhoto.open ) {
+      if ( state.mobile ) {
+        let initialPoint;
+        let finalPoint;
+        document.addEventListener ( 'touchstart', ( event ) => {
+          // event.preventDefault();
+          // event.stopPropagation();
+          initialPoint = event.changedTouches[ 0 ];
+        }, false );
+        document.addEventListener ( 'touchend', ( event ) => {
+          // event.preventDefault();
+          // event.stopPropagation();
+          finalPoint = event.changedTouches[ 0 ];
+          let xAbs = Math.abs ( initialPoint.pageX - finalPoint.pageX );
+          let yAbs = Math.abs ( initialPoint.pageY - finalPoint.pageY );
+          if ( xAbs > 50 || yAbs > 50) {
+            if ( xAbs > yAbs ) {
+              if ( finalPoint.pageX < initialPoint.pageX ) {
+                if ( !state.galleryPhoto.open || state.swipeMenu.home ) {
+                  if ( !state.swipeMenu.leftSwipe && !state.swipeMenu.rightSwipe && state.swipeMenu.home && !state.galleryPhoto.open ) {
+                    commit ( 'SWIPE_MENU', {
+                      leftSwipe : true,
+                      rightSwipe : false,
+                      home : false
+                    } )
+                    document.body.style.overflow = 'hidden'
+                  }
+                }
+                if ( !state.swipeMenu.home ) {
+                  if ( !state.swipeMenu.leftSwipe && state.swipeMenu.rightSwipe && !state.swipeMenu.home && !state.galleryPhoto.open ) {
+                    commit ( 'SWIPE_MENU', {
+                      leftSwipe : false,
+                      rightSwipe : false,
+                      home : true
+                    } )
+                    document.body.style.overflow = ''
+                  }
+                }
+                /*СВАЙП ВЛЕВО*/
+              }
+              else {
+                if ( state.swipeMenu.leftSwipe && !state.swipeMenu.rightSwipe && !state.swipeMenu.home && !state.galleryPhoto.open ) {
+                  // alert ( 'СВАЙП ВПРАВО' )
+                  if ( state.swipeMenu.leftSwipe ) {
+                    commit ( 'SWIPE_MENU', {
+                      leftSwipe : false,
+                      rightSwipe : false,
+                      home : true
+                    } )
+                    document.body.style.overflow = ''
+                  }
+                } else if ( !state.swipeMenu.leftSwipe && !state.swipeMenu.rightSwipe && state.swipeMenu.home  && !state.galleryPhoto.open) {
                   commit ( 'SWIPE_MENU', {
-                    leftSwipe : true,
-                    rightSwipe : false,
+                    leftSwipe : false,
+                    rightSwipe : true,
                     home : false
                   } )
                   document.body.style.overflow = 'hidden'
                 }
+                /*СВАЙП ВПРАВО*/
               }
-              if ( !state.swipeMenu.home ) {
-                if ( !state.swipeMenu.leftSwipe && state.swipeMenu.rightSwipe && !state.swipeMenu.home ) {
-                  commit ( 'SWIPE_MENU', {
-                    leftSwipe : false,
-                    rightSwipe : false,
-                    home : true
-                  } )
-                  document.body.style.overflow = ''
-                }
-              }
-              /*СВАЙП ВЛЕВО*/
             }
             else {
-              if ( state.swipeMenu.leftSwipe && !state.swipeMenu.rightSwipe && !state.swipeMenu.home ) {
-                // alert ( 'СВАЙП ВПРАВО' )
-                if ( state.swipeMenu.leftSwipe ) {
-                  commit ( 'SWIPE_MENU', {
-                    leftSwipe : false,
-                    rightSwipe : false,
-                    home : true
-                  } )
-                  document.body.style.overflow = ''
-                }
-              } else if ( !state.swipeMenu.leftSwipe && !state.swipeMenu.rightSwipe && state.swipeMenu.home ) {
-                commit ( 'SWIPE_MENU', {
-                  leftSwipe : false,
-                  rightSwipe : true,
-                  home : false
-                } )
-                document.body.style.overflow = 'hidden'
+              if ( finalPoint.pageY < initialPoint.pageY ) {
+                // alert('СВАЙП ВВЕРХ')
+                /*СВАЙП ВВЕРХ*/
               }
-              /*СВАЙП ВПРАВО*/
+              else {
+                // alert('СВАЙП ВНИЗ')
+                /*СВАЙП ВНИЗ*/
+              }
             }
           }
-          else {
-            if ( finalPoint.pageY < initialPoint.pageY ) {
-              // alert('СВАЙП ВВЕРХ')
-              /*СВАЙП ВВЕРХ*/
-            }
-            else {
-              // alert('СВАЙП ВНИЗ')
-              /*СВАЙП ВНИЗ*/
-            }
-          }
-        }
-      }, false );
-    } else if ( document.documentElement.clientWidth <= 991 ) {
-      var div = document.createElement('div');
-
-      div.style.overflowY = 'scroll';
-      div.style.width = '50px';
-      div.style.height = '50px';
-      div.style.visibility = 'hidden';
-
-      document.body.appendChild(div);
-      var scrollWidth = div.offsetWidth - div.clientWidth;
-      document.body.removeChild(div);
-
-      // body.style.visibility = 'hidden';
-      document.body.style.paddingRight = ''
-      document.onmousedown = e => {
-        if ( document.documentElement.clientWidth <= 991 ) {
-          let right = 0
-          let left = 0
-          let currentX = e.clientX
-          var selected_text = window.getSelection () || document.selection.createRange ().text;
-          document.onmousemove = function ( ev ) {
-            if ( selected_text.type !== 'Range' ) {
-              if ( currentX + 120 >= document.documentElement.clientWidth && currentX > ev.clientX ) {
-                window.getSelection ().removeAllRanges ();
-                right += 5
-                if ( right >= 60 ) {
-                  if ( !state.galleryPhoto.open || state.swipeMenu.home ) {
-                    if ( !state.swipeMenu.leftSwipe && !state.swipeMenu.rightSwipe && state.swipeMenu.home ) {
-                      commit ( 'SWIPE_MENU', {
-                        leftSwipe : true,
-                        rightSwipe : false,
-                        home : false
-                      } )
-                      document.body.style.overflow = 'hidden'
-                      document.body.style.paddingRight = `${scrollWidth}px`
-                    }
-                    if ( !state.swipeMenu.leftSwipe && state.swipeMenu.rightSwipe && !state.swipeMenu.home ) {
-                      commit ( 'SWIPE_MENU', {
-                        leftSwipe : false,
-                        rightSwipe : false,
-                        home : true
-                      } )
-                      document.body.style.overflow = ''
-                      document.body.style.paddingRight = ''
+        }, false );
+      } else if ( document.documentElement.clientWidth <= 991 ) {
+        var div = document.createElement('div');
+        div.style.overflowY = 'scroll';
+        div.style.width = '50px';
+        div.style.height = '50px';
+        div.style.visibility = 'hidden';
+        document.body.appendChild(div);
+        var scrollWidth = div.offsetWidth - div.clientWidth;
+        document.body.removeChild(div);
+        document.body.style.paddingRight = ''
+        document.onmousedown = e => {
+          if ( document.documentElement.clientWidth <= 991 ) {
+            let right = 0
+            let left = 0
+            let currentX = e.clientX
+            var selected_text = window.getSelection () || document.selection.createRange ().text;
+            document.onmousemove = function ( ev ) {
+              if ( selected_text.type !== 'Range' ) {
+                if ( currentX + 120 >= document.documentElement.clientWidth && currentX > ev.clientX ) {
+                  window.getSelection ().removeAllRanges ();
+                  right += 5
+                  if ( right >= 60 ) {
+                    if ( !state.galleryPhoto.open || state.swipeMenu.home ) {
+                      if ( !state.swipeMenu.leftSwipe && !state.swipeMenu.rightSwipe && state.swipeMenu.home ) {
+                        commit ( 'SWIPE_MENU', {
+                          leftSwipe : true,
+                          rightSwipe : false,
+                          home : false
+                        } )
+                        document.body.style.overflow = 'hidden'
+                        document.body.style.paddingRight = `${scrollWidth}px`
+                      }
+                      if ( !state.swipeMenu.leftSwipe && state.swipeMenu.rightSwipe && !state.swipeMenu.home ) {
+                        commit ( 'SWIPE_MENU', {
+                          leftSwipe : false,
+                          rightSwipe : false,
+                          home : true
+                        } )
+                        document.body.style.overflow = ''
+                        document.body.style.paddingRight = ''
+                      }
                     }
                   }
-                }
-              } else if ( currentX <= 60 && document.documentElement.clientWidth && currentX < ev.clientX ) {
-                window.getSelection ().removeAllRanges ();
-                left += 5
-                if ( left >= 30 ) {
-                  if ( !state.galleryPhoto.open || state.swipeMenu.home ) {
-                    if ( !state.swipeMenu.leftSwipe && !state.swipeMenu.rightSwipe && state.swipeMenu.home ) {
-                      commit ( 'SWIPE_MENU', {
-                        leftSwipe : false,
-                        rightSwipe : true,
-                        home : false
-                      } )
-                      document.body.style.overflow = 'hidden'
-                      document.body.style.paddingRight = `${scrollWidth}px`
-                    }
-                    if ( state.swipeMenu.leftSwipe && !state.swipeMenu.rightSwipe && !state.swipeMenu.home ) {
-                      document.body.style.paddingRight = ''
-                      commit ( 'SWIPE_MENU', {
-                        leftSwipe : false,
-                        rightSwipe : false,
-                        home : true
-                      } )
-                      document.body.style.overflow = ''
-                      document.body.style.paddingRight = ''
+                } else if ( currentX <= 60 && document.documentElement.clientWidth && currentX < ev.clientX ) {
+                  window.getSelection ().removeAllRanges ();
+                  left += 5
+                  if ( left >= 30 ) {
+                    if ( !state.galleryPhoto.open || state.swipeMenu.home ) {
+                      if ( !state.swipeMenu.leftSwipe && !state.swipeMenu.rightSwipe && state.swipeMenu.home ) {
+                        commit ( 'SWIPE_MENU', {
+                          leftSwipe : false,
+                          rightSwipe : true,
+                          home : false
+                        } )
+                        document.body.style.overflow = 'hidden'
+                        document.body.style.paddingRight = `${scrollWidth}px`
+                      }
+                      if ( state.swipeMenu.leftSwipe && !state.swipeMenu.rightSwipe && !state.swipeMenu.home ) {
+                        document.body.style.paddingRight = ''
+                        commit ( 'SWIPE_MENU', {
+                          leftSwipe : false,
+                          rightSwipe : false,
+                          home : true
+                        } )
+                        document.body.style.overflow = ''
+                        document.body.style.paddingRight = ''
+                      }
                     }
                   }
                 }
               }
             }
-          }
-          document.ondragstart = function () {
-            return false;
-          };
-          document.onmouseup = () => {
-
-            document.onselectstart = null
-            document.onmousemove = null;
+            document.ondragstart = function () {
+              return false;
+            };
+            document.onmouseup = () => {
+              document.onselectstart = null
+              document.onmousemove = null;
+            }
           }
         }
       }

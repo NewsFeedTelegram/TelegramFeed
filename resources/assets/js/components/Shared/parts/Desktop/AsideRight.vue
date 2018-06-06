@@ -1,6 +1,6 @@
 <template>
   <aside :class="[asideClass]">
-    <div>
+    <div v-sticky="{ zIndex: 5, stickyTop: 15, disabled: false}">
       <div>
         <div class="white-block">
           <div class="white-block-title">
@@ -108,15 +108,20 @@
 
 <script>
 import VueContentLoading from 'vue-content-loading';
+import VueSticky from 'vue-sticky' // Es6 module
+
 
 export default {
   name : "AsideRight",
-  props:{
-    asideClass: {
-      type: String
+  props : {
+    asideClass : {
+      type : String
     }
   },
-  computed:{
+  directives : {
+    'sticky' : VueSticky,
+  },
+  computed : {
     listChannel () {
       return this.$store.getters.listChannel
     },
@@ -124,17 +129,29 @@ export default {
       return this.$store.getters.loadPost
     }
   },
-  methods:{
+  methods : {
     openTelegramModal () {
       this.$store.commit ( 'TOGGLE_MODAL_TELEGRAM' )
+    },
+    coords ( el ) {
+      console.log ( el.getBoundingClientRect () )
+      window.onscroll = ( event ) => {
+        let wrapper = event.target
+        let scrollTop = window.pageYOffset || wrapper.documentElement.scrollTop
+        if ( scrollTop > 90 ) {
+          el.style.position = 'relative'
+          el.style.top = scrollTop + 90 + 'px'
+        }
+
+      }
     },
     deletePost ( id ) {
       this.$store.dispatch ( 'DELETE_CHANNEL', id )
     },
   },
-  components:{
+  components : {
     VueContentLoading
-  }
+  },
 }
 </script>
 

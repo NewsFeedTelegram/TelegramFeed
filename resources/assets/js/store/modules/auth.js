@@ -1,4 +1,5 @@
 import axios from "axios/index";
+import router from '../../router'
 
 const state = {
   token : false,
@@ -212,6 +213,7 @@ const actions = {
         } )
         .catch ( error => {
           localStorage.removeItem ( 'access-token' )
+          router.replace ( '/' )
           reject ( error )
         } )
     })

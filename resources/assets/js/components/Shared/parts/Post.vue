@@ -57,16 +57,20 @@
             <div class="post__webpage__photo" v-if="post.media.webPage.type === 'photo'">
               <img :src="post.media.webPage.url" alt="">
             </div>
-            <div class="post__webpage__sitename" v-if="post.media.webPage.site_name">{{ post.media.webPage.site_name }}</div>
+            <div class="post__webpage__sitename" v-if="post.media.webPage.site_name">
+              {{ post.media.webPage.site_name }}
+            </div>
             <div class="post__webpage__video" v-if="post.media.webPage.type === 'video'">
-              <iframe :src="youTubeVideoUrl" width="100%" height="100%" frameborder="0" webkitallowfullscreen="" mozallowfullscreen="" allowfullscreen=""></iframe>
+              <iframe :src="youTubeVideoUrl" width="100%" height="100%" frameborder="0" webkitallowfullscreen=""
+                      mozallowfullscreen="" allowfullscreen=""></iframe>
             </div>
             <div class="post__webpage__title" v-if="post.media.webPage.title">{{ post.media.webPage.title }}</div>
-            <div class="post__webpage__description" v-if="post.media.webPage.description">{{
-              post.media.webPage.description }}
+            <div class="post__webpage__description" v-if="post.media.webPage.description">
+              {{ post.media.webPage.description }}
             </div>
           </div>
-          <div class="post__webpage__image" v-if="post.media.webPage.photo"><img :src="post.media.webPage.photo" alt="">
+          <div class="post__webpage__image" v-if="post.media.webPage.photo">
+            <img :src="post.media.webPage.photo" alt="">
           </div>
         </a>
 
@@ -95,7 +99,7 @@ export default {
     youTubeVideoUrl () {
       if ( this.post.media.webPage.type === 'video' ) {
         let url = this.post.media.webPage.display_url
-        url = url.match(/youtube.com\/watch\?v=/g)? url.replace ( /youtube.com\/watch\?v=/g, "https://www.youtube.com/embed/" ) : this.post.media.webPage.url +'?embedded=true'
+        url = url.match ( /youtube.com\/watch\?v=/g ) ? url.replace ( /youtube.com\/watch\?v=/g, "https://www.youtube.com/embed/" ) : this.post.media.webPage.url + '?embedded=true'
         return url
       }
     },
@@ -119,21 +123,21 @@ export default {
     show ( e ) {
       console.log ( e )
     },
-    openPhoto(url){
+    openPhoto ( url ) {
 // создадим элемент с прокруткой
-      var div = document.createElement('div');
+      var div = document.createElement ( 'div' );
 
       div.style.overflowY = 'scroll';
       div.style.width = '50px';
       div.style.height = '50px';
       div.style.visibility = 'hidden';
 
-      document.body.appendChild(div);
+      document.body.appendChild ( div );
       var scrollWidth = div.offsetWidth - div.clientWidth;
-      document.body.removeChild(div);
+      document.body.removeChild ( div );
 
       // body.style.visibility = 'hidden';
-      this.$store.commit('OPEN_GALLERY', {url: url, open: true})
+      this.$store.commit ( 'OPEN_GALLERY', { url : url, open : true } )
       document.body.style.overflow = 'hidden'
       document.body.style.paddingRight = `${scrollWidth}px`
 

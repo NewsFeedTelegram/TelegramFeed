@@ -3,7 +3,7 @@
     <div class="container">
       <div class="row">
         <main class="col col-xl-6 order-xl-2 col-lg-8 order-lg-3 col-md-12 order-sm-2 col-sm-12 col-12 order-2">
-          <div class="sampleContainer">
+          <div class="sampleContainer" v-if="listPosts.length">
             <div class="loader">
               <span class="dot dot_1"></span>
               <span class="dot dot_2"></span>
@@ -35,8 +35,10 @@
         <aside-left :asideClass="'col col-xl-3 order-xl-1 col-lg-2 order-lg-1 d-xl-block col-md-12 d-none'"/>
         <aside-right :asideClass="'col col-xl-3 order-xl-3 col-lg-2 order-lg-2 d-xl-block col-md-12 d-none'"/>
         <div class="col d-lg-block col-lg-4 col-md-12  d-xl-none d-none">
-          <aside-left/>
-          <aside-right/>
+          <div v-sticky="{ zIndex: 15, stickyTop: 15, disabled: false}">
+            <aside-left/>
+            <aside-right/>
+          </div>
         </div>
       </div>
     </div>
@@ -113,8 +115,8 @@ export default {
           if ( selected_text.type !== 'Range' ) {
             // window.getSelection().removeAllRanges();
             if ( currentY < ev.clientY && document.documentElement.scrollTop === 0 ) {
-              window.getSelection().removeAllRanges();
-              top += 5
+              window.getSelection ().removeAllRanges ();
+              top += 10
               if ( top <= 60 ) {
                 main.style.paddingTop = top + 'px'
               }
@@ -123,7 +125,7 @@ export default {
               }
               currentY = ev.clientY
             } else if ( currentY > ev.clientY && document.documentElement.scrollTop === 0 ) {
-              top -= 5
+              top -= 10
               if ( top >= 0 ) {
                 main.style.paddingTop = top + 'px'
               }
