@@ -37477,7 +37477,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             wrapperHeight = wrapper.documentElement.clientHeight,
             listHeight = list.offsetHeight || list.parentNode.documentElement.offsetHeight;
         var diffHeight = listHeight - wrapperHeight;
-        if (diffHeight <= scrollTop + 1000 && !_this2.loadMore && !_this2.isLoadPost) {
+        if (diffHeight <= scrollTop + 1000 && !_this2.loadMore && !_this2.isLoadPost && _this2.listPosts.length) {
           _this2.$store.dispatch('LOAD_MORE_POST');
         }
       };
@@ -37541,7 +37541,7 @@ exports = module.exports = __webpack_require__(11)(false);
 
 
 // module
-exports.push([module.i, "", ""]);
+exports.push([module.i, "\n[v-cloak][data-v-56232fa8] {\n  display: none;\n}\n#collage[data-v-56232fa8]:after {\n  content: '';\n  display: block;\n  clear: both;\n}\n#collage[data-v-56232fa8] {\n  width: 100%;\n  overflow: hidden;\n}\n#collage img[data-v-56232fa8] {\n  display: block;\n  float: left;\n  -o-object-fit: cover;\n     object-fit: cover;\n  width: 100%;\n  height: auto;\n  -webkit-transition: all .3s;\n  transition: all .3s;\n}\n#collage .video[data-v-56232fa8] {\n  display: block;\n  float: left;\n}\n#collage .video video[data-v-56232fa8] {\n    width: 100%;\n}\n", ""]);
 
 // exports
 
@@ -37636,16 +37636,36 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "Post",
   props: ['post'],
   data: function data() {
     return {
-      btnShow: false
+      btnShow: false,
+      mediaLoad: {
+        images: false,
+        video: false
+      }
+
     };
   },
 
+  watch: {
+    mediaLoad: function mediaLoad(v) {
+      console.log(v);
+      if (v.images && v.video) {
+        this.collage();
+      } else if (v.images || v.video) {
+        this.collage();
+      }
+    }
+  },
   computed: {
     linkMediaPhoto: function linkMediaPhoto() {
       if (this.post.media.type === 2) {
@@ -37697,6 +37717,96 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     show: function show(e) {
       console.log(e);
     },
+    collage: function collage() {
+      var collage = this.$el.querySelector('#collage');
+      var images = collage.getElementsByTagName("img");
+      var video = collage.getElementsByTagName("video");
+      var album = [];
+      for (var i = 0; i < images.length; i++) {
+        album.push(images[i]);
+      }
+      for (var _i = 0; _i < video.length; _i++) {
+        album.push(video[_i]);
+      }
+      var options = { averageRowHeight: 300, gap: 2 };
+      var widths = [],
+          rows = [],
+          rowNumber = 0,
+          index = 0;
+      for (var _i2 = 0; _i2 < album.length; _i2++) {
+        if (album[_i2].tagName === 'IMG') {
+          widths.push(Math.round(album[_i2].width / album[_i2].height * options.averageRowHeight));
+        } else if (album[_i2].tagName === 'VIDEO') {
+          if (album[_i2].videoWidth && album[_i2].videoHeight) {
+            widths.push(Math.round(album[_i2].videoWidth / album[_i2].videoHeight * options.averageRowHeight));
+          } else {
+            widths.push(Math.round(album[_i2].clientWidth / album[_i2].clientHeight * options.averageRowHeight));
+          }
+        }
+      }
+
+      Array.prototype.sum = function () {
+        return this.reduce(function (prev, current) {
+          return +current + prev;
+        }, 0);
+      };
+      while (rowNumber < Math.ceil(widths.sum() / collage.clientWidth)) {
+        rows[rowNumber] = [];
+        while (index < widths.length && rows[rowNumber].sum() + rows[rowNumber].length * options.gap < collage.clientWidth + options.gap) {
+          rows[rowNumber].push(widths[index]);
+          index++;
+          if (index === widths.length - 1) {
+            rows[rowNumber].push(widths[index]);
+            rowNumber++;
+            break;
+          }
+        }
+        rowNumber++;
+      }
+      index = 0;
+      for (var c = 0; c < rows.length; c++) {
+        if (typeof rows[c] !== 'undefined') {
+          for (var j = 0; j < rows[c].length; j++) {
+            if (typeof album[index] !== 'undefined') {
+              album[index].style.width = rows[c][j] * ((collage.clientWidth - (rows[c].length - 1) * options.gap) / rows[c].sum()) + 'px';
+              album[index].style.height = (collage.clientWidth - (rows[c].length - 1) * options.gap) / rows[c].sum() * options.averageRowHeight + 'px';
+              if (j < rows[c].length - 1) album[index].style.marginRight = options.gap + 'px';
+              if (c < rows.length - 1) album[index].style.marginBottom = options.gap + 'px';
+              index++;
+            }
+          }
+        }
+      }
+      this.mediaLoad = {
+        images: false,
+        video: false
+      };
+    },
+    bindImagesOnload: function bindImagesOnload(node, fn, fn2) {
+      var images = node.getElementsByTagName("img");
+      var video = node.getElementsByTagName("video");
+      var length = images.length;
+      var lengthV = video.length;
+      var counter = 0;
+      var counterV = 0;
+
+      var onload = function onload() {
+        if (images.length !== undefined) {
+          counter++;
+          if (counter >= length) fn();
+        }
+      };
+      var onloadV = function onloadV() {
+        counterV++;
+        if (counterV >= lengthV) fn2();
+      };
+      for (var i = 0; i < length; i++) {
+        images[i].onload = onload;
+      }
+      for (var _i3 = 0; _i3 < lengthV; _i3++) {
+        video[_i3].addEventListener('canplaythrough', onloadV);
+      }
+    },
     openPhoto: function openPhoto(url) {
       // создадим элемент с прокруткой
       var div = document.createElement('div');
@@ -37714,6 +37824,49 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
       this.$store.commit('OPEN_GALLERY', { url: url, open: true });
       document.body.style.overflow = 'hidden';
       document.body.style.paddingRight = scrollWidth + 'px';
+    }
+  },
+  mounted: function mounted() {
+    var _this = this;
+
+    if (this.post.media.type === 2 && (this.linkMediaPhoto || this.linkMediaVideo)) {
+      var collage = this.$el.querySelector('#collage');
+
+      this.bindImagesOnload(collage, function () {
+        _this.mediaLoad = {
+          images: true,
+          video: false
+          // this.mediaLoad.images = true
+        };console.log('load');
+      }, function () {
+        _this.mediaLoad = {
+          images: true,
+          video: true
+          // this.mediaLoad.video = true
+        };console.log('loadV');
+      });
+      window.addEventListener('resize', function () {
+        var images = collage.getElementsByTagName("img");
+        setTimeout(function () {
+          for (var i = 0; i < images.length; i++) {
+            images[i].style = '';
+          }
+          _this.collage();
+        }, 100);
+      });
+      // function bindImagesOnload(node, fn) {
+      //   images = node.getElementsByTagName("img")
+      //   let length = images.length;
+      //   let counter = 0;
+      //   let onload = function() {
+      //     counter++;
+      //     if (counter >= length)
+      //       fn();
+      //   };
+      //   for (let i = 0; i < length; i++) {
+      //     images[i].onload = onload;
+      //   }
+      // }
     }
   }
 });
@@ -37808,16 +37961,18 @@ var render = function() {
       _vm.post.media.links_media
         ? _c(
             "div",
-            { staticClass: "post__media" },
+            { staticClass: "post__media " },
             [
               _vm.linkMediaPhoto || _vm.linkMediaVideo
                 ? _c(
                     "div",
-                    { staticClass: "post__media__album" },
+                    {
+                      staticClass: "post__media__album clearfix",
+                      attrs: { id: "collage" }
+                    },
                     [
                       _vm._l(_vm.linkMediaPhoto, function(img) {
                         return _c("img", {
-                          staticClass: "post__media__img",
                           attrs: { src: img.url, alt: "" },
                           on: {
                             click: function($event) {
@@ -37828,10 +37983,11 @@ var render = function() {
                       }),
                       _vm._v(" "),
                       _vm._l(_vm.linkMediaVideo, function(video) {
-                        return _c("video", {
-                          staticClass: "post__media__album__video",
-                          attrs: { src: video.url, controls: "" }
-                        })
+                        return _c("div", { staticClass: "video" }, [
+                          _c("video", {
+                            attrs: { src: video.url, controls: "" }
+                          })
+                        ])
                       })
                     ],
                     2
@@ -38573,7 +38729,7 @@ exports = module.exports = __webpack_require__(11)(false);
 
 
 // module
-exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
+exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
 
 // exports
 
@@ -38588,6 +38744,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue_content_loading___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_vue_content_loading__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_vue_sticky__ = __webpack_require__(56);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_vue_sticky___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_vue_sticky__);
+//
 //
 //
 //
@@ -38941,6 +39098,10 @@ var render = function() {
                           )
                         })
                       )
+                    : _vm._e(),
+                  _vm._v(" "),
+                  !_vm.listChannel.length
+                    ? _c("p", [_vm._v("Empty")])
                     : _vm._e()
                 ])
               ]

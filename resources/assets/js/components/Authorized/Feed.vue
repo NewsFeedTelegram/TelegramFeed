@@ -166,7 +166,7 @@ export default {
           wrapperHeight = wrapper.documentElement.clientHeight,
           listHeight = list.offsetHeight || list.parentNode.documentElement.offsetHeight
         let diffHeight = listHeight - wrapperHeight
-        if ( diffHeight <= scrollTop + 1000 && !this.loadMore && !this.isLoadPost ) {
+        if ( diffHeight <= scrollTop + 1000 && !this.loadMore && !this.isLoadPost && this.listPosts.length ) {
           this.$store.dispatch ( 'LOAD_MORE_POST' )
         }
       }

@@ -97,6 +97,7 @@
                   </vue-content-loading>
                 </li>
               </ul>
+              <p v-if="!listChannel.length">Empty</p>
             </div>
             <!-- dragger will be automatically added here -->
           </div>
